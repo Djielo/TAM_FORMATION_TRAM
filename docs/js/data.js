@@ -40,7 +40,7 @@ export const AXES = [
 
 export const MODULES = {
   signalisation: [
-    // Ordre = chapitrage CET (ch. 2) : 2.1, 2.2, 2.2-A … J, 2.3, 2.4, 2.4.1, 2.5…
+    // Ordre = chapitrage CET (ch. 2) : 2.1 … 2.6-B (pages 20–37 du CET).
 
     // ─── 2.1 Franchissement des appareils de voie ─────────────
     {
@@ -1423,10 +1423,218 @@ export const MODULES = {
           correct: 1,
           explanation: "Consignes à suivre même sans autre rame (p.29).",
         },
+        {
+          id: "zg-08",
+          prompt:
+            "Organigramme Gare / Albert 1er : la zone est vide — après engagement destination ?",
+          choices: [
+            "Appeler le PCC avant toute reprise",
+            "Reprise destination sans autre formalité",
+            "Attendre 2 minutes",
+            "Passer à 40 km/h",
+          ],
+          correct: 1,
+          explanation: "Si la zone est vide : enchaînement vers reprise destination (schéma p.30).",
+        },
+        {
+          id: "zg-09",
+          prompt:
+            "Présence d'une rame à droite et vous n'avez pas engagé le PLP : conduite à tenir ?",
+          choices: [
+            "Forcer le passage à 10 km/h",
+            "Arrêt absolu, laisser le passage, puis reprise destination",
+            "Klaxonner et passer",
+            "Priorité à gauche",
+          ],
+          correct: 1,
+          explanation:
+            "Sans engagement PLP avec présence à droite : arrêt absolu, laisser passer (p.30).",
+        },
+        {
+          id: "zg-10",
+          prompt:
+            "Vous avez engagé le PLP ; l'autre rame est engagée (PLG) : conduite à tenir ?",
+          choices: [
+            "Continuer en marche à vue",
+            "Arrêt absolu, appel PCC, puis reprise selon consignes",
+            "Reculer sans avis",
+            "Passer en priorité à droite systématiquement",
+          ],
+          correct: 1,
+          explanation: "Conflit d'engagement : arrêt absolu et appel PCC (chemins p.30).",
+        },
       ],
     },
 
-    
+    // ─── 2.4.2 Zone Albert 1er ────────────────────────────────
+    {
+      id: "zone-albert",
+      code: "2.4.2",
+      title: "Zone place Albert 1er (2.4.2) — Vitesses, codes et télécommandes",
+      cetPage: 31,
+      questions: [
+        {
+          id: "za-01",
+          prompt:
+            "Zone Albert 1er : vitesse maximale à partir du TIV « 10 » ?",
+          choices: ["15 km/h", "10 km/h", "30 km/h", "40 km/h"],
+          correct: 1,
+          explanation: "Limitation à 10 km/h dès le TIV 10 (p.31).",
+        },
+        {
+          id: "za-02",
+          prompt:
+            "En zone Albert 1er, la priorité entre rames va en principe à…",
+          choices: [
+            "La rame venant de gauche",
+            "La rame venant de droite",
+            "Le PCC exclusivement",
+            "La rame la plus longue",
+          ],
+          correct: 1,
+          explanation: "Priorité systématique à la rame venant de droite (p.31).",
+        },
+        {
+          id: "za-03",
+          prompt:
+            "Zone Albert 1er : les points 1 à 5b de l'article 2.4.1 (zone gare)…",
+          choices: [
+            "Ne s'appliquent pas",
+            "S'appliquent également (marche à vue, procédures)",
+            "Remplacent entièrement la signalisation lumineuse",
+            "Valent uniquement la nuit",
+          ],
+          correct: 1,
+          explanation:
+            "Renvoi explicite aux procédures 2.4.1 points 1-2-3-4-5a-5b (p.31).",
+        },
+        {
+          id: "za-04",
+          prompt:
+            "Code destination SC en zone Albert 1er signifie ?",
+          choices: [
+            "Direction Sablassou",
+            "Direction Albert 1er — Saint-Éloi (Saint-Charles)",
+            "Direction Comédie",
+            "Arrêt absolu",
+          ],
+          correct: 1,
+          explanation: "SC = direction Albert 1er — Saint-Éloi (p.31, tableau des codes).",
+        },
+        {
+          id: "za-05",
+          prompt:
+            "Code LB à Albert 1er : direction ?",
+          choices: [
+            "Louis Blanc — Corum",
+            "Les Aubes",
+            "Observatoire",
+            "Pont de Lattes",
+          ],
+          correct: 0,
+          explanation: "LB = direction Louis Blanc — Corum (p.31).",
+        },
+        {
+          id: "za-06",
+          prompt:
+            "Pour les repères PLP et PLG en zone Albert 1er ?",
+          choices: [
+            "Règles différentes de la gare (priorité inversée)",
+            "Idem zone Gare Saint-Roch",
+            "Pas de PLP / PLG",
+            "Uniquement en manœuvre de remisage",
+          ],
+          correct: 1,
+          explanation: "« Idem Gare » pour PLP et PLG au tableau p.31.",
+        },
+      ],
+    },
+
+    // ─── 2.4.3 Zone Corum ─────────────────────────────────────
+    {
+      id: "zone-corum",
+      code: "2.4.3",
+      title:
+        "Zone Corum (2.4.3) — Codes, quai L1V2, rames longues et sécurisation croisements",
+      cetPage: 32,
+      questions: [
+        {
+          id: "zc-01",
+          prompt:
+            "Zone Corum : vitesse à partir du TIV « 10 » et principe de priorité ?",
+          choices: [
+            "40 km/h, priorité à gauche",
+            "10 km/h, priorité à la rame venant de droite",
+            "30 km/h, premier arrivé",
+            "15 km/h, priorité PCC",
+          ],
+          correct: 1,
+          explanation: "Comme les autres zones spécifiques : 10 km/h et priorité à droite (p.32).",
+        },
+        {
+          id: "zc-02",
+          prompt:
+            "Code CO en zone Corum : direction ?",
+          choices: ["Comédie", "Louis Blanc", "Les Aubes", "Sablassou"],
+          correct: 0,
+          explanation: "CO = direction Comédie (p.32).",
+        },
+        {
+          id: "zc-03",
+          prompt:
+            "La position d'attente avant le quai Corum L1V2 sert à…",
+          choices: [
+            "Effectuer l'échange voyageurs sur tout le long de la rame",
+            "Dégager au plus vite le croisement L1 / L2 / L4 — sans échange voyageurs (quai courbe)",
+            "Stationner pour la pause conducteur",
+            "Remplacer l'INDES",
+          ],
+          correct: 1,
+          explanation:
+            "Fluidifier le carrefour ; interdit pour montée/descente (géométrie du quai, p.32).",
+        },
+        {
+          id: "zc-04",
+          prompt:
+            "Depuis Les Aubes vers Corum L1V2 : rame de 40 m ou plus, accès parfois retardé par la signalisation pour…",
+          choices: [
+            "Augmenter la cadence commerciale",
+            "Garantir l'accès quai sans s'arrêter au milieu et bloquer le croisement avenue de Nîmes",
+            "Forcer un croisement à vue sur le PN",
+            "Désactiver le TIV",
+          ],
+          correct: 1,
+          explanation: "Temporisation pour les rames longues : sécuriser l'itinéraire complet (p.32).",
+        },
+        {
+          id: "zc-05",
+          prompt:
+            "Deux rames arrivent simultanément : rôle du panneau d'espacement (Corum) ?",
+          choices: [
+            "Indiquer la destination Comédie",
+            "Le second conducteur s'arrête en amont pour respecter la détection / l'intervalle avec la première",
+            "Autoriser 40 km/h",
+            "Remplacer l'appel PCC",
+          ],
+          correct: 1,
+          explanation: "Espacement pour détection correcte des longueurs (p.32).",
+        },
+        {
+          id: "zc-06",
+          prompt:
+            "Les croisements types 2.4.1 (points 1, 2, 3, 4, 5a, 5b) en zone Corum…",
+          choices: [
+            "Sont suspendus si le quai est vide",
+            "S'appliquent même sans autre rame",
+            "Ne valent que pour la ligne 4",
+            "Remplacent les TIV",
+          ],
+          correct: 1,
+          explanation: "Même obligation qu'en gare : respect point par point (p.32).",
+        },
+      ],
+    },
+
     // ─── 2.5-A TIV ────────────────────────────────────────────
     {
       id: "tiv",
@@ -1502,6 +1710,307 @@ export const MODULES = {
           ],
           correct: 1,
           explanation: "À hauteur LAC (p.33).",
+        },
+        {
+          id: "tiv-07",
+          prompt:
+            "Tableau des limitations (CET) : croisement d'une rame arrêtée — vitesse max ?",
+          choices: ["5 km/h", "10 km/h", "15 km/h", "30 km/h"],
+          correct: 1,
+          explanation: "10 km/h (tableau p.34).",
+        },
+        {
+          id: "tiv-08",
+          prompt:
+            "Entrée en station : autre rame déjà présente sur place — vitesse max indiquée au tableau ?",
+          choices: ["30 km/h", "15 km/h", "40 km/h", "10 km/h"],
+          correct: 1,
+          explanation: "15 km/h si présence d'autre rame ; 30 km/h si absence (p.34).",
+        },
+      ],
+    },
+
+    // ─── 2.5-B Zones de télécommande d'aiguilles ─────────────
+    {
+      id: "telecommande-aiguilles",
+      code: "2.5-B",
+      title:
+        "Télécommande d'aiguilles — Panneaux, boucle, boîtier de secours, interdits",
+      cetPage: 35,
+      questions: [
+        {
+          id: "tc-01",
+          prompt:
+            "Hors zones à itinéraire automatique et hors zone gare : la télécommande s'utilise…",
+          choices: [
+            "À tout moment sur la ligne",
+            "Uniquement entre le panneau jaune « début » et le panneau jaune « fin » de zone",
+            "Seulement au dépôt",
+            "Uniquement la nuit",
+          ],
+          correct: 1,
+          explanation: "La zone est délimitée par les panneaux jaunes début / fin (p.35).",
+        },
+        {
+          id: "tc-02",
+          prompt:
+            "La commande télécommandée n'est effective que lorsque…",
+          choices: [
+            "Le PCC a validé au téléphone",
+            "Les trois voyants (gauche, centre, droite) sont allumés simultanément sur passage de la boucle",
+            "Le SA est au vert",
+            "La rame est à l'arrêt complet",
+          ],
+          correct: 1,
+          explanation: "Prise en compte sur la boucle : trois feux allumés en même temps (p.35).",
+        },
+        {
+          id: "tc-03",
+          prompt:
+            "Nombre d'actions de commande à envoyer pour un itinéraire ?",
+          choices: [
+            "Une seule impulsion pour l'itinéraire voulu",
+            "Trois impulsions successives obligatoires",
+            "Autant que nécessaire jusqu'au vert",
+            "Deux : une gauche, une droite",
+          ],
+          correct: 0,
+          explanation: "Une seule action pour l'itinéraire (p.35).",
+        },
+        {
+          id: "tc-04",
+          prompt:
+            "Boîtier de secours au sol : voyant jaune fixe — signification ?",
+          choices: [
+            "Télécommande impossible",
+            "Itinéraire enclenché / télécommande active",
+            "Appeler la Police",
+            "Panne secteur",
+          ],
+          correct: 1,
+          explanation: "Jaune clignotant = prise en compte retardée ; jaune fixe = enclenché (p.35).",
+        },
+        {
+          id: "tc-05",
+          prompt:
+            "Il est strictement interdit de modifier la position d'un appareil de voie motorisé…",
+          choices: [
+            "Sans l'accord du PCC sauf si intégré à une manœuvre prévue, et jamais si une rame est déjà engagée dessus",
+            "Jamais, même avec le PCC",
+            "Uniquement le week-end",
+            "Sauf si le voyant rouge est allumé",
+          ],
+          correct: 0,
+          explanation: "Encadré p.35 : autorisation PCC sauf manœuvre planifiée ; interdit si rame engagée.",
+        },
+        {
+          id: "tc-06",
+          prompt:
+            "Mode dégradé manuel (sabre d'aiguillage), sur aiguillage motorisé : avant d'insérer le sabre…",
+          choices: [
+            "Couper l'alimentation (condamnation) du moteur après ouverture de la trappe",
+            "Appuyer deux fois sur le bouton droit",
+            "Rien de particulier",
+            "Demander uniquement aux voyageurs de descendre",
+          ],
+          correct: 0,
+          explanation: "Coupure d'alimentation du moteur avant intervention (p.36).",
+        },
+        {
+          id: "tc-07",
+          prompt:
+            "Corps étranger dans une lame motorisée : après isolement moteur au sabre, il faut aussi…",
+          choices: [
+            "Caler la lame contre le rail pour éviter tout mouvement accidentel",
+            "Rouler à 5 km/h pour éjecter l'objet",
+            "Laisser le PCC commander à distance sans cale",
+            "Ouvrir les portes voyageurs",
+          ],
+          correct: 0,
+          explanation: "Consigne de sécurité : cale entre lame et rail (encadré p.36).",
+        },
+      ],
+    },
+
+    // ─── 2.5-C Clou de positionnement ─────────────────────────
+    {
+      id: "clou-positionnement",
+      code: "2.5-C",
+      title: "Clou de positionnement — Repère d'arrêt et gabarits",
+      cetPage: 36,
+      questions: [
+        {
+          id: "cp-01",
+          prompt:
+            "Le clou de positionnement sur le quai sert principalement à…",
+          choices: [
+            "Indiquer l'arrêt commercial : alignement conducteur / repère à hauteur d'épaule",
+            "Remplacer le TIV",
+            "Marquer uniquement la fin de ligne",
+            "Signaler un chantier",
+          ],
+          correct: 0,
+          explanation: "Point d'arrêt gabarit 402 ; alignement épaule conducteur (p.36).",
+        },
+        {
+          id: "cp-02",
+          prompt:
+            "Quai double : consigne sur le respect du clou de positionnement ?",
+          choices: [
+            "Indicatif si peu de monde",
+            "Impératif — toutes les rames doivent respecter ce repère",
+            "Sauf pour les rames courtes",
+            "Uniquement ligne 1",
+          ],
+          correct: 1,
+          explanation: "Mention impérative pour quai double (p.36, texte en rouge).",
+        },
+        {
+          id: "cp-03",
+          prompt:
+            "Rame type 302 (plus courte) sur quai réglé au gabarit 402 : où s'arrêter ?",
+          choices: [
+            "Au même clou, quelle que soit la longueur",
+            "En tête de quai",
+            "Après le clou",
+            "Où le PCC indique par radio uniquement",
+          ],
+          correct: 1,
+          explanation: "Les 302 s'arrêtent en tête de quai (p.36).",
+        },
+      ],
+    },
+
+    // ─── 2.5-D Panneaux limite de manœuvre ────────────────────
+    {
+      id: "limite-manoeuvre",
+      code: "2.5-D",
+      title: "Panneaux limite de manœuvre — Fin de zone de retournement",
+      cetPage: 36,
+      questions: [
+        {
+          id: "lm-01",
+          prompt:
+            "Panneau limite de manœuvre : apparence et rôle ?",
+          choices: [
+            "Carré noir : ne pas s'arrêter avant pour que le dernier bogie dégage l'aiguillage",
+            "Disque jaune : vitesse 30 km/h",
+            "Triangle blanc : priorité",
+            "Panneau R : reprise de marche",
+          ],
+          correct: 0,
+          explanation: "Fin de zone retournement en commande manuelle ; dégagement complet (p.36).",
+        },
+        {
+          id: "lm-02",
+          prompt:
+            "Pourquoi ne pas s'arrêter avant le panneau limite de manœuvre ?",
+          choices: [
+            "Pour garantir que le dernier bogie a franchi l'appareil de voie",
+            "Pour faciliter la montée des voyageurs",
+            "Parce que le panneau est décoratif",
+            "Pour éviter d'utiliser le gong",
+          ],
+          correct: 0,
+          explanation: "Éviter un arrêt à cheval sur l'aiguille (p.36).",
+        },
+      ],
+    },
+
+    // ─── 2.6-A Panneaux de chantier ──────────────────────────
+    {
+      id: "panneaux-chantier",
+      code: "2.6-A",
+      title: "Panneaux temporaires — Chantier (flashs, vitesses, R)",
+      cetPage: 37,
+      questions: [
+        {
+          id: "ch-01",
+          prompt:
+            "Éclairage flash de chantier : distance type par rapport à la zone de travaux ?",
+          choices: [
+            "50 m avant seulement",
+            "100 m avant et 100 m après la zone",
+            "200 m d'un seul côté",
+            "Uniquement en gare",
+          ],
+          correct: 1,
+          explanation: "Flashs à 100 m avant et après (p.37).",
+        },
+        {
+          id: "ch-02",
+          prompt:
+            "Sur un panneau chantier : la lettre R signifie…",
+          choices: [
+            "Rappel d'arrêt d'urgence",
+            "Point à partir duquel la reprise de vitesse normale est autorisée",
+            "Radio obligatoire",
+            "Voie réservée",
+          ],
+          correct: 1,
+          explanation: "R = reprise de vitesse (p.37).",
+        },
+        {
+          id: "ch-03",
+          prompt:
+            "Chiffre rouge sur panneau de chantier : signification ?",
+          choices: [
+            "Numéro de ligne",
+            "Vitesse limite à respecter dans le secteur balisé",
+            "Distance en mètres entre deux arrêts",
+            "Code PCC",
+          ],
+          correct: 1,
+          explanation: "Limite de vitesse imposée (p.37).",
+        },
+        {
+          id: "ch-04",
+          prompt:
+            "La lampe flash est éteinte : la limitation affichée…",
+          choices: [
+            "Ne vaut plus",
+            "Reste obligatoire",
+            "Ne vaut que de jour",
+            "Est doublée automatiquement",
+          ],
+          correct: 1,
+          explanation: "Lampe allumée ou éteinte : respecter l'indication de vitesse (p.37).",
+        },
+      ],
+    },
+
+    // ─── 2.6-B Panneaux d'arrêt absolu ────────────────────────
+    {
+      id: "arret-absolu",
+      code: "2.6-B",
+      title: "Panneaux temporaires — Arrêt absolu",
+      cetPage: 37,
+      questions: [
+        {
+          id: "aa-01",
+          prompt:
+            "Les panneaux « arrêt absolu » au sens CET comprennent notamment…",
+          choices: [
+            "Uniquement un feu rouge clignotant",
+            "« ARRÊT OBLIGATOIRE » et le panneau rouge uni sans mention",
+            "Un TIV à 10",
+            "Un panneau jaune R",
+          ],
+          correct: 1,
+          explanation: "Deux types illustrés p.37.",
+        },
+        {
+          id: "aa-02",
+          prompt:
+            "Face à un panneau d'arrêt absolu : conduite à tenir ?",
+          choices: [
+            "Franchissement interdit tant que le signal n'est pas levé / levée l'interdiction",
+            "Passage à 10 km/h sans avis",
+            "Passage si le feu de route est vert",
+            "Demander aux piétons uniquement",
+          ],
+          correct: 0,
+          explanation: "Arrêt de principe : pas de contournement sans procédure (p.37).",
         },
       ],
     },
