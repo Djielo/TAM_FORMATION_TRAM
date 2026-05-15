@@ -1,0 +1,41 @@
+---
+description: Format obligatoire des messages de commit
+alwaysApply: true
+---
+
+# Format des commits
+
+**Condition** : ne créer ou modifier un commit **que si le contributeur l’a demandé explicitement** (`git-never-commit-sans-demande.mdc`). Sinon, ne pas committer.
+
+Quand un commit est bien demandé dans ce projet, respecte toujours ce format :
+
+1. Ligne de titre (style Conventional Commit déjà utilisé dans le repo)
+2. Ligne vide
+3. `Contexte`
+4. `--------`
+5. Liste à puces
+6. Ligne vide
+7. `Contenu principal`
+8. `-----------------`
+9. Liste à puces (fichiers + changements)
+10. Ligne vide
+11. `Impact fonctionnel`
+12. `------------------`
+13. Liste à puces orientée utilisateur
+
+Ne pas ajouter de ligne type « Made-with: Cursor », « Co-authored-by: Cursor » ni autre attribution d’outil en fin de message.
+
+Ne pas utiliser `Contexte:` avec deux-points. Utiliser le titre seul + une ligne d’**exactement autant de tirets `-` que de caractères dans le titre** (espaces inclus, sans deux-points fictifs).
+
+Exemples (à reproduire au caractère près) :
+
+- « Contexte » → 8 caractères → 8 tirets : `--------`
+- « Contenu principal » → 17 caractères (espace compté) → 17 tirets : `-----------------`
+- « Impact fonctionnel » → 18 caractères (espace compté) → 18 tirets : `------------------`
+
+Le hook git valide cette longueur exacte et refuse tout écart. Si la règle est consultée via un rendu Markdown qui « aplatit » des séries de tirets en ligne horizontale, se fier au comptage ci-dessus, pas à l’apparence visuelle.
+
+## Règle de contenu (résultat final uniquement)
+
+- Décrire **uniquement** l’écart entre le **dernier commit** (A) et l’état **réellement commité** (B), pour quelqu’un qui n’a **pas** le fil du chat : ce qui existe ou change dans le dépôt après B, pas la chronologie des essais, pas la genèse (« on avait d’abord… », « le contributeur voulait… »).
+- Le `Contexte`, le `Contenu principal` et l’`Impact fonctionnel` suivent tous cette règle : **résultat final dans B**, sans raconter les manœuvres intermédiaires (ajouts puis suppressions, tentatives, rectifications entre A et B), même si elles ont eu lieu dans la session.

@@ -1,0 +1,17 @@
+# Scans Bible et ressources lourdes — non versionnés
+source/
+
+# Sorties locales / extraits (tests)
+output/
+
+# OS & éditeurs
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+*~
+
+# Secrets éventuels
+.env
+.env.local
+.env.*.local
