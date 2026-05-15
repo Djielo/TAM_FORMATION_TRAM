@@ -1,6 +1,6 @@
-# TAM Formation Tram — Révision Bible
+# TAM Formation Tram — Révision CET
 
-Outil web de révision des consignes d'exploitation tramway (Bible TaM).
+Outil web de révision des consignes d’exploitation tramway TaM (CET — document EXP-CSG-01-17).
 
 ## Lancer en local
 
@@ -25,12 +25,12 @@ Chaque **push** sur `master` qui modifie `docs/` met à jour le site automatique
 ## Structure
 
 - `docs/` — application statique (HTML/CSS/JS, sans build)
-- `docs/js/data.js` — axes, modules et questions (texte, aligné Bible)
-- `source/images/bible/` — scans de la Bible (référence **locale** ; le dossier `source/` est ignoré par Git)
+- `docs/js/data.js` — axes, modules et questions (texte, aligné sur le CET)
+- `source/` — scans ou photos du CET pour référence **locale** (dossier ignoré par Git ; ex. `source/images/…`)
 
 ## Contenu actuel
 
-- **Chapitre 2 — Signalisation** : **12 modules**, **~100 questions** (texte, Bible p. 20–33)
+- **Chapitre 2 — Signalisation** : **14 modules**, **~106 questions** (texte, CET p. 20–33)
   - INDIR, SM, SA, SMA (enrichis) + INDES, aiguillages, feux blancs, lampe/tension, panne R17, traversée R17, zone gare, TIV
 - Chapitres 1, 3, 4 : à venir
 

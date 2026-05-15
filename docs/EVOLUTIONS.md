@@ -1,4 +1,4 @@
-# Évolutions prévues — Révision Bible tram
+# Évolutions prévues — Révision CET
 
 Document de référence pour la suite du développement.  
 **État actuel (v1)** : quiz texte par module, 4 axes, chapitre Signalisation partiellement rempli.
@@ -9,7 +9,7 @@ Document de référence pour la suite du développement.
 
 ```
 Sac général (toutes questions, mélangées)
-├── Sac 1 — Utilisation du matériel roulant (Bible p. 3–19)
+├── Sac 1 — Utilisation du matériel roulant (CET p. 3–19)
 │   └── petits sacs par sous-thème (à définir)
 ├── Sac 2 — Respect de la signalisation (p. 20–37)
 │   ├── INDIR
@@ -31,7 +31,7 @@ Chaque question garde une **étiquette** (module + axe) pour l’affichage en mo
 ## Enrichissement contenu (priorité actuelle)
 
 1. **Compléter** INDIR, SM, SA, SMA (définitions, recoupements, pièges).
-2. **Ajouter** tous les sous-modules signalisation de la Bible (sommaire p. 20).
+2. **Ajouter** tous les sous-modules signalisation du CET (sommaire p. 20).
 3. Puis axes Matériel, Circulation, Urgence module par module.
 
 Types de questions utiles :
@@ -106,5 +106,5 @@ Par question / module :
 
 ## Notes
 
-- Pas d’images en v1 : questions texte uniquement (photos Bible peu exploitables en auto).
-- Contenu = **Bible TaM EXP-CSG-01-17** ; outil d’entraînement personnel, pas substitut à la formation officielle.
+- Pas d’images en v1 : questions texte uniquement (photos du CET peu exploitables en auto).
+- Contenu = **CET TaM EXP-CSG-01-17** ; outil d’entraînement personnel, pas substitut à la formation officielle.

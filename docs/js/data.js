@@ -1,5 +1,5 @@
 /**
- * Bible TaM — EXP-CSG-01-17 · Questions texte (sans images)
+ * CET (consignes d'exploitation tramway) TaM — EXP-CSG-01-17 · Questions texte (sans images)
  * Chaque question : id, prompt, choices[4], correct (index), explanation
  */
 
@@ -9,7 +9,7 @@ export const AXES = [
     num: 1,
     title: "Utilisation du matériel roulant",
     desc: "Cabine, sablières, veille automatique, modes dégradés…",
-    biblePages: "3–19",
+    cetPages: "3–19",
     available: false,
   },
   {
@@ -17,7 +17,7 @@ export const AXES = [
     num: 2,
     title: "Respect de la signalisation",
     desc: "Feux, panneaux, zones spécifiques, traversées routières…",
-    biblePages: "20–37",
+    cetPages: "20–37",
     available: true,
   },
   {
@@ -25,7 +25,7 @@ export const AXES = [
     num: 3,
     title: "Consignes de circulation en ligne",
     desc: "Prise de service, VUT, portes, PCC…",
-    biblePages: "38–58",
+    cetPages: "38–58",
     available: false,
   },
   {
@@ -33,19 +33,170 @@ export const AXES = [
     num: 4,
     title: "Consignes d'urgence",
     desc: "4 consignes générales, évacuation, coordinateur…",
-    biblePages: "59–75",
+    cetPages: "59–75",
     available: false,
   },
 ];
 
 export const MODULES = {
   signalisation: [
+    // Ordre = chapitrage CET (ch. 2) : 2.1, 2.2, 2.2-A … J, 2.3, 2.4, 2.4.1, 2.5…
+
+    // ─── 2.1 Franchissement des appareils de voie ─────────────
+    {
+      id: "sign-general",
+      code: "2.1",
+      title: "Franchissement des appareils de voie — Vitesses, interdictions et vérifications",
+      cetPage: 21,
+      questions: [
+        {
+          id: "sg-01",
+          prompt:
+            "Franchissement d'un aiguillage en voie déviée : vitesse maximum (hors cas particulier) ?",
+          choices: ["10 km/h", "15 km/h", "30 km/h", "40 km/h"],
+          correct: 1,
+          explanation: "Voie déviée : 15 km/h (p.21).",
+        },
+        {
+          id: "sg-02",
+          prompt:
+            "Franchissement d'un aiguillage en voie directe : vitesse maximum (hors cas particulier) ?",
+          choices: ["15 km/h", "30 km/h", "40 km/h", "50 km/h"],
+          correct: 2,
+          explanation: "Voie directe : 40 km/h (p.21).",
+        },
+        {
+          id: "sg-03",
+          prompt: "Franchissement d'aiguillage au dépôt : vitesse max ?",
+          choices: ["10 km/h", "15 km/h", "30 km/h", "40 km/h"],
+          correct: 0,
+          explanation: "Au dépôt : 10 km/h (p.21).",
+        },
+        {
+          id: "sg-04",
+          prompt:
+            "Franchir un aiguillage « entrebâillé » (lames non plaquées) est :",
+          choices: [
+            "Autorisé à 10 km/h",
+            "Formellement interdit — risque de déraillement",
+            "Autorisé en marche à vue",
+            "Autorisé si PCC informé",
+          ],
+          correct: 1,
+          explanation: "Strictement interdit — risque de déraillement (p.21).",
+        },
+        {
+          id: "sg-05",
+          prompt: "Stationner sur un aiguillage est :",
+          choices: [
+            "Toujours autorisé",
+            "Interdit sauf zone Gare Saint-Roch où les aiguilles sont sécurisées",
+            "Autorisé au dépôt uniquement",
+            "Autorisé si moins de 5 minutes",
+          ],
+          correct: 1,
+          explanation: "Interdit sauf exception Gare Saint-Roch (p.21).",
+        },
+        {
+          id: "sg-06",
+          prompt: "Les appareils de voie motorisés sont :",
+          choices: [
+            "Toujours talonnables",
+            "Non talonnables",
+            "Talonnables à 15 km/h",
+            "Talonnables si SM au vert",
+          ],
+          correct: 1,
+          explanation: "Appareils motorisés non talonnables (p.21, texte rouge).",
+        },
+        {
+          id: "sg-07",
+          prompt:
+            "Principe général hors zones Gare / Albert 1er / Corum : les conflits sont gérés par…",
+          choices: [
+            "La priorité à droite uniquement",
+            "La signalisation lumineuse (marche à vue complétée par la signalisation)",
+            "Le PCC en permanence",
+            "L'absence de signalisation",
+          ],
+          correct: 1,
+          explanation:
+            "Marche à vue ; conflits gérés par signalisation lumineuse sauf zones spécifiques (p.21).",
+        },
+        {
+          id: "sg-08",
+          prompt:
+            "Avant de franchir un aiguillage, le conducteur doit vérifier notamment :",
+          choices: [
+            "Uniquement le prochain arrêt client",
+            "La programmation de direction, les feux/INDIR et le placage des aiguilles",
+            "Seulement la pression des freins",
+            "Le numéro de la rame",
+          ],
+          correct: 1,
+          explanation: "Trois vérifications listées p.21.",
+        },
+      ],
+    },
+
+    // ─── 2.2 Signalisation ferroviaire lumineuse (vue d'ensemble) ─
+    {
+      id: "sfl-22",
+      code: "2.2",
+      title: "Signalisation ferroviaire lumineuse — Rappel avant les paragraphes 2.2-A à J",
+      cetPage: 22,
+      questions: [
+        {
+          id: "sfl-01",
+          prompt:
+            "La signalisation ferroviaire lumineuse sur équipement fixe regroupe notamment quelles familles d'indicateurs ou de feux ?",
+          choices: [
+            "Uniquement les signaux routiers type R17",
+            "INDIR, INDES, SM, SA, SMA, lampes flash, avertisseurs sonores, feux blancs (remisage, anticipation), feu de présence tension…",
+            "Seulement les panneaux TIV et les feux tricolores privés",
+            "Uniquement ce qui est affiché sur l'écran conducteur",
+          ],
+          correct: 1,
+          explanation:
+            "Le volet 2.2 couvre notamment INDIR, INDES, SM, SA, SMA et les feux / alarmes associés (CET, signalisation ferroviaire lumineuse).",
+        },
+        {
+          id: "sfl-02",
+          prompt:
+            "À quoi sert principalement la signalisation ferroviaire lumineuse pour le conducteur ?",
+          choices: [
+            "Remplacer uniquement la radio du PCC",
+            "Indiquer l'itinéraire autorisé, les limitations et les protections aux points sensibles (aiguillages, cantonnement, remisage…)",
+            "Afficher la liste des voyageurs",
+            "Gérer uniquement la climatisation de cabine",
+          ],
+          correct: 1,
+          explanation:
+            "Elle renseigne itinéraires, protections et consignes aux points critiques, en complément des autres consignes (CET ch. 2).",
+        },
+        {
+          id: "sfl-03",
+          prompt:
+            "Les feux blancs « remisage » et « anticipation » servent à :",
+          choices: [
+            "Contrôler uniquement la présence de voyageurs sur le quai",
+            "Autoriser ou non la sortie du faisceau de remisage (remisage) et le départ depuis une station (anticipation) selon les cas décrits",
+            "Remplacer tous les SM en zone gare",
+            "Indiquer la couleur de la rame",
+          ],
+          correct: 1,
+          explanation:
+            "Rôle décrit dans le volet feux blancs 2.2-F / 2.2-G : gestion des mouvements en remisage et des départs lorsque le SM n'est pas visible.",
+        },
+      ],
+    },
+
     // ─── 2.2-A INDIR ─────────────────────────────────────────
     {
       id: "indir",
       code: "2.2-A",
       title: "INDIR — Signal indicateur de direction",
-      biblePage: 22,
+      cetPage: 22,
       questions: [
         {
           id: "indir-01",
@@ -57,7 +208,7 @@ export const MODULES = {
             "Signal indicateur de détresse",
           ],
           correct: 1,
-          explanation: "INDIR = Signal Indicateur de Direction (Bible p.22).",
+          explanation: "INDIR = Signal Indicateur de Direction (CET p. 22).",
         },
         {
           id: "indir-02",
@@ -71,7 +222,7 @@ export const MODULES = {
           ],
           correct: 1,
           explanation:
-            "L'INDIR est un indicateur lumineux de position d'aiguille (Bible p.22).",
+            "L'INDIR est un indicateur lumineux de position d'aiguille (CET p. 22).",
         },
         {
           id: "indir-03",
@@ -109,7 +260,7 @@ export const MODULES = {
           ],
           correct: 1,
           explanation:
-            "Barre oblique jaune = voie déviée ; le côté dépend de l'inclinaison de la barre (Bible p.22).",
+            "Barre oblique jaune = voie déviée ; le côté dépend de l'inclinaison de la barre (CET p. 22).",
         },
         {
           id: "indir-06",
@@ -140,7 +291,7 @@ export const MODULES = {
         {
           id: "indir-08",
           prompt:
-            "Combien d'indications distinctes l'INDIR peut-il présenter selon la Bible ?",
+            "Combien d'indications distinctes l'INDIR peut-il présenter ?",
           choices: ["2", "3", "4", "6"],
           correct: 2,
           explanation:
@@ -149,7 +300,7 @@ export const MODULES = {
         {
           id: "indir-09",
           prompt:
-            "INDIR ou INDES éteint ou bloqué au rouge (règle générale p.21) : action immédiate ?",
+            "INDIR ou INDES éteint ou bloqué au rouge : action immédiate ?",
           choices: [
             "Passer en marche à vue",
             "Arrêt immédiat de la rame et appel au PCC",
@@ -190,7 +341,7 @@ export const MODULES = {
         {
           id: "indir-12",
           prompt:
-            "Avant de franchir un aiguillage, le conducteur doit notamment vérifier l'INDIR (p.21). Il contrôle :",
+            "Avant de franchir un aiguillage, le conducteur doit notamment vérifier l'INDIR. Il contrôle :",
           choices: [
             "Uniquement la vitesse au TIV",
             "L'état des feux et la position de l'INDIR ainsi que le bon placage des aiguilles",
@@ -204,12 +355,143 @@ export const MODULES = {
       ],
     },
 
+    
+    // ─── 2.2-B INDES ──────────────────────────────────────────
+    {
+      id: "indes",
+      code: "2.2-B",
+      title: "INDES — Signal indicateur de destination",
+      cetPage: 23,
+      questions: [
+        {
+          id: "indes-01",
+          prompt: "Que signifie l'acronyme INDES ?",
+          choices: [
+            "Signal indicateur de direction",
+            "Signal indicateur de destination",
+            "Signal indicateur de détresse",
+            "Signal d'entrée en station",
+          ],
+          correct: 1,
+          explanation: "INDES = Signal Indicateur de Destination (p.23).",
+        },
+        {
+          id: "indes-02",
+          prompt: "L'INDES informe le conducteur de…",
+          choices: [
+            "La position de l'aiguille",
+            "Sa destination (un ou deux chiffres ou lettres sur multipoints)",
+            "La vitesse sur le prochain TIV",
+            "La priorité au feu routier",
+          ],
+          correct: 1,
+          explanation: "Destination par chiffres ou lettres (p.23).",
+        },
+        {
+          id: "indes-03",
+          prompt: "Au dépôt, INDES « L » signifie :",
+          choices: [
+            "Voie unique",
+            "Destination lavage",
+            "Limite de manœuvre",
+            "Ligne 1",
+          ],
+          correct: 1,
+          explanation: "L = destination Lavage (p.23).",
+        },
+        {
+          id: "indes-04",
+          prompt: "Au dépôt, INDES « A » signifie :",
+          choices: [
+            "Arrêt absolu",
+            "Destination atelier",
+            "Albert 1er",
+            "Anticipation",
+          ],
+          correct: 1,
+          explanation: "A = destination Atelier (p.23).",
+        },
+        {
+          id: "indes-05",
+          prompt: "INDES « VU » en zone dépôt ou Galerie Mistral signifie :",
+          choices: [
+            "Voie 1",
+            "Voie unique",
+            "Vert — passage autorisé",
+            "Vitesse unique 30 km/h",
+          ],
+          correct: 1,
+          explanation: "VU = Voie Unique (p.23).",
+        },
+        {
+          id: "indes-06",
+          prompt: "Zone Gare Saint-Roch : INDES « AT » signifie :",
+          choices: [
+            "Direction Atelier",
+            "En attente = Arrêt",
+            "Autorisation de transit",
+            "Albert 1er — retournement",
+          ],
+          correct: 1,
+          explanation: "AT = en attente = Arrêt (p.23, tableau zone gare).",
+        },
+        {
+          id: "indes-07",
+          prompt: "Zone Gare Saint-Roch : INDES « PL » signifie :",
+          choices: [
+            "Pont de Lattes",
+            "Passage libre",
+            "Priorité à gauche",
+            "Plateforme logistique",
+          ],
+          correct: 1,
+          explanation: "PL = direction Pont de Lattes (p.23).",
+        },
+        {
+          id: "indes-08",
+          prompt: "Zone Gare Saint-Roch : INDES « XX » affiché signifie :",
+          choices: [
+            "Voie interdite temporaire",
+            "Aiguille dé-contrôlée — appeler le PCC",
+            "Passage en marche à vue",
+            "Fin de ligne",
+          ],
+          correct: 1,
+          explanation:
+            "XX = aiguille dé-contrôlée, appel PCC (p.29, rappel p.23 zones).",
+        },
+        {
+          id: "indes-09",
+          prompt:
+            "INDES en position d'attente à la zone Gare : quelle indication ?",
+          choices: ["PL", "RO", "AT", "MA"],
+          correct: 2,
+          explanation:
+            "Arrêt à l'INDES en position d'attente = AT (p.29, étape 1).",
+        },
+        {
+          id: "indes-10",
+          prompt:
+            "Deux voyants verts ou un vert et un rouge simultanément sur INDES :",
+          choices: [
+            "Passage autorisé",
+            "Anomalie — appeler le PCC",
+            "Ralentir à 15 km/h",
+            "Couper la traction",
+          ],
+          correct: 1,
+          explanation: "Anomalie d'affichage → appel PCC (p.29).",
+        },
+      ],
+    },
+
+    
     // ─── 2.2-C SM ─────────────────────────────────────────────
     {
       id: "sm",
       code: "2.2-C",
       title: "SM — Signal de manœuvre",
-      biblePage: 23,
+      cetPage: 23,
       questions: [
         {
           id: "sm-01",
@@ -221,7 +503,7 @@ export const MODULES = {
             "Signal de manœuvre et d'avertissement",
           ],
           correct: 1,
-          explanation: "SM = Signal (ou feu) de Manœuvre (Bible p.23).",
+          explanation: "SM = Signal (ou feu) de Manœuvre (CET p. 23).",
         },
         {
           id: "sm-02",
@@ -338,12 +620,13 @@ export const MODULES = {
       ],
     },
 
+    
     // ─── 2.2-D SA ─────────────────────────────────────────────
     {
       id: "sa",
       code: "2.2-D",
       title: "SA — Signal d'avertissement",
-      biblePage: 24,
+      cetPage: 24,
       questions: [
         {
           id: "sa-01",
@@ -456,12 +739,13 @@ export const MODULES = {
       ],
     },
 
+    
     // ─── 2.2-E SMA ────────────────────────────────────────────
     {
       id: "sma",
       code: "2.2-E",
       title: "SMA — Signal de manœuvre et d'avertissement",
-      biblePage: 24,
+      cetPage: 24,
       questions: [
         {
           id: "sma-01",
@@ -603,238 +887,13 @@ export const MODULES = {
       ],
     },
 
-    // ─── 2.2-B INDES ──────────────────────────────────────────
-    {
-      id: "indes",
-      code: "2.2-B",
-      title: "INDES — Signal indicateur de destination",
-      biblePage: 23,
-      questions: [
-        {
-          id: "indes-01",
-          prompt: "Que signifie l'acronyme INDES ?",
-          choices: [
-            "Signal indicateur de direction",
-            "Signal indicateur de destination",
-            "Signal indicateur de détresse",
-            "Signal d'entrée en station",
-          ],
-          correct: 1,
-          explanation: "INDES = Signal Indicateur de Destination (p.23).",
-        },
-        {
-          id: "indes-02",
-          prompt: "L'INDES informe le conducteur de…",
-          choices: [
-            "La position de l'aiguille",
-            "Sa destination (un ou deux chiffres ou lettres sur multipoints)",
-            "La vitesse sur le prochain TIV",
-            "La priorité au feu routier",
-          ],
-          correct: 1,
-          explanation: "Destination par chiffres ou lettres (p.23).",
-        },
-        {
-          id: "indes-03",
-          prompt: "Au dépôt, INDES « L » signifie :",
-          choices: [
-            "Voie unique",
-            "Destination lavage",
-            "Limite de manœuvre",
-            "Ligne 1",
-          ],
-          correct: 1,
-          explanation: "L = destination Lavage (p.23).",
-        },
-        {
-          id: "indes-04",
-          prompt: "Au dépôt, INDES « A » signifie :",
-          choices: [
-            "Arrêt absolu",
-            "Destination atelier",
-            "Albert 1er",
-            "Anticipation",
-          ],
-          correct: 1,
-          explanation: "A = destination Atelier (p.23).",
-        },
-        {
-          id: "indes-05",
-          prompt: "INDES « VU » en zone dépôt ou Galerie Mistral signifie :",
-          choices: [
-            "Voie 1",
-            "Voie unique",
-            "Vert — passage autorisé",
-            "Vitesse unique 30 km/h",
-          ],
-          correct: 1,
-          explanation: "VU = Voie Unique (p.23).",
-        },
-        {
-          id: "indes-06",
-          prompt: "Zone Gare St Roch : INDES « AT » signifie :",
-          choices: [
-            "Direction Atelier",
-            "En attente = Arrêt",
-            "Autorisation de transit",
-            "Albert 1er — retournement",
-          ],
-          correct: 1,
-          explanation: "AT = en attente = Arrêt (p.23, tableau zone gare).",
-        },
-        {
-          id: "indes-07",
-          prompt: "Zone Gare St Roch : INDES « PL » signifie :",
-          choices: [
-            "Pont de Lattes",
-            "Passage libre",
-            "Priorité à gauche",
-            "Plateforme logistique",
-          ],
-          correct: 1,
-          explanation: "PL = direction Pont de Lattes (p.23).",
-        },
-        {
-          id: "indes-08",
-          prompt: "Zone Gare St Roch : INDES « XX » affiché signifie :",
-          choices: [
-            "Voie interdite temporaire",
-            "Aiguille dé-contrôlée — appeler le PCC",
-            "Passage en marche à vue",
-            "Fin de ligne",
-          ],
-          correct: 1,
-          explanation:
-            "XX = aiguille dé-contrôlée, appel PCC (p.29, rappel p.23 zones).",
-        },
-        {
-          id: "indes-09",
-          prompt:
-            "INDES en position d'attente à la zone Gare : quelle indication ?",
-          choices: ["PL", "RO", "AT", "MA"],
-          correct: 2,
-          explanation:
-            "Arrêt à l'INDES en position d'attente = AT (p.29, étape 1).",
-        },
-        {
-          id: "indes-10",
-          prompt:
-            "Deux voyants verts ou un vert et un rouge simultanément sur INDES :",
-          choices: [
-            "Passage autorisé",
-            "Anomalie — appeler le PCC",
-            "Ralentir à 15 km/h",
-            "Couper la traction",
-          ],
-          correct: 1,
-          explanation: "Anomalie d'affichage → appel PCC (p.29).",
-        },
-      ],
-    },
-
-    // ─── 2.1 + règles générales ───────────────────────────────
-    {
-      id: "sign-general",
-      code: "2.1",
-      title: "Aiguillages & règles générales",
-      biblePage: 21,
-      questions: [
-        {
-          id: "sg-01",
-          prompt:
-            "Franchissement d'un aiguillage en voie déviée : vitesse maximum (hors cas particulier) ?",
-          choices: ["10 km/h", "15 km/h", "30 km/h", "40 km/h"],
-          correct: 1,
-          explanation: "Voie déviée : 15 km/h (p.21).",
-        },
-        {
-          id: "sg-02",
-          prompt:
-            "Franchissement d'un aiguillage en voie directe : vitesse maximum (hors cas particulier) ?",
-          choices: ["15 km/h", "30 km/h", "40 km/h", "50 km/h"],
-          correct: 2,
-          explanation: "Voie directe : 40 km/h (p.21).",
-        },
-        {
-          id: "sg-03",
-          prompt: "Franchissement d'aiguillage au dépôt : vitesse max ?",
-          choices: ["10 km/h", "15 km/h", "30 km/h", "40 km/h"],
-          correct: 0,
-          explanation: "Au dépôt : 10 km/h (p.21).",
-        },
-        {
-          id: "sg-04",
-          prompt:
-            "Franchir un aiguillage « entrebâillé » (lames non plaquées) est :",
-          choices: [
-            "Autorisé à 10 km/h",
-            "Formellement interdit — risque de déraillement",
-            "Autorisé en marche à vue",
-            "Autorisé si PCC informé",
-          ],
-          correct: 1,
-          explanation: "Strictement interdit — risque de déraillement (p.21).",
-        },
-        {
-          id: "sg-05",
-          prompt: "Stationner sur un aiguillage est :",
-          choices: [
-            "Toujours autorisé",
-            "Interdit sauf zone Gare St Roch où les aiguilles sont sécurisées",
-            "Autorisé au dépôt uniquement",
-            "Autorisé si moins de 5 minutes",
-          ],
-          correct: 1,
-          explanation: "Interdit sauf exception Gare St Roch (p.21).",
-        },
-        {
-          id: "sg-06",
-          prompt: "Les appareils de voie motorisés sont :",
-          choices: [
-            "Toujours talonnables",
-            "Non talonnables",
-            "Talonnables à 15 km/h",
-            "Talonnables si SM au vert",
-          ],
-          correct: 1,
-          explanation: "Appareils motorisés non talonnables (p.21, texte rouge).",
-        },
-        {
-          id: "sg-07",
-          prompt:
-            "Principe général hors zones Gare / Albert 1er / Corum : les conflits sont gérés par…",
-          choices: [
-            "La priorité à droite uniquement",
-            "La signalisation lumineuse (marche à vue complétée par la signalisation)",
-            "Le PCC en permanence",
-            "L'absence de signalisation",
-          ],
-          correct: 1,
-          explanation:
-            "Marche à vue ; conflits gérés par signalisation lumineuse sauf zones spécifiques (p.21).",
-        },
-        {
-          id: "sg-08",
-          prompt:
-            "Avant de franchir un aiguillage, le conducteur doit vérifier notamment :",
-          choices: [
-            "Uniquement le prochain arrêt client",
-            "La programmation de direction, les feux/INDIR et le placage des aiguilles",
-            "Seulement la pression des freins",
-            "Le numéro de la rame",
-          ],
-          correct: 1,
-          explanation: "Trois vérifications listées p.21.",
-        },
-      ],
-    },
-
+    
     // ─── 2.2 F-G Feux blancs ──────────────────────────────────
     {
       id: "feux-blancs",
       code: "2.2-F/G",
       title: "Feux blancs — Remisage & anticipation",
-      biblePage: 24,
+      cetPage: 24,
       questions: [
         {
           id: "fb-01",
@@ -916,12 +975,13 @@ export const MODULES = {
       ],
     },
 
+    
     // ─── 2.2 H-I Lampe flash & tension ───────────────────────
     {
       id: "lampe-tension",
       code: "2.2-H/I",
       title: "Lampe flash, avertisseur & feu de tension",
-      biblePage: 25,
+      cetPage: 25,
       questions: [
         {
           id: "lt-01",
@@ -1028,83 +1088,13 @@ export const MODULES = {
       ],
     },
 
-    // ─── 2.3 Panne signalisation routière ─────────────────────
-    {
-      id: "panne-r17",
-      code: "2.3",
-      title: "Panne signalisation lumineuse routière (R17)",
-      biblePage: 28,
-      questions: [
-        {
-          id: "pr-01",
-          prompt:
-            "Panne du feu type R17 (signalisation routière) : première action ?",
-          choices: [
-            "Franchir à 40 km/h",
-            "Appeler le PCC",
-            "Couper la traction",
-            "Priorité à droite sans appel",
-          ],
-          correct: 1,
-          explanation: "Panne R17 → appeler le PCC (p.28).",
-        },
-        {
-          id: "pr-02",
-          prompt:
-            "Si le PCC autorise à franchir avec les 3 feux éteints ou disque central clignotant : vitesse au carrefour ?",
-          choices: ["30 km/h", "20 km/h", "10 km/h", "40 km/h"],
-          correct: 2,
-          explanation: "Franchir à 10 km/h max (p.28).",
-        },
-        {
-          id: "pr-03",
-          prompt:
-            "Franchissement autorisé par PCC en panne R17 : actions obligatoires ?",
-          choices: [
-            "Accélérer pour libérer",
-            "Code de la route (priorité à droite), gong + feux de détresse, 10 km/h",
-            "FU immédiat",
-            "Feux de détresse seuls",
-          ],
-          correct: 1,
-          explanation: "Priorité à droite, gong, détresse, 10 km/h (p.28).",
-        },
-        {
-          id: "pr-04",
-          prompt:
-            "Franchir un signal fermé (barre horizontale) sans agents TaM/Police sur place :",
-          choices: [
-            "Autorisé si PCC dit oui",
-            "En principe non — sauf configurations simples sans risque, à appréciation conducteur après accord PCC",
-            "Toujours autorisé à 10 km/h",
-            "Interdit sans exception",
-          ],
-          correct: 1,
-          explanation:
-            "Barre horizontale fermée : pas d'autorisation PCC sauf agents sur place, sauf cas simples (p.28).",
-        },
-        {
-          id: "pr-05",
-          prompt:
-            "Exemple de configuration « simple » citée p.28 pour dérogation possible :",
-          choices: [
-            "Carrefour complexe en centre-ville",
-            "Voies uniques ne croisant rien après le quai",
-            "Zone gare",
-            "Tunnel Mistral",
-          ],
-          correct: 1,
-          explanation: "Ex. voies uniques sans croisement après le quai (p.28).",
-        },
-      ],
-    },
-
+    
     // ─── 2.2-J Traversée routière R17 ─────────────────────────
     {
       id: "traversee-r17",
       code: "2.2-J",
       title: "Traversée routière — R17 & pré-signalisation",
-      biblePage: "26–27",
+      cetPage: "26–27",
       questions: [
         {
           id: "tr-01",
@@ -1227,17 +1217,130 @@ export const MODULES = {
       ],
     },
 
-    // ─── 2.4.1 Zone Gare ──────────────────────────────────────
+    
+    // ─── 2.3 Panne signalisation lumineuse routière ────────────
+    {
+      id: "panne-r17",
+      code: "2.3",
+      title:
+        "Consignes en cas de panne de la signalisation lumineuse routière — Appel PCC, franchissement et vitesses",
+      cetPage: 28,
+      questions: [
+        {
+          id: "pr-01",
+          prompt:
+            "Panne du feu type R17 (signalisation routière) : première action ?",
+          choices: [
+            "Franchir à 40 km/h",
+            "Appeler le PCC",
+            "Couper la traction",
+            "Priorité à droite sans appel",
+          ],
+          correct: 1,
+          explanation: "Panne R17 → appeler le PCC (p.28).",
+        },
+        {
+          id: "pr-02",
+          prompt:
+            "Si le PCC autorise à franchir avec les 3 feux éteints ou disque central clignotant : vitesse au carrefour ?",
+          choices: ["30 km/h", "20 km/h", "10 km/h", "40 km/h"],
+          correct: 2,
+          explanation: "Franchir à 10 km/h max (p.28).",
+        },
+        {
+          id: "pr-03",
+          prompt:
+            "Franchissement autorisé par PCC en panne R17 : actions obligatoires ?",
+          choices: [
+            "Accélérer pour libérer",
+            "Code de la route (priorité à droite), gong + feux de détresse, 10 km/h",
+            "FU immédiat",
+            "Feux de détresse seuls",
+          ],
+          correct: 1,
+          explanation: "Priorité à droite, gong, détresse, 10 km/h (p.28).",
+        },
+        {
+          id: "pr-04",
+          prompt:
+            "Franchir un signal fermé (barre horizontale) sans agents TaM/Police sur place :",
+          choices: [
+            "Autorisé si PCC dit oui",
+            "En principe non — sauf configurations simples sans risque, à appréciation conducteur après accord PCC",
+            "Toujours autorisé à 10 km/h",
+            "Interdit sans exception",
+          ],
+          correct: 1,
+          explanation:
+            "Barre horizontale fermée : pas d'autorisation PCC sauf agents sur place, sauf cas simples (p.28).",
+        },
+        {
+          id: "pr-05",
+          prompt:
+            "Exemple de configuration « simple » citée p.28 pour dérogation possible :",
+          choices: [
+            "Carrefour complexe en centre-ville",
+            "Voies uniques ne croisant rien après le quai",
+            "Zone gare",
+            "Tunnel Mistral",
+          ],
+          correct: 1,
+          explanation: "Ex. voies uniques sans croisement après le quai (p.28).",
+        },
+      ],
+    },
+
+    // ─── 2.4 Zones spécifiques (réseau Montpellier) ──────────
+    {
+      id: "zones-specifiques",
+      code: "2.4",
+      title:
+        "Zones spécifiques — Gare Saint-Roch, place Albert 1er, Corum",
+      cetPage: 21,
+      questions: [
+        {
+          id: "zs-01",
+          prompt:
+            "Quelles zones du réseau Montpellier sont qualifiées de zones spécifiques dans le document ?",
+          choices: [
+            "Le dépôt et le poste de retournement uniquement",
+            "Zone Gare Saint-Roch, place Albert 1er et Corum",
+            "Uniquement les terminus de ligne",
+            "Tout le centre-ville au-delà de la ligne 1",
+          ],
+          correct: 1,
+          explanation:
+            "Le CET distingue ces trois zones spécifiques ; les règles y sont détaillées pour la cohabitation des rames (voir p.21 et zones dédiées).",
+        },
+        {
+          id: "zs-02",
+          prompt:
+            "Comparé au reste du réseau, l'intérêt de repérer ces zones spécifiques pour un conducteur, c'est surtout :",
+          choices: [
+            "Qu'il n'y ait plus aucun feu à respecter",
+            "D'appliquer les consignes locales (priorités, procédures) propres à ces secteurs et de ne pas généraliser bêtement une règle « hors zone »",
+            "De rouler toujours à 40 km/h",
+            "D'éteindre toute signalisation embarquée",
+          ],
+          correct: 1,
+          explanation:
+            "Chaque zone spécifique a des règles à suivre (Gare détaillée en 2.4.1, etc.) ; les mélanger avec le régime général serait une erreur.",
+        },
+      ],
+    },
+
+    // ─── 2.4.1 Zone Gare Saint-Roch ───────────────────────────
     {
       id: "zone-gare",
       code: "2.4.1",
-      title: "Zone Gare St Roch",
-      biblePage: 29,
+      title:
+        "Zone Gare Saint-Roch (2.4.1) — Priorités, INDES et étapes de procédure",
+      cetPage: 29,
       questions: [
         {
           id: "zg-01",
           prompt:
-            "En zone Gare St Roch : vitesse maximum ?",
+            "En zone Gare Saint-Roch : vitesse maximum ?",
           choices: ["15 km/h", "10 km/h", "30 km/h", "40 km/h"],
           correct: 1,
           explanation: "Zone gare : 10 km/h (p.29).",
@@ -1323,12 +1426,13 @@ export const MODULES = {
       ],
     },
 
+    
     // ─── 2.5-A TIV ────────────────────────────────────────────
     {
       id: "tiv",
       code: "2.5-A",
       title: "TIV — Panneaux de vitesse",
-      biblePage: 33,
+      cetPage: 33,
       questions: [
         {
           id: "tiv-01",
@@ -1367,7 +1471,7 @@ export const MODULES = {
         {
           id: "tiv-04",
           prompt:
-            "Zones Gare St Roch, Albert 1er et Corum : vitesse spécifique ?",
+            "Zones Gare Saint-Roch, Albert 1er et Corum : vitesse spécifique ?",
           choices: ["30 km/h", "15 km/h", "10 km/h", "40 km/h"],
           correct: 2,
           explanation: "Rappel : 10 km/h en zones spécifiques (p.33).",

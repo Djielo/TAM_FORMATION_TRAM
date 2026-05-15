@@ -1,7 +1,7 @@
 # Cursor — éditeur (ne jamais versionner)
 .cursor/
 
-# Bible / scans / données locales — ne jamais versionner
+# CET (scans) / données locales — ne jamais versionner
 source/
 
 # Artefacts locaux, extraits de test
