@@ -13,11 +13,14 @@ Ouvrir [http://localhost:8080](http://localhost:8080) (idéalement sur télépho
 
 ## Publier sur GitHub Pages
 
-1. Créer un dépôt sur GitHub et y pousser cette branche (sans inclure `source/`, exclu par `.gitignore`).
-2. **Settings → Pages → Build and deployment → Source** : choisir **GitHub Actions** (le workflow `.github/workflows/pages.yml` déploie le dossier `docs/` à chaque push sur `main` ou `master`).
-3. Après le premier run réussi, l’URL est affichée dans l’onglet **Actions** et dans **Settings → Pages**.
+1. Créer un dépôt sur GitHub et y pousser la branche **`master`** (sans inclure `source/`, exclu par `.gitignore`).
+2. **Settings → Pages → Build and deployment** :
+   - **Source** : **Deploy from a branch** (pas GitHub Actions).
+   - **Branch** : **`master`**
+   - **Folder** : **`/docs`** (racine du site = contenu du dossier `docs/` du dépôt)
+3. Enregistrer. Après une minute environ, l’URL apparaît en haut de **Settings → Pages** (souvent `https://<user>.github.io/<nom-du-depot>/`).
 
-Alternative sans Actions : source **Deploy from a branch** → branche `main`, dossier `/docs`.
+Chaque **push** sur `master` qui modifie `docs/` met à jour le site automatiquement, sans workflow.
 
 ## Structure
 
