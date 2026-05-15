@@ -1,5 +1,6 @@
-# Scans Bible et ressources lourdes — non versionnés
-source/
+# Cursor — règles et config locales (ne pas publier)
+.cursor/
+
 
 # Sorties locales / extraits (tests)
 output/
