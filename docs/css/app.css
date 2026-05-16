@@ -707,6 +707,52 @@ body.quiz-modal-open {
   color: var(--accent);
 }
 
+.resume-banner {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.resume-banner p {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+}
+
+.resume-banner .btn {
+  margin-right: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.btn--sm {
+  font-size: 0.85rem;
+  padding: 0.45rem 0.85rem;
+}
+
+.module-card__best--active {
+  color: var(--warn);
+}
+
+.module-card__best--perfect {
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+}
+
+/* Emoji un peu plus grand que le score, sans gonfler la ligne */
+.module-card__celebrate {
+  font-size: 1.05rem;
+  line-height: 1;
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
 .header__unlock--dev {
   background: rgb(255 255 255 / 12%);
   padding: 0.35rem 0.5rem;

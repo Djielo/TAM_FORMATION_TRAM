@@ -2,7 +2,11 @@
  * Persistance locale : maîtrise QCM, SRS pré-examen, sessions, préférences.
  */
 import { AXES } from "./data.js";
-import { getQuestionPool, getQuestionsForAxis, getTotalQuestionCount } from "./pool.js";
+import {
+  getQuestionPool,
+  getQuestionsForAxis,
+  getTotalQuestionCount,
+} from "./pool.js";
 
 /** Meilleur taux « Je maîtrise » / session terminée requis par chapitre pour l'examen final. */
 export const PRETEST_FINAL_UNLOCK_RATE = 0.8;
@@ -19,29 +23,18 @@ export const KEYS = {
   helpDismissed: "tam-cet-help-dismissed-v1",
   pretestStats: "tam-cet-pretest-stats-v1",
   devUnlock: "tam-cet-dev-unlock-v1",
+  quizActive: "tam-cet-quiz-active-v1",
+  finalActive: "tam-cet-final-exam-active-v1",
+  finalHistory: "tam-cet-final-exam-history-v1",
 };
 
 const FIVE_MIN_MS = 5 * 60 * 1000;
 
 /** Paliers SRS (ms) — échelle indicative simplifiée. */
 export const SRS_INTERVALS_MS = [
-  60_000,
-  120_000,
-  180_000,
-  300_000,
-  600_000,
-  900_000,
-  1_800_000,
-  3_600_000,
-  10_800_000,
-  21_600_000,
-  43_200_000,
-  86_400_000,
-  259_200_000,
-  432_000_000,
-  604_800_000,
-  864_000_000,
-  1_296_000_000,
+  60_000, 120_000, 180_000, 300_000, 600_000, 900_000, 1_800_000, 3_600_000,
+  10_800_000, 21_600_000, 43_200_000, 86_400_000, 259_200_000, 432_000_000,
+  604_800_000, 864_000_000, 1_296_000_000,
 ];
 
 function readJson(key, fallback) {
@@ -103,23 +96,28 @@ function saveMastery(data) {
   writeJson(KEYS.mastery, data);
 }
 
-export function recordQuestionSeen(questionId) {
+/** Chaque réponse QCM (bonne ou mauvaise) — écriture immédiate dans localStorage. */
+export function recordQuestionAttempt(questionId, correct) {
   const m = loadMastery();
   const row = m[questionId] || {};
   row.seen = true;
   row.lastSeenAt = Date.now();
+  row.lastAttemptCorrect = correct;
+  row.attempts = (row.attempts || 0) + 1;
+  if (correct) {
+    row.everCorrect = true;
+    row.lastCorrectAt = Date.now();
+  }
   m[questionId] = row;
   saveMastery(m);
 }
 
+export function recordQuestionSeen(questionId) {
+  recordQuestionAttempt(questionId, false);
+}
+
 export function recordQuestionCorrect(questionId) {
-  const m = loadMastery();
-  const row = m[questionId] || {};
-  row.seen = true;
-  row.everCorrect = true;
-  row.lastCorrectAt = Date.now();
-  m[questionId] = row;
-  saveMastery(m);
+  recordQuestionAttempt(questionId, true);
 }
 
 export function getMasteryStats() {
@@ -334,6 +332,44 @@ export function saveFinalPref(count) {
 
 export function getFinalPref() {
   return loadFinalPrefs().count ?? 50;
+}
+
+/* ─── Révision : QCM en cours ─── */
+
+export function saveActiveQuizSession(payload) {
+  if (!payload) {
+    localStorage.removeItem(KEYS.quizActive);
+    return;
+  }
+  writeJson(KEYS.quizActive, { ...payload, savedAt: Date.now() });
+}
+
+export function getActiveQuizSession() {
+  return readJson(KEYS.quizActive, null);
+}
+
+/* ─── Examen final : session en cours + historique ─── */
+
+export function saveActiveFinalSession(payload) {
+  if (!payload) {
+    localStorage.removeItem(KEYS.finalActive);
+    return;
+  }
+  writeJson(KEYS.finalActive, { ...payload, savedAt: Date.now() });
+}
+
+export function getActiveFinalSession() {
+  return readJson(KEYS.finalActive, null);
+}
+
+export function appendFinalExamResult(result) {
+  const list = readJson(KEYS.finalHistory, []);
+  list.unshift({ ...result, at: Date.now() });
+  writeJson(KEYS.finalHistory, list.slice(0, 30));
+}
+
+export function loadFinalExamHistory() {
+  return readJson(KEYS.finalHistory, []);
 }
 
 /* ─── Aide (pop-ups) ─── */

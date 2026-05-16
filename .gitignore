@@ -7,6 +7,9 @@ source/
 # Artefacts locaux, extraits de test
 output/
 
+# Procédure de lancement locale (usage personnel)
+PROCEDURE_LANCEMENT.md
+
 # OS & éditeurs
 .DS_Store
 Thumbs.db

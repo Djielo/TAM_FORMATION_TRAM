@@ -12,8 +12,12 @@ import {
   loadRevisionProgress,
   saveModuleScore,
   getModuleProgress,
-  recordQuestionSeen,
-  recordQuestionCorrect,
+  recordQuestionAttempt,
+  saveActiveQuizSession,
+  getActiveQuizSession,
+  saveActiveFinalSession,
+  getActiveFinalSession,
+  appendFinalExamResult,
   getMasteryStats,
   isUnlockComplete,
   isPretestTabUnlocked,
@@ -285,19 +289,73 @@ function renderPauseWarnModal() {
 
 /* ─── Révision ─── */
 
-function startQuiz(axisId, moduleId) {
-  const mod = MODULES[axisId].find((m) => m.id === moduleId);
-  for (const q of mod.questions) recordQuestionSeen(q.id);
-  quiz = {
-    questions: shuffle(mod.questions),
-    index: 0,
-    score: 0,
+function isModulePerfect(axisId, moduleId) {
+  const prog = getModuleProgress(axisId, moduleId);
+  return !!(prog && prog.total > 0 && prog.score === prog.total);
+}
+
+/** Pas de reprise ni de bandeau « QCM en cours » si le module est déjà à 100 %. */
+function discardActiveQuizIfPerfect(axisId, moduleId) {
+  if (!isModulePerfect(axisId, moduleId)) return;
+  const saved = getActiveQuizSession();
+  if (saved?.axisId === axisId && saved?.moduleId === moduleId) {
+    saveActiveQuizSession(null);
+  }
+}
+
+function persistQuizSession() {
+  if (screen !== "quiz" || !route.axisId || !route.moduleId || !quiz.questions?.length) return;
+  if (isModulePerfect(route.axisId, route.moduleId)) return;
+  saveActiveQuizSession({
+    axisId: route.axisId,
+    moduleId: route.moduleId,
+    questionIds: quiz.questions.map((q) => q.id),
+    index: quiz.index,
+    score: quiz.score,
+  });
+}
+
+function buildQuizFromSaved(saved, mod) {
+  const byId = Object.fromEntries(mod.questions.map((q) => [q.id, q]));
+  const questions = saved.questionIds.map((id) => byId[id]).filter(Boolean);
+  return {
+    questions: questions.length ? questions : shuffle(mod.questions),
+    index: Math.min(saved.index ?? 0, Math.max(0, questions.length - 1)),
+    score: saved.score ?? 0,
     answered: false,
     selected: null,
     moduleTitle: mod.title,
     moduleCode: mod.code,
     feedbackModalDismissed: false,
   };
+}
+
+function startQuiz(axisId, moduleId, fresh = true) {
+  const mod = MODULES[axisId].find((m) => m.id === moduleId);
+  if (!mod) return;
+
+  if (fresh) {
+    saveActiveQuizSession(null);
+    quiz = {
+      questions: shuffle(mod.questions),
+      index: 0,
+      score: 0,
+      answered: false,
+      selected: null,
+      moduleTitle: mod.title,
+      moduleCode: mod.code,
+      feedbackModalDismissed: false,
+    };
+  } else {
+    const saved = getActiveQuizSession();
+    if (saved?.axisId === axisId && saved?.moduleId === moduleId) {
+      quiz = buildQuizFromSaved(saved, mod);
+    } else {
+      startQuiz(axisId, moduleId, true);
+      return;
+    }
+  }
+  persistQuizSession();
   navigate("quiz", { axisId, moduleId });
 }
 
@@ -341,13 +399,34 @@ function renderHome() {
       </div>
       <p class="footer-note">Progression globale : <strong>${stats.validated} / ${stats.total}</strong> questions validées (au moins une bonne réponse en QCM).</p>
       ${doneCount ? `<p class="footer-note">${doneCount} module(s) avec score enregistré.</p>` : ""}
+      ${renderResumeQuizBanner()}
+      <p class="footer-note">Votre progression est enregistrée sur cet appareil (rechargement de page sans perte). Utilisez toujours la même adresse (ex. <strong>localhost:8080</strong>).</p>
       <p class="footer-note">Document interne TaM — outil d'entraînement personnel.</p>
     </main>`;
+}
+
+function renderResumeQuizBanner() {
+  const saved = getActiveQuizSession();
+  if (!saved?.axisId || !saved?.moduleId) return "";
+  if (isModulePerfect(saved.axisId, saved.moduleId)) return "";
+  const mod = MODULES[saved.axisId]?.find((m) => m.id === saved.moduleId);
+  if (!mod) return "";
+  const axis = getAxisById(saved.axisId);
+  return `<div class="resume-banner">
+      <p><strong>QCM en cours</strong> — ${escapeHtml(axis?.title || "")} · ${escapeHtml(mod.code)} (question ${(saved.index ?? 0) + 1})</p>
+      <button type="button" class="btn btn--primary btn--sm" data-resume-quiz>Reprendre le module</button>
+      <button type="button" class="btn btn--ghost btn--sm" data-discard-quiz>Abandonner</button>
+    </div>`;
 }
 
 function renderAxis() {
   const axis = getAxisById(route.axisId);
   const modules = MODULES[route.axisId] || [];
+  let activeQuiz = getActiveQuizSession();
+  if (activeQuiz?.axisId === route.axisId && activeQuiz?.moduleId) {
+    discardActiveQuizIfPerfect(route.axisId, activeQuiz.moduleId);
+    activeQuiz = getActiveQuizSession();
+  }
 
   return `
     <main class="main">
@@ -358,9 +437,22 @@ function renderAxis() {
         ${modules
           .map((m) => {
             const prog = getModuleProgress(route.axisId, m.id);
+            const perfect = !!(prog && prog.total > 0 && prog.score === prog.total);
+            const inProgress =
+              !perfect &&
+              activeQuiz?.axisId === route.axisId &&
+              activeQuiz?.moduleId === m.id &&
+              activeQuiz.index < (activeQuiz.questionIds?.length ?? 0);
             const { headline, subtitle } = splitModuleTitle(m.title);
             const nQ = m.questions.length;
-            const bestLine = prog ? `<span class="module-card__best">Meilleur : ${prog.score}/${prog.total}</span>` : "";
+            const bestLine = prog
+              ? perfect
+                ? `<span class="module-card__best module-card__best--perfect" title="Module maîtrisé à 100 %"><span class="module-card__celebrate" aria-hidden="true">🥳</span> ${prog.score}/${prog.total}</span>`
+                : `<span class="module-card__best">Meilleur : ${prog.score}/${prog.total}</span>`
+              : "";
+            const progressLine = inProgress
+              ? `<span class="module-card__best module-card__best--active">QCM en cours (q. ${activeQuiz.index + 1})</span>`
+              : "";
             const descParagraph = subtitle
               ? `<p class="module-card__desc">${escapeHtml(subtitle)}</p>`
               : `<p class="module-card__desc module-card__desc--muted">Paragraphe ${escapeHtml(m.code)}</p>`;
@@ -374,6 +466,7 @@ function renderAxis() {
                   ${descParagraph}
                   <div class="module-card__foot">
                     <span class="module-card__count">${formatQuestionCount(nQ)}</span>
+                    ${progressLine}
                     ${bestLine}
                   </div>
                 </div>
@@ -412,13 +505,20 @@ function renderQuiz() {
     const title = ok ? "Bravo. Réponse correcte !" : "Mauvaise réponse. À revoir !";
     const titleCls = ok ? "quiz-modal__title quiz-modal__title--ok" : "quiz-modal__title quiz-modal__title--ko";
     modalHtml = `
-    <div class="quiz-modal-backdrop" role="dialog" aria-modal="true">
+    <div class="quiz-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="quiz-feedback-title">
       <div class="quiz-modal">
-        <h2 class="${titleCls}">${title}</h2>
-        <p class="quiz-modal__correct-choice">${escapeHtml(q.choices[q.correct])}</p>
-        <p class="quiz-modal__text">${escapeHtml(q.explanation)}</p>
+        <h2 id="quiz-feedback-title" class="${titleCls}">${title}</h2>
+        <div class="quiz-modal__question-wrap">
+          <p class="quiz-modal__question-label">La question était :</p>
+          <p class="quiz-modal__question">${escapeHtml(q.prompt)}</p>
+        </div>
+        <div class="quiz-modal__body">
+          <p class="quiz-modal__label">${ok ? "Réponse correcte" : "Bonne réponse"}</p>
+          <p class="quiz-modal__correct-choice">${escapeHtml(q.choices[q.correct])}</p>
+          <p class="quiz-modal__text">${escapeHtml(q.explanation)}</p>
+        </div>
         <div class="quiz-modal__actions">
-          <button type="button" class="btn btn--ghost" data-modal-close>Fermer</button>
+          <button type="button" class="btn btn--ghost quiz-modal__btn-narrow" data-modal-close>Fermer</button>
           <button type="button" class="btn btn--primary" data-modal-next>${nextLabel}</button>
         </div>
       </div>
@@ -465,14 +565,43 @@ function bindRevision() {
   });
 
   app.querySelector("[data-back='home']")?.addEventListener("click", () => navigate("home"));
-  app.querySelector("[data-back='axis']")?.addEventListener("click", () => navigate("axis"));
+  app.querySelector("[data-back='axis']")?.addEventListener("click", () => {
+    if (screen === "quiz") persistQuizSession();
+    navigate("axis");
+  });
 
   app.querySelectorAll("[data-module]").forEach((btn) => {
-    btn.addEventListener("click", () => startQuiz(route.axisId, btn.dataset.module));
+    btn.addEventListener("click", () => {
+      const moduleId = btn.dataset.module;
+      if (isModulePerfect(route.axisId, moduleId)) {
+        discardActiveQuizIfPerfect(route.axisId, moduleId);
+        startQuiz(route.axisId, moduleId, true);
+        return;
+      }
+      const saved = getActiveQuizSession();
+      if (
+        saved?.axisId === route.axisId &&
+        saved?.moduleId === moduleId &&
+        saved.index < (saved.questionIds?.length ?? 0)
+      ) {
+        startQuiz(route.axisId, moduleId, false);
+      } else {
+        startQuiz(route.axisId, moduleId, true);
+      }
+    });
+  });
+
+  app.querySelector("[data-resume-quiz]")?.addEventListener("click", () => {
+    const saved = getActiveQuizSession();
+    if (saved) startQuiz(saved.axisId, saved.moduleId, false);
+  });
+  app.querySelector("[data-discard-quiz]")?.addEventListener("click", () => {
+    saveActiveQuizSession(null);
+    render();
   });
 
   if (screen === "quiz") bindQuizHandlers();
-  app.querySelector("[data-retry]")?.addEventListener("click", () => startQuiz(route.axisId, route.moduleId));
+  app.querySelector("[data-retry]")?.addEventListener("click", () => startQuiz(route.axisId, route.moduleId, true));
   app.querySelector("[data-modules]")?.addEventListener("click", () => navigate("axis"));
 }
 
@@ -486,9 +615,11 @@ function bindQuizHandlers() {
       quiz.answered = false;
       quiz.selected = null;
       quiz.feedbackModalDismissed = false;
+      persistQuizSession();
       render();
     } else {
       saveModuleScore(route.axisId, route.moduleId, quiz.score, total);
+      saveActiveQuizSession(null);
       navigate("results");
     }
   }
@@ -499,11 +630,10 @@ function bindQuizHandlers() {
         quiz.selected = Number(btn.dataset.choice);
         quiz.answered = true;
         quiz.feedbackModalDismissed = false;
-        recordQuestionSeen(q.id);
-        if (quiz.selected === q.correct) {
-          quiz.score++;
-          recordQuestionCorrect(q.id);
-        }
+        const ok = quiz.selected === q.correct;
+        recordQuestionAttempt(q.id, ok);
+        if (ok) quiz.score++;
+        persistQuizSession();
         render();
       });
     });
@@ -636,16 +766,41 @@ function buildFinalQueue(count) {
   return shuffle(getQuestionPool().map((q) => q.questionId)).slice(0, count);
 }
 
-function launchFinalSession(count) {
-  cardSession = {
-    mode: "final",
-    targetCount: count,
-    queue: buildFinalQueue(count),
-    index: 0,
-    flipped: false,
-    errors: [],
-    correctCount: 0,
-  };
+function persistFinalSession() {
+  if (!cardSession || cardSession.mode !== "final") return;
+  saveActiveFinalSession({
+    targetCount: cardSession.targetCount,
+    queue: cardSession.queue,
+    index: cardSession.index,
+    correctCount: cardSession.correctCount ?? 0,
+    errors: cardSession.errors ?? [],
+    flipped: cardSession.flipped,
+  });
+}
+
+function launchFinalSession(count, resumeSaved = null) {
+  if (resumeSaved) {
+    cardSession = {
+      mode: "final",
+      targetCount: resumeSaved.targetCount,
+      queue: resumeSaved.queue,
+      index: resumeSaved.index ?? 0,
+      flipped: false,
+      errors: resumeSaved.errors ?? [],
+      correctCount: resumeSaved.correctCount ?? 0,
+    };
+  } else {
+    cardSession = {
+      mode: "final",
+      targetCount: count,
+      queue: buildFinalQueue(count),
+      index: 0,
+      flipped: false,
+      errors: [],
+      correctCount: 0,
+    };
+    persistFinalSession();
+  }
   screen = "final-card";
   render();
 }
@@ -679,9 +834,20 @@ function renderFinalSetup() {
     )
     .join("");
 
+  const activeFinal = getActiveFinalSession();
+  const finalResume =
+    activeFinal?.queue?.length && activeFinal.index < activeFinal.queue.length
+      ? `<div class="resume-banner">
+          <p><strong>Examen en cours</strong> — carte ${activeFinal.index + 1} / ${activeFinal.queue.length}</p>
+          <button type="button" class="btn btn--primary btn--sm" data-final-resume>Reprendre</button>
+          <button type="button" class="btn btn--ghost btn--sm" data-final-discard>Abandonner</button>
+        </div>`
+      : "";
+
   return `
     <main class="main">
       <p class="intro-note">Session sur l'ensemble du CET (${total} questions).</p>
+      ${finalResume}
       <div class="setup-box">
         <p class="setup-box__lead">Nombre de cartes :</p>
         <div class="radio-group">${radios}</div>
@@ -797,10 +963,21 @@ function advanceCard() {
       cardSession = null;
       screen = "pretest-chapters";
     } else {
+      const total = cardSession.queue.length;
+      appendFinalExamResult({
+        correctCount: cardSession.correctCount ?? 0,
+        targetCount: total,
+        tier: finalScoreTier(cardSession.correctCount ?? 0, total),
+      });
+      saveActiveFinalSession(null);
       screen = "final-results";
     }
     render();
     return;
+  }
+
+  if (cardSession.mode === "final") {
+    persistFinalSession();
   }
 
   if (cardSession.mode === "pretest") {
@@ -852,7 +1029,16 @@ function bindFinal() {
   app.querySelector("[data-final-start]")?.addEventListener("click", () => {
     const n = Number(app.querySelector('input[name="final-size"]:checked')?.value || 50);
     saveFinalPref(n);
+    saveActiveFinalSession(null);
     launchFinalSession(n);
+  });
+  app.querySelector("[data-final-resume]")?.addEventListener("click", () => {
+    const saved = getActiveFinalSession();
+    if (saved) launchFinalSession(null, saved);
+  });
+  app.querySelector("[data-final-discard]")?.addEventListener("click", () => {
+    saveActiveFinalSession(null);
+    render();
   });
   app.querySelector("[data-final-retry]")?.addEventListener("click", () => {
     cardSession = null;
@@ -951,5 +1137,49 @@ function render() {
 
 /* ─── Init ─── */
 
-if (!isHelpDismissed("revision")) pendingHelp = "revision";
-render();
+function tryRestoreOnLoad() {
+  const savedQuiz = getActiveQuizSession();
+  if (
+    savedQuiz?.questionIds?.length &&
+    savedQuiz.index < savedQuiz.questionIds.length &&
+    MODULES[savedQuiz.axisId]
+  ) {
+    const mod = MODULES[savedQuiz.axisId].find((m) => m.id === savedQuiz.moduleId);
+    if (mod && !isModulePerfect(savedQuiz.axisId, savedQuiz.moduleId)) {
+      activeTab = "revision";
+      route = { axisId: savedQuiz.axisId, moduleId: savedQuiz.moduleId };
+      quiz = buildQuizFromSaved(savedQuiz, mod);
+      screen = "quiz";
+      return true;
+    }
+    if (mod && isModulePerfect(savedQuiz.axisId, savedQuiz.moduleId)) {
+      saveActiveQuizSession(null);
+    }
+  }
+
+  const savedFinal = getActiveFinalSession();
+  if (
+    savedFinal?.queue?.length &&
+    savedFinal.index < savedFinal.queue.length &&
+    isFinalExamUnlocked()
+  ) {
+    activeTab = "final";
+    launchFinalSession(null, savedFinal);
+    return true;
+  }
+
+  return false;
+}
+
+function init() {
+  const restored = tryRestoreOnLoad();
+  if (!restored && !isHelpDismissed("revision")) pendingHelp = "revision";
+  render();
+}
+
+window.addEventListener("beforeunload", () => {
+  if (screen === "quiz") persistQuizSession();
+  if (cardSession?.mode === "final") persistFinalSession();
+});
+
+init();
