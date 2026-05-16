@@ -10,6 +10,9 @@ output/
 # Procédure de lancement locale (usage personnel)
 PROCEDURE_LANCEMENT.md
 
+# Guide rédaction questions (usage local / IA)
+docs/REDIGER-QUESTIONS-CET.md
+
 # OS & éditeurs
 .DS_Store
 Thumbs.db

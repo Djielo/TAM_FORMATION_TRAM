@@ -1,14 +1,17 @@
 /**
  * Persistance locale : maîtrise QCM, SRS pré-examen, sessions, préférences.
  */
-import { AXES } from "./data.js";
+import { AXES, MODULES } from "./data.js";
 import {
   getQuestionPool,
   getQuestionsForAxis,
   getTotalQuestionCount,
 } from "./pool.js";
 
-/** Meilleur taux « Je maîtrise » / session terminée requis par chapitre pour l'examen final. */
+/** Incrémenter si la structure localStorage ou les règles de comptage changent. */
+export const STORAGE_SCHEMA_VERSION = 3;
+
+/** Part minimale des questions du chapitre marquées « Je maîtrise » en pré-examen (examen final). */
 export const PRETEST_FINAL_UNLOCK_RATE = 0.8;
 
 export const KEYS = {
@@ -26,7 +29,10 @@ export const KEYS = {
   quizActive: "tam-cet-quiz-active-v1",
   finalActive: "tam-cet-final-exam-active-v1",
   finalHistory: "tam-cet-final-exam-history-v1",
+  schema: "tam-cet-storage-schema-v2",
 };
+
+const ALL_STORAGE_KEYS = Object.values(KEYS);
 
 const FIVE_MIN_MS = 5 * 60 * 1000;
 
@@ -72,7 +78,9 @@ export function loadRevisionProgress() {
   }
 }
 
-export function saveModuleScore(axisId, moduleId, score, total) {
+export function saveModuleScore(axisId, moduleId, score, totalFromQuiz) {
+  const mod = MODULES[axisId]?.find((m) => m.id === moduleId);
+  const total = mod?.questions.length ?? totalFromQuiz;
   const all = loadRevisionProgress();
   const key = `${axisId}/${moduleId}`;
   const prev = all[key];
@@ -84,6 +92,79 @@ export function saveModuleScore(axisId, moduleId, score, total) {
 
 export function getModuleProgress(axisId, moduleId) {
   return loadRevisionProgress()[`${axisId}/${moduleId}`] || null;
+}
+
+/** Comptage aligné sur le pool actuel (source de vérité pour 🥳 et 404/404). */
+export function getModuleQuestionStats(axisId, moduleId) {
+  const mod = MODULES[axisId]?.find((m) => m.id === moduleId);
+  if (!mod) return { total: 0, validated: 0, bestRun: null, perfect: false };
+  const mastery = loadMastery();
+  const total = mod.questions.length;
+  let validated = 0;
+  for (const q of mod.questions) {
+    if (mastery[q.id]?.everCorrect) validated++;
+  }
+  const prog = getModuleProgress(axisId, moduleId);
+  const bestRun = prog
+    ? { score: prog.score, storedTotal: prog.total, stale: prog.total !== total }
+    : null;
+  return {
+    total,
+    validated,
+    bestRun,
+    perfect: total > 0 && validated === total,
+  };
+}
+
+export function isModulePerfect(axisId, moduleId) {
+  return getModuleQuestionStats(axisId, moduleId).perfect;
+}
+
+function hasLegacyStorage() {
+  return !!(
+    localStorage.getItem(KEYS.revision) ||
+    localStorage.getItem(KEYS.revisionLegacy) ||
+    localStorage.getItem(KEYS.mastery) ||
+    localStorage.getItem(KEYS.srs)
+  );
+}
+
+/**
+ * Montée de version : conserve les scores modules (le 🥳 disparaît si des questions
+ * sont ajoutées au CET) ; retire seulement les questions supprimées du pool.
+ */
+export function migrateStorage() {
+  const stored = parseInt(localStorage.getItem(KEYS.schema) || "0", 10);
+  if (stored >= STORAGE_SCHEMA_VERSION) {
+    return { action: "none", orphanQuestionsRemoved: 0 };
+  }
+
+  if (!hasLegacyStorage()) {
+    localStorage.setItem(KEYS.schema, String(STORAGE_SCHEMA_VERSION));
+    return { action: "init", orphanQuestionsRemoved: 0 };
+  }
+
+  const poolIds = new Set(getQuestionPool().map((q) => q.questionId));
+  const m = loadMastery();
+  let orphanQuestionsRemoved = 0;
+  for (const id of Object.keys(m)) {
+    if (!poolIds.has(id)) {
+      delete m[id];
+      orphanQuestionsRemoved++;
+    }
+  }
+  if (orphanQuestionsRemoved) saveMastery(m);
+
+  localStorage.setItem(KEYS.schema, String(STORAGE_SCHEMA_VERSION));
+  return { action: "migrated", orphanQuestionsRemoved };
+}
+
+/** Efface toute la progression CET sur cet appareil. */
+export function resetAllUserProgress() {
+  for (const key of ALL_STORAGE_KEYS) {
+    localStorage.removeItem(key);
+  }
+  localStorage.setItem(KEYS.schema, String(STORAGE_SCHEMA_VERSION));
 }
 
 /* ─── Maîtrise par question (déverrouillage) ─── */
@@ -176,18 +257,32 @@ export function recordPretestSessionResult(axisId, mastered, total) {
   writeJson(KEYS.pretestStats, all);
 }
 
+/** Cartes du chapitre ayant reçu « Je maîtrise » au moins une fois (SRS). */
+export function getPretestChapterMastery(axisId) {
+  const questions = getQuestionsForAxis(axisId);
+  const srs = loadSrs();
+  let mastered = 0;
+  for (const q of questions) {
+    if ((srs[q.questionId]?.intervalIndex ?? 0) >= 1) mastered++;
+  }
+  const total = questions.length;
+  const rate = total > 0 ? mastered / total : 0;
+  return { mastered, total, rate };
+}
+
 export function getPretestUnlockProgress() {
   const chapters = AXES.filter((a) => a.available);
-  const stats = loadPretestStats();
   const items = chapters.map((a) => {
-    const bestRate = stats[a.id]?.bestRate ?? 0;
+    const { mastered, total, rate } = getPretestChapterMastery(a.id);
     return {
       axisId: a.id,
       num: a.num,
       title: a.title,
-      bestRate,
-      bestPct: Math.round(bestRate * 100),
-      ok: bestRate >= PRETEST_FINAL_UNLOCK_RATE,
+      mastered,
+      total,
+      masteryRate: rate,
+      masteryPct: Math.round(rate * 100),
+      ok: total > 0 && rate >= PRETEST_FINAL_UNLOCK_RATE,
     };
   });
   return {

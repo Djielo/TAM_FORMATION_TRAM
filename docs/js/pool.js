@@ -15,6 +15,7 @@ export function getQuestionPool() {
         all.push({
           questionId: q.id,
           prompt: q.prompt,
+          cardPrompt: q.cardPrompt || null,
           choices: q.choices,
           correct: q.correct,
           explanation: q.explanation,

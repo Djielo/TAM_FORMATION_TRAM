@@ -12,27 +12,27 @@ export const MODULES_CH1 = [
         prompt:
           "Quand le conducteur est-il dispensé de la préparation de la rame ?",
         choices: [
-          "Si un autre agent habilité l'a déjà faite ou si la rame a déjà roulé le matin au dépôt",
+          "Si un agent habilité l'a déjà faite, ou si la rame est déjà revenue en service sur le réseau ce matin",
           "Uniquement le dimanche",
-          "Sur accord oral du régulateur",
-          "Si le service commence après 10 h",
+          "Sur simple accord oral du régulateur, sans autre condition",
+          "Si le service commercial commence après 10 h",
         ],
         correct: 0,
         explanation:
-          "Dispense si préparation déjà effectuée (jockey, etc.) ou rame déjà en service le matin (p.4).",
+          "Dispense si préparation déjà faite (jockey, etc.) ou rame déjà sortie en service le matin (CET p. 4).",
       },
       {
         id: "ch1-11a-02",
-        prompt:
-          "Un signalement majeur ou à impact sécurité se traite par :",
+        prompt: "Comment doit être traité un signalement majeur ou à impact sécurité ?",
         choices: [
-          "Appel immédiat au PCC",
-          "Inscription au SAT uniquement",
-          "Fin de service",
-          "Courrier au dépôt le lendemain",
+          "Par un appel immédiat au PCC",
+          "Par une inscription au SAT uniquement, sans appel immédiat",
+          "En fin de service uniquement",
+          "Par courrier au dépôt le lendemain",
         ],
         correct: 0,
-        explanation: "Sécurité : appel immédiat au PCC ; autres anomalies au SAT (p.4).",
+        explanation:
+          "Sécurité : appel immédiat au PCC ; les autres anomalies vont au SAT (CET p. 4).",
       },
       {
         id: "ch1-11a-03",
@@ -50,21 +50,29 @@ export const MODULES_CH1 = [
         id: "ch1-11a-04",
         prompt:
           "Absence de 24 V sur Citadis 402 : où actionner le commutateur batterie ?",
-        choices: ["Sur l'AEL", "Dans le voussoir uniquement", "Sous le siège", "Au PCC"],
+        choices: [
+          "Sur l'AEL",
+          "Dans le voussoir uniquement",
+          "Sous le siège conducteur",
+          "En demandant l'actionnement du 24 V au PCC",
+        ],
         correct: 0,
-        explanation: "402 : commutateur sur l'AEL ; autres types souvent dans le voussoir (p.4).",
+        explanation:
+          "402 : commutateur sur l'AEL ; autres types souvent dans le voussoir (CET p. 4).",
       },
       {
         id: "ch1-11a-05",
-        prompt: "Première étape d'entrée par la porte de service (côté droit) :",
+        prompt:
+          "Quelle est la première opération pour entrer par la porte de service (côté droit) ?",
         choices: [
-          "Déverrouiller avec la clé de service",
-          "Fermer avec la clé KC",
-          "Appeler le PCC",
-          "Vérifier le SIE",
+          "Déverrouiller la porte avec la clé de service",
+          "Fermer la porte avec la clé KC",
+          "Appeler le PCC pour demander l'autorisation d'entrer",
+          "Consulter le SIE avant toute manipulation de porte",
         ],
         correct: 0,
-        explanation: "Clé de service sur le dispositif de verrouillage, puis entrée (p.4).",
+        explanation:
+          "CET p. 4 : déverrouiller à la clé de service, puis pousser/ouvrir la porte et entrer. La question porte sur la première opération.",
       },
     ],
   },
@@ -235,7 +243,8 @@ export const MODULES_CH1 = [
       },
       {
         id: "ch1-11d-05",
-        prompt: "Sortie de cabine en fin de test : clé sur … puis contrôle …",
+        prompt:
+          "En fin de test, avant de quitter la cabine : sur quelle position laissez-vous la clé, et que contrôlez-vous ?",
         choices: [
           "N — verrouillage porte cabine",
           "CN — portes voyageurs",
@@ -358,7 +367,7 @@ export const MODULES_CH1 = [
     questions: [
       {
         id: "ch1-11g-01",
-        prompt: "Contrôle éclairage extérieur : comprend notamment …",
+        prompt: "Lors du contrôle de l'éclairage extérieur, que vérifiez-vous notamment ?",
         choices: [
           "Codes, feu pilote, antibrouillard, détresse, feux gabarit, rouges, stops",
           "Girouette uniquement",
@@ -370,7 +379,7 @@ export const MODULES_CH1 = [
       },
       {
         id: "ch1-11g-02",
-        prompt: "Carrosserie : on recherche notamment …",
+        prompt: "Lors du contrôle de la carrosserie, que recherchez-vous notamment ?",
         choices: [
           "Impacts, rayures, éléments en débord de gabarit",
           "Couleur de peinture",
@@ -416,7 +425,7 @@ export const MODULES_CH1 = [
     questions: [
       {
         id: "ch1-11h-01",
-        prompt: "Chasse-corps : contrôle à effectuer …",
+        prompt: "À quelle fréquence contrôlez-vous le chasse-corps ?",
         choices: [
           "À chaque entrée dans une nouvelle rame, toutes cabines, y compris en service",
           "Une fois par mois",
@@ -428,14 +437,14 @@ export const MODULES_CH1 = [
       },
       {
         id: "ch1-11h-02",
-        prompt: "Côté de service en sortie : sélection par …",
+        prompt: "En sortie, comment sélectionnez-vous le côté de service ?",
         choices: ["BPIL", "FS", "Manipulateur FNS", "Triangle"],
         correct: 0,
         explanation: "BPIL pour le côté de service (p.9).",
       },
       {
         id: "ch1-11h-03",
-        prompt: "Avant sortie dépôt : appel radio SAE pour …",
+        prompt: "Avant la sortie du dépôt, pourquoi appelez-vous le SAE à la radio ?",
         choices: [
           "Autorisation de sortie et signalement anomalies",
           "Horaires pause",
@@ -459,7 +468,7 @@ export const MODULES_CH1 = [
       },
       {
         id: "ch1-11h-05",
-        prompt: "Rétrovision en sortie : activation …",
+        prompt: "Pour la rétrovision en sortie du dépôt, que faites-vous si elle n'est pas active ?",
         choices: [
           "Sur écran SIE si non active",
           "Uniquement en station",
@@ -539,7 +548,7 @@ export const MODULES_CH1 = [
     questions: [
       {
         id: "ch1-121-01",
-        prompt: "Dé-préparation complète en ligne : autorisation …",
+        prompt: "Pour une dé-préparation complète en ligne, quelle autorisation est requise ?",
         choices: [
           "PCC obligatoire, après évacuation voyageurs",
           "Conducteur seul au terminus",
@@ -625,7 +634,8 @@ export const MODULES_CH1 = [
       },
       {
         id: "ch1-122-03",
-        prompt: "Dernière opération décrite : porte voyageur côté droit …",
+        prompt:
+          "En fin de dé-préparation remisage, que faites-vous avec la porte voyageur côté droit ?",
         choices: [
           "Déverrouiller, ouvrir, reverrouiller et fermer",
           "Laisser ouverte",
@@ -637,7 +647,7 @@ export const MODULES_CH1 = [
       },
       {
         id: "ch1-122-04",
-        prompt: "Feuille de route en fin de dé-préparation : compléter …",
+        prompt: "En fin de dé-préparation, que devez-vous compléter sur la feuille de route ?",
         choices: [
           "Kilomètres et horaires",
           "Uniquement le numéro de rame",
@@ -671,7 +681,7 @@ export const MODULES_CH1 = [
       },
       {
         id: "ch1-13-02",
-        prompt: "En cas d'alerte SIE, le conducteur agit …",
+        prompt: "En cas d'alerte sur le SIE, comment le conducteur doit-il agir ?",
         choices: [
           "Selon SIE, chapitre 1.8 et instructions PCC",
           "Sans consulter le PCC",
@@ -717,63 +727,68 @@ export const MODULES_CH1 = [
     questions: [
       {
         id: "ch1-14a-01",
-        prompt: "Le FU est utilisé …",
+        prompt: "Dans quelles situations pouvez-vous utiliser le frein d'urgence (FU) ?",
         choices: [
-          "Uniquement en danger immédiat",
-          "À chaque station",
-          "Pour le parking",
-          "En remplacement du FNS",
+          "Uniquement en cas de danger immédiat",
+          "À chaque arrêt en station",
+          "Pour immobiliser la rame au remisage",
+          "En remplacement courant du frein de service (FNS)",
         ],
         correct: 0,
-        explanation: "FU : danger immédiat seulement (p.14).",
+        explanation: "Le FU est réservé au danger immédiat (CET p. 14).",
       },
       {
         id: "ch1-14a-02",
-        prompt: "Le FU déclenche simultanément :",
+        prompt: "Lors d'un freinage d'urgence (FU), que déclenche la commande ?",
         choices: [
-          "Freinage électrique, mécanique et électromagnétique",
-          "Patins seuls",
-          "Frein parking",
-          "Sablage manuel",
+          "Le freinage électrique, mécanique et électromagnétique (patins)",
+          "Les patins seuls, sans freinage électrique",
+          "Le frein de parking uniquement",
+          "Le sablage manuel uniquement",
         ],
         correct: 0,
-        explanation: "Trois modes jusqu'à l'arrêt (p.14).",
+        explanation: "Le FU active les trois modes de freinage jusqu'à l'arrêt (CET p. 14).",
       },
       {
         id: "ch1-14a-03",
-        prompt: "Après un FU, avant redépart :",
+        prompt: "Après un freinage d'urgence (FU), avant de redémarrer, que devez-vous faire ?",
         choices: [
-          "Vérifier absence de blessés (annonce cabine)",
-          "Reprendre sans contrôle",
-          "FS obligatoire",
-          "Évacuation systématique",
+          "Vérifier l'absence de blessés et faire l'annonce cabine",
+          "Signaler l'incident au PCC et repartir sans annonce aux voyageurs",
+          "Contrôler uniquement le freinage, puis repartir",
+          "Attendre l'évacuation complète de la rame avant toute annonce",
         ],
         correct: 0,
-        explanation: "Annonce et contrôle passagers (p.14).",
+        explanation:
+          "Contrôle des passagers et annonce cabine avant redépart ; PCC selon la situation (CET p. 14).",
       },
       {
         id: "ch1-14a-04",
-        prompt: "Utilisation du FU : le chasse-corps …",
+        prompt: "Lors d'un freinage d'urgence (FU), que se passe-t-il pour le chasse-corps ?",
         choices: [
-          "Ne descend pas ; action au détecteur de barre",
-          "Descend toujours",
-          "Est inhibé 10 min",
-          "Bloque les portes",
+          "Il ne descend pas ; le freinage s'exerce au détecteur de barre",
+          "Il descend automatiquement comme au frein de service",
+          "Il reste inhibé pendant dix minutes",
+          "Il bloque l'ouverture des portes",
         ],
         correct: 0,
-        explanation: "FU ne fait pas descendre le chasse-corps (p.14).",
+        explanation: "Le FU ne fait pas descendre le chasse-corps (CET p. 14).",
       },
       {
         id: "ch1-14a-05",
-        prompt: "Patins en adhérence faible : utilisation autorisée …",
+        prompt:
+          "En adhérence faible, dans quelles situations l'utilisation des patins est-elle autorisée ?",
+        cardPrompt:
+          "Les patins sont en adhérence faible : dans quelles situations leur utilisation est-elle autorisée ?",
         choices: [
-          "À l'occasion pour démarrer en côte, pas en phase de freinage",
-          "En permanence en freinage",
+          "Uniquement au démarrage en côte",
+          "Uniquement en phase de freinage",
+          "Au démarrage en côte et en phase de freinage",
           "Jamais",
-          "À la place du FU",
         ],
         correct: 0,
-        explanation: "Patins : départ possible, interdit en freinage (p.14).",
+        explanation:
+          "En adhérence faible : départ en côte autorisé, freinage interdit (CET p. 14).",
       },
     ],
   },
@@ -787,58 +802,61 @@ export const MODULES_CH1 = [
     questions: [
       {
         id: "ch1-14b-01",
-        prompt: "Le FS est commandé par :",
+        prompt: "Comment le conducteur commande-t-il le frein de secours (FS) ?",
         choices: [
-          "Bouton coup de poing",
-          "Manipulateur FNS",
-          "BPAL",
-          "Veille automatique",
+          "Par un bouton coup de poing",
+          "Par le manipulateur de frein de service (FNS)",
+          "Par le bouton d'ouverture des portes (BPAL)",
+          "Par la veille automatique",
         ],
         correct: 0,
-        explanation: "FS : bouton coup de poing (p.13–14).",
+        explanation: "Le FS est commandé par un bouton coup de poing (CET p. 13–14).",
       },
       {
         id: "ch1-14b-02",
-        prompt: "Après un FU, le FS est :",
+        prompt: "Après un freinage d'urgence (FU), le frein de secours (FS) est-il utilisable ?",
         choices: [
-          "Interdit (annule freinage électrique et antipatinage)",
-          "Obligatoire",
-          "Sans effet",
-          "Autorisé à 70 km/h",
+          "Non, il est interdit (risque de blocage des roues)",
+          "Oui, il est obligatoire avant tout redépart",
+          "Oui, sans restriction particulière",
+          "Oui, jusqu'à 70 km/h",
         ],
         correct: 0,
-        explanation: "Interdit après FU : risque blocage roues (p.14).",
+        explanation:
+          "Interdit après FU : annule freinage électrique et antipatinage (CET p. 14).",
       },
       {
         id: "ch1-14b-03",
-        prompt: "FS déclenché à 70 km/h : vitesse max ensuite pendant 10 min ?",
+        prompt:
+          "Après un FS déclenché à 70 km/h, quelle est la vitesse maximale autorisée pendant 10 minutes ?",
         choices: ["40 km/h", "20 km/h", "15 km/h", "70 km/h"],
         correct: 0,
-        explanation: "40 km/h strict pendant 10 min après FS à 70 (p.14).",
+        explanation: "40 km/h strict pendant 10 min après FS à 70 km/h (CET p. 14).",
       },
       {
         id: "ch1-14b-04",
-        prompt: "Cas d'usage du FS :",
+        prompt: "Dans quels cas peut-on utiliser le frein de secours (FS) ?",
         choices: [
-          "Défaillance autres freins, rame à l'arrêt, personne sous rame, urgence sans maîtrise",
-          "Chaque arrêt station",
-          "Remplacement FNS courant",
-          "Test quotidien",
+          "Défaillance d'autres freins, rame à l'arrêt, personne sous rame, urgence sans maîtrise",
+          "À chaque arrêt en station",
+          "En remplacement courant du frein de service",
+          "Lors du test quotidien de départ",
         ],
         correct: 0,
-        explanation: "Quatre cas listés p.14.",
+        explanation: "Quatre cas d'usage listés au CET (p. 14).",
       },
       {
         id: "ch1-14b-05",
-        prompt: "Sur les 5 modes de freinage, à la main du conducteur :",
+        prompt: "Parmi les cinq modes de freinage, lesquels sont à la main du conducteur ?",
         choices: [
-          "Les 3 premiers (FNS, FU, FS)",
-          "Tous les cinq",
-          "Aucun",
-          "Parking seul",
+          "Le FNS, le FU et le FS uniquement",
+          "Les cinq modes (FNS, FU, FS, frein parking et freins automatiques)",
+          "Aucun mode de freinage",
+          "Le frein de parking seul",
         ],
         correct: 0,
-        explanation: "Modes 1–3 conducteur ; 4–5 automatiques (p.13).",
+        explanation:
+          "À la main du conducteur : FNS, FU et FS. Frein parking et freinage automatique : pas à la main (CET p. 13).",
       },
     ],
   },
@@ -1055,7 +1073,7 @@ export const MODULES_CH1 = [
       },
       {
         id: "ch1-18a-04",
-        prompt: "Échec remise en service : préparer …",
+        prompt: "Si la remise en service échoue, que devez-vous préparer ?",
         choices: [
           "Remorquage ou poussage (voir 1.9)",
           "Fin de service sans PCC",
@@ -1272,7 +1290,8 @@ export const MODULES_CH1 = [
       },
       {
         id: "ch1-19-04",
-        prompt: "Rame en panne sur pente : rame secours se place …",
+        prompt:
+          "Rame en panne sur une pente : comment la rame de secours doit-elle se placer ?",
         choices: [
           "En remorquage (devant, sens de la pente)",
           "En poussage systématique",
@@ -1284,7 +1303,7 @@ export const MODULES_CH1 = [
       },
       {
         id: "ch1-19-05",
-        prompt: "Préparation accouplement : jamais …",
+        prompt: "Lors de la préparation d'un accouplement, que ne devez-vous jamais faire ?",
         choices: [
           "Se placer entre les deux rames en rapprochement",
           "Feux détresse",
@@ -1296,7 +1315,7 @@ export const MODULES_CH1 = [
       },
       {
         id: "ch1-19-06",
-        prompt: "Rame secours doit être …",
+        prompt: "Dans quel état la rame de secours doit-elle être pour intervenir ?",
         choices: [
           "En état nominal (pas bogie isolé, freinage/radio OK)",
           "En panne légère",

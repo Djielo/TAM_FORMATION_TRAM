@@ -4,7 +4,7 @@ Document de référence pour la suite du développement.
 
 **État actuel (données)** : 4 chapitres CET couverts dans `data-cet-ch1.js` … `ch4.js` — **88 modules**, **404 questions** QCM (choix multiples + correction).
 
-**Prochaine étape (interface)** : onglets Révision (QCM par module) / Pré-examen (cartes **par chapitre** + SRS) / Examen final (cartes **tous chapitres** + note), déverrouillage progressif — voir ci-dessous.
+**État actuel (interface)** : application statique dans `docs/` — onglets **Révision** (QCM par module) / **Pré-examen** (cartes par chapitre + SRS) / **Examen final** (cartes sur tout le CET + note), déverrouillage progressif, persistance `localStorage`, modales d'aide par mode. Fichiers principaux : `app.js`, `progress.js`, `pool.js`, `pretest-session.js`, `dialog.js`, `app.css`.
 
 ---
 
@@ -36,16 +36,38 @@ Chaque question garde une **étiquette** (module + axe) pour l’affichage en mo
 Contenu CET ch. 1–4 : **fait** (voir `data.js` + fichiers par chapitre).  
 Évolutions ponctuelles possibles si retour terrain (formateurs / conducteurs).
 
+### Qualité des énoncés (en cours de réflexion)
+
+Les `prompt` initiaux sont souvent au format **QCM télégraphique** (titre : complément …), lisible une fois le CET connu, peu clair sur **carte recto-verso**.
+
+**Piste retenue** :
+- **`prompt`** : question complète pour le **QCM Révision** (une phrase, point d’interrogation si besoin — pas de « … »).
+- **`cardPrompt`** (optionnel) : variante un peu plus développée pour **Pré-examen / Examen final** si l’énoncé QCM reste trop sec sur petit écran.
+- **`pool.js`** expose les deux ; `promptForCard()` dans `app.js` choisit `cardPrompt` ou `prompt`.
+
+**À faire progressivement** (chapitre par chapitre, relecture métier) :
+1. Repérer les énoncés « incompréhensibles seuls » (souvent `…`, deux-points sans verbe, &lt; 40 caractères).
+2. Reformuler en **vraie question** (sens CET p. X), pas copier-coller brut.
+3. **Distractions** : rendre les 3 mauvaises réponses plus plausibles **là où** la bonne réponse se démarque trop (cas par cas ; ne pas affaiblir les questions déjà difficiles type repères 402 / AEEL).
+
+Pas de refonte des 404 questions en un bloc sans validation conducteur / formateur.
+
+Guide de rédaction (énoncés autonomes, pas de « les trois premiers », distracteurs plausibles) : **`docs/REDIGER-QUESTIONS-CET.md`**.
+
 ---
 
-## Maîtrise par module (exemple utilisateur)
+## Maîtrise par module (Révision — implémenté)
 
-| Module | Score | Interprétation suggérée |
-|--------|-------|-------------------------|
-| INDIR | 6/6 (100 %) | Module **maîtrisé** — moins prioritaire en révision immédiate |
-| SM | 2/3 | À **repasser** |
-| SA | 2/3 | À **repasser** |
-| SMA | 4/5 | Une question à revoir |
+Deux indicateurs complémentaires sur chaque carte module :
+
+| Indicateur | Source | Rôle |
+|------------|--------|------|
+| **Validées : X/Y** ou **🥳 X/Y** | `tam-cet-question-mastery-v1` (`everCorrect`, Y = taille actuelle du module) | Déverrouillage **404/404** et module « parfait ». |
+| **Meilleur : X/Y** | `tam-cet-revision-v1` (meilleur score QCM de session) | Mémoire du meilleur passage ; **conservé** si le CET gagne des questions. |
+| **QCM en cours (q. N)** | `tam-cet-quiz-active-v1` | Session QCM interrompue. |
+
+- Pas d’affichage **Validées : 0/Y** ni **Meilleur : 0/Y**.
+- **En cours** sur la carte **chapitre** seulement si un QCM est actif dans ce chapitre.
 
 **Comportement souhaité (à coder plus tard)** :
 - À **100 %** sur un module : ne pas le forcer en révision quotidienne, mais **ne pas l’oublier** (rappels espacés).
@@ -55,11 +77,17 @@ Contenu CET ch. 1–4 : **fait** (voir `data.js` + fichiers par chapitre).
 
 ## Interface — en-tête et onglets
 
-**En-tête fixe**
-- Titre : **CET**
-- Sous-titre : **Consignes d'exploitation TaM** (orthographe TaM du projet)
+**Bloc fixe au défilement** (`.app-top-bar`, `position: sticky`)
+- Bandeau vert : **CET**, **Consignes d'exploitation TaM**, indicateur de progression (voir ci-dessous).
+- Barre d’**onglets** juste en dessous (Révision / Pré-examen / Examen final).
+- Le contenu (chapitres, modules, cartes) défile sous ce bloc.
 
-**Onglets** (barre sous l'en-tête) — **trois modes distincts** :
+**Bandeau de progression** (sous le titre, sans répéter les modales d’aide)
+- Révision incomplète : `Révision : X / 404 questions validées.`
+- Pré-examen en cours (404/404 fait) : `Pré-examen : N / 4 chapitres validés.` + éventuellement une ligne plus petite `Reste : ch. … (Y %).`
+- Tout débloqué : pas de bandeau.
+
+**Onglets** — **trois modes distincts** :
 
 | Onglet | Format | Périmètre | Rôle |
 |--------|--------|----------|------|
@@ -76,8 +104,12 @@ Contenu CET ch. 1–4 : **fait** (voir `data.js` + fichiers par chapitre).
 | Moment | Contenu |
 |--------|---------|
 | **Ouverture de l'app** (onglet Révision actif par défaut) | Rôle de la Révision (QCM par module), progression, lien avec le déverrouillage Pré-examen / Examen final. |
-| **Premier clic** (ou démarrage) **Pré-examen** | Chapitre, quota 25…150, session en cours vs nouvelle, SRS, **conseil de pause ≥ 5 min** entre deux sessions (quel que soit le chapitre), erreurs réparties sur plusieurs sessions si besoin. |
+| **Premier clic** (ou démarrage) **Pré-examen** | Chapitre ; libellé quota : *« Choisissez votre objectif potentiel de cartes à maîtriser pour cette session. »* ; session en cours vs nouvelle, SRS, **conseil de pause ≥ 5 min** ; **examen final** : *« Pour atteindre l'examen final. Vous devez maîtriser 80 % des réponses de chaque chapitre. »* |
 | **Premier clic** (ou démarrage) **Examen final** | Pool global, auto-évaluation Correct / Incorrect, note finale, pas de SRS. |
+
+Les textes sont dans `HELP_TEXT` (`app.js`). Les **dialogues système** (confirmation réinitialisation, etc.) passent par `dialog.js` (`showConfirm` / `showAlert`), pas par `window.confirm` natif.
+
+**Pied de page accueil Révision** : progression globale validées, compteur « une question comptabilisée dès qu’elle a été bien répondue au moins une fois », rappel persistance : *« Votre progression est enregistrée dans ce navigateur, sur cet appareil. Pour la retrouver, ouvrez toujours l’application avec le même lien (favori ou raccourci). »* (origine navigateur = protocole + hôte + port ; pas synchronisé entre Chrome et Firefox).
 
 Les textes reprennent les règles ci-dessous ; les mettre à jour si la spec change.
 
@@ -103,10 +135,17 @@ Onglet actif lorsque :
 Onglet actif lorsque **les deux** conditions sont remplies :
 
 1. Révision **404/404** (ci-dessus).
-2. **Pré-examen** : pour **chaque chapitre** (1 à 4), au moins une session **terminée** avec **≥ 80 %** de cartes marquées **« Je maîtrise »** (meilleur score conservé par chapitre).
+2. **Pré-examen** : pour **chaque chapitre** disponible (1 à 4), **maîtriser 80 % des réponses** du chapitre (clics **« Je maîtrise »**, comptés via SRS sur l’ensemble des questions du chapitre — pas le quota 25…150 d’une session).
 
-- Aligné sur le seuil de réussite de l'examen final (80 %).
-- Affichage par chapitre : « Meilleur : 65 % / 80 % requis » jusqu'à validation.
+**Formulation affichée** : *« Pour atteindre l'examen final. Vous devez maîtriser 80 % des réponses de chaque chapitre. »*
+
+**Règles (implémentation)** :
+- Seul **« Je maîtrise »** compte (`intervalIndex ≥ 1`) ; **« À revoir »** ne compte pas (remise à 0 si la carte repasse en révision).
+- Parcourir des cartes sans assez de « Je maîtrise » ne suffit pas.
+
+**Implémentation** : `getPretestChapterMastery(axisId)` dans `progress.js` (compte SRS par chapitre). `tam-cet-pretest-stats-v1` conserve encore les stats de fin de session (historique) mais **n’alimente plus** le déverrouillage de l’examen final.
+
+- Affichage par chapitre (liste pré-examen) : `Maîtrise : 36 / 100 (36 %) · 80 % requis` jusqu’à validation, puis badge OK.
 
 ### Test local (formateurs)
 
@@ -252,32 +291,50 @@ Formules : `seuilVert = ceil(0,8 × N)` · `seuilOrange = ceil(0,7 × N)`.
 
 ## Réinitialisation
 
-- **Reset par petit sac** (un module) : efface progression locale de ce module.
-- **Reset global** : option séparée, avec confirmation.
-- Le reset module ne supprime pas obligatoirement l’historique du mode général (à préciser à l’implémentation).
+- **Reset global** (implémenté) : **5 appuis rapides** sur le titre **CET** dans l’en-tête (≤ 2,5 s) → modale de confirmation (`dialog.js`, bouton danger « Tout effacer »). Pas de bouton visible en bas de l’accueil (éviter les effacements accidentels).
+- **Reset par module** : non implémenté en UI.
+
+---
+
+## Migration et montée de version (`STORAGE_SCHEMA_VERSION`)
+
+Schéma actuel : **v3** (`tam-cet-storage-schema-v2`).
+
+Au premier chargement après mise à jour du CET dans le dépôt :
+
+| Action | Comportement |
+|--------|----------------|
+| Questions **retirées** du pool | Entrées `everCorrect` orphelines supprimées → déduction du compteur global 404/404 ; message éventuel au chargement. |
+| Scores **modules** (QCM) dont le `total` stocké ≠ taille actuelle du module | **Conservés** (meilleur score par module) ; le 🥳 / « Validées » suit le pool actuel via `everCorrect`. |
+| Questions **ajoutées** au module | Le module n’est plus « parfait » tant que les nouvelles questions ne sont pas validées en révision. |
+
+Pas de suppression automatique des scores modules obsolètes (contrairement à une migration intermédiaire v2).
 
 ---
 
 ## Données à persister (localStorage)
 
-Clés suggérées (à affiner à l'implémentation) :
+Clés en production (`progress.js`) :
 
 | Clé | Contenu |
 |-----|---------|
-| `tam-cet-revision-v1` | Existant : scores par module (QCM Révision). |
-| `tam-cet-question-mastery-v1` | Par `questionId` : `seen`, `everCorrect`, `lastCorrectAt`. |
-| `tam-cet-srs-v1` | Par `questionId` : `nextReviewAt`, `intervalIndex`, stats auto-éval carte. |
+| `tam-cet-storage-schema-v2` | Version de schéma (valeur **3**). |
+| `tam-cet-revision-v1` | Meilleur score QCM par module (`axisId/moduleId` → `{ score, total, at }`). |
+| `tam-cet-question-mastery-v1` | Par `questionId` : `everCorrect`, etc. — source **404/404** et 🥳 module. |
+| `tam-cet-srs-v1` | Par `questionId` : SRS pré-examen ; **`intervalIndex ≥ 1`** = « Je maîtrise » compté pour déverrouillage examen final. |
+| `tam-cet-quiz-active-v1` | QCM Révision en cours (reprise auto au chargement). |
 | `tam-cet-pretest-prefs-v1` | Dernier quota N choisi **par chapitre** (25…150). |
-| `tam-cet-pretest-active-v1` | Session **en cours** par chapitre : file, index, réponses. |
+| `tam-cet-pretest-active-v1` | Session **en cours** par chapitre : file, index, `masterCount`, etc. |
 | `tam-cet-pretest-last-end-v1` | Fin de dernière session pré-examen **terminée** (avertissement 5 min **global**). |
-| `tam-cet-pretest-stats-v1` | Meilleur % « Je maîtrise » par chapitre (seuil examen final 80 %). |
+| `tam-cet-pretest-stats-v1` | Historique fin de session (meilleur taux session / chapitre) — **informatif**, pas utilisé pour déverrouiller l’examen final. |
 | `tam-cet-dev-unlock-v1` | Bypass test formateur (`1`). |
-| `tam-cet-pretest-review-queue-v1` | File d'erreurs « À revoir » encore à répartir **par chapitre**. |
-| `tam-cet-help-dismissed-v1` | Pop-ups d'aide déjà vues (par mode). |
-| `tam-cet-final-exam-prefs-v1` | Dernier nombre de questions choisi (Examen final). |
-| `tam-cet-final-exam-history-v1` | Optionnel : historique des sessions examen final. |
+| `tam-cet-help-dismissed-v1` | Modales d'aide déjà vues (par mode : `revision`, `pretest`, `final`). |
+| `tam-cet-final-exam-prefs-v1` | Dernier nombre de questions (Examen final). |
+| `tam-cet-final-exam-active-v1` | Session examen final en cours. |
+| `tam-cet-final-exam-history-v1` | Historique des sessions examen final. |
 
-Déverrouillage global : `everCorrect === true` pour **toutes** les questions du pool actif (404).
+Déverrouillage **Pré-examen** : `everCorrect` pour **toutes** les questions du pool (404).  
+Déverrouillage **Examen final** : 404/404 **et** ≥ 80 % « Je maîtrise » (SRS) **par chapitre** sur l’ensemble des questions du chapitre.
 
 ---
 
@@ -285,6 +342,20 @@ Déverrouillage global : `everCorrect === true` pour **toutes** les questions du
 
 - Hébergement **GitHub Pages** — dossier `/docs`.
 - PWA optionnelle plus tard (icône, hors-ligne).
+
+---
+
+## Synthèse — évolutions récentes (interface / persistance)
+
+Mises à jour documentées après reprise du bandeau, de la persistance et des textes d’aide :
+
+- **Déverrouillage examen final** : formulation unique *« Pour atteindre l'examen final. Vous devez maîtriser 80 % des réponses de chaque chapitre. »* ; quota session = *« Choisissez le nombre de cartes à maîtriser pour cette session. »*
+- **Affichage modules Révision** : Validées / 🥳 / Meilleur / QCM en cours ; pas de « Validées : 0/Y ».
+- **Bandeau CET** : compteurs factuels uniquement (sans répéter les modales d’aide).
+- **En-tête sticky** : bloc complet CET + onglets (`.app-top-bar`).
+- **Dialogues** : `dialog.js` (confirm / alert intégrés) ; réinitialisation cachée (5× CET).
+- **Migration v3** : prune des questions retirées du CET ; conservation des scores modules QCM.
+- **Pied de page** : rappel persistance navigateur + même lien d’accès.
 
 ---
 

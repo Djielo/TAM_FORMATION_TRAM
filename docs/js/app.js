@@ -1,45 +1,49 @@
 import { AXES, MODULES } from "./data.js";
+import { showConfirm } from "./dialog.js";
 import {
-  getQuestionPool,
-  getQuestionById,
-  getQuestionsForAxis,
+  SESSION_SIZE_OPTIONS,
   getAxisById,
+  getQuestionById,
+  getQuestionPool,
+  getQuestionsForAxis,
   getTotalQuestionCount,
   sessionSizesForChapter,
-  SESSION_SIZE_OPTIONS,
 } from "./pool.js";
+import { createPretestSession } from "./pretest-session.js";
 import {
-  loadRevisionProgress,
-  saveModuleScore,
-  getModuleProgress,
-  recordQuestionAttempt,
-  saveActiveQuizSession,
-  getActiveQuizSession,
-  saveActiveFinalSession,
-  getActiveFinalSession,
-  appendFinalExamResult,
-  getMasteryStats,
-  isUnlockComplete,
-  isPretestTabUnlocked,
-  isFinalExamUnlocked,
-  isDevBypassUnlock,
-  getPretestUnlockProgress,
-  recordPretestSessionResult,
   PRETEST_FINAL_UNLOCK_RATE,
+  appendFinalExamResult,
   applySrsMaster,
   applySrsReview,
-  onPretestSessionComplete,
-  needsPretestPauseWarning,
-  getPretestPref,
-  savePretestPref,
-  getActivePretestSession,
-  saveActivePretestSession,
-  getFinalPref,
-  saveFinalPref,
-  isHelpDismissed,
   dismissHelp,
+  getActiveFinalSession,
+  getActivePretestSession,
+  getActiveQuizSession,
+  getFinalPref,
+  getMasteryStats,
+  getModuleQuestionStats,
+  getPretestPref,
+  getPretestUnlockProgress,
+  isDevBypassUnlock,
+  isFinalExamUnlocked,
+  isHelpDismissed,
+  isModulePerfect,
+  isPretestTabUnlocked,
+  isUnlockComplete,
+  loadRevisionProgress,
+  migrateStorage,
+  needsPretestPauseWarning,
+  onPretestSessionComplete,
+  recordPretestSessionResult,
+  recordQuestionAttempt,
+  resetAllUserProgress,
+  saveActiveFinalSession,
+  saveActivePretestSession,
+  saveActiveQuizSession,
+  saveFinalPref,
+  saveModuleScore,
+  savePretestPref,
 } from "./progress.js";
-import { createPretestSession } from "./pretest-session.js";
 
 const app = document.getElementById("app");
 
@@ -67,6 +71,14 @@ let cardSession = null;
 let pendingHelp = null;
 let showPauseWarn = false;
 let pauseWarnContinue = null;
+/** @type {string} */
+let migrationNotice = "";
+let cetTitleTapCount = 0;
+let cetTitleTapTimer = null;
+
+/** Formulation unique — déverrouillage de l'onglet Examen final. */
+const EXAM_FINAL_GOAL_TEXT =
+  "Pour atteindre l'examen final. Vous devez maîtriser 80 % des réponses de chaque chapitre.";
 
 const HELP_TEXT = {
   revision: {
@@ -74,7 +86,7 @@ const HELP_TEXT = {
     body: `<p>Parcourez les <strong>chapitres</strong> puis les <strong>modules</strong> : chaque module est un <strong>QCM</strong> (4 choix, correction immédiate).</p>
       <p>Votre progression est enregistrée sur cet appareil (meilleur score par module).</p>
       <p>L'onglet <strong>Pré-examen</strong> s'ouvre lorsque chaque question a été <strong>vue et répondue correctement au moins une fois</strong> en révision (404/404).</p>
-      <p>L'<strong>Examen final</strong> s'ouvre en plus lorsque chaque chapitre a atteint au moins <strong>80 %</strong> de « Je maîtrise » sur une session de pré-examen terminée.</p>`,
+      <p>${EXAM_FINAL_GOAL_TEXT}</p>`,
   },
   pretest: {
     title: "Mode Pré-examen",
@@ -82,12 +94,12 @@ const HELP_TEXT = {
       <p>Choisissez un quota par session (25 à 150). Une session interrompue reprend où vous l'avez laissée.</p>
       <p>Les erreurs sont reprises sur les sessions suivantes, mélangées avec de nouvelles cartes.</p>
       <p><strong>Conseil :</strong> laissez au moins <strong>5 minutes</strong> entre deux sessions de pré-examen (quel que soit le chapitre) pour mieux mémoriser.</p>
-      <p>Pour déverrouiller l'<strong>examen final</strong> : au moins <strong>80 %</strong> de « Je maîtrise » sur une session <strong>terminée</strong>, pour <strong>chaque chapitre</strong> (meilleur score conservé).</p>`,
+      <p>${EXAM_FINAL_GOAL_TEXT}</p>`,
   },
   final: {
     title: "Mode Examen final",
     body: `<p>Même principe de <strong>carte</strong>, mais sur <strong>tous les chapitres</strong> mélangés.</p>
-      <p>Accès réservé après révision complète du CET et pré-examen solide (≥ 80 % « Je maîtrise » par chapitre).</p>
+      <p>Accès réservé après révision complète du CET. ${EXAM_FINAL_GOAL_TEXT}</p>
       <p>Après le verso, indiquez <strong>Correct</strong> ou <strong>Incorrect</strong> (auto-évaluation honnête). Pas de résultat carte par carte : le bilan arrive à la fin.</p>
       <p>Seuil de réussite : <strong>80 %</strong> (orange entre 70 % et 80 %, rouge en dessous).</p>`,
   },
@@ -131,7 +143,10 @@ function escapeHtml(raw) {
 function splitModuleTitle(fullTitle) {
   const parts = fullTitle.split(/ — /);
   if (parts.length >= 2) {
-    return { headline: parts[0].trim(), subtitle: parts.slice(1).join(" — ").trim() };
+    return {
+      headline: parts[0].trim(),
+      subtitle: parts.slice(1).join(" — ").trim(),
+    };
   }
   return { headline: fullTitle.trim(), subtitle: "" };
 }
@@ -150,6 +165,11 @@ function formatQuestionCount(n) {
 
 function correctChoiceText(q) {
   return q.choices[q.correct];
+}
+
+/** Énoncé carte (pré-examen / examen final) : `cardPrompt` si défini, sinon `prompt`. */
+function promptForCard(q) {
+  return (q.cardPrompt && String(q.cardPrompt).trim()) || q.prompt;
 }
 
 function navigate(nextScreen, nextRoute = {}) {
@@ -192,21 +212,24 @@ function renderUnlockBanner() {
   }
   const rev = getMasteryStats();
   const pre = getPretestUnlockProgress();
-  const lines = [];
+
   if (!rev.complete) {
-    lines.push(
-      `Révision : ${rev.validated} / ${rev.total} questions validées (requis pour le pré-examen).`
-    );
-  } else if (!pre.complete) {
-    lines.push(`Pré-examen : atteignez ≥ ${pre.thresholdPct} % « Je maîtrise » par chapitre pour l'examen final.`);
+    return `<p class="header__unlock">Révision : ${rev.validated} / ${rev.total} questions validées.</p>`;
+  }
+
+  if (!pre.complete) {
+    const okCount = pre.chapters.filter((c) => c.ok).length;
+    const totalCh = pre.chapters.length;
     const pending = pre.chapters
       .filter((c) => !c.ok)
-      .map((c) => `ch. ${c.num} (${c.bestPct} %)`)
+      .map((c) => `ch. ${c.num} (${c.masteryPct} %)`)
       .join(" · ");
-    if (pending) lines.push(`Reste : ${pending}.`);
+    const main = `<p class="header__unlock">Pré-examen : ${okCount} / ${totalCh} chapitres validés.</p>`;
+    if (!pending) return main;
+    return `${main}<p class="header__unlock header__unlock--sub">Reste : ${pending}.</p>`;
   }
-  if (!lines.length) return "";
-  return `<p class="header__unlock">${lines.join(" ")}</p>`;
+
+  return "";
 }
 
 function renderTabsShell(mainHtml) {
@@ -217,20 +240,22 @@ function renderTabsShell(mainHtml) {
     : "Pré-examen par chapitre";
   const finalTitle = lockFinal
     ? isUnlockComplete()
-      ? `Pré-examen : ≥ ${Math.round(PRETEST_FINAL_UNLOCK_RATE * 100)} % « Je maîtrise » par chapitre requis`
+      ? "Pré-examen : maîtriser 80 % des réponses de chaque chapitre"
       : "Terminez d'abord la révision complète"
     : "Examen final";
   return `
-    <header class="header header--app">
-      <h1>CET</h1>
-      <p>Consignes d'exploitation TaM</p>
-      ${renderUnlockBanner()}
-    </header>
-    <nav class="tabs" aria-label="Modes">
-      <button type="button" class="tabs__btn ${activeTab === "revision" ? "tabs__btn--active" : ""}" data-tab="revision">Révision</button>
-      <button type="button" class="tabs__btn ${activeTab === "pretest" ? "tabs__btn--active" : ""}" data-tab="pretest" ${lockPretest ? `disabled title="${pretestTitle}"` : ""}>Pré-examen</button>
-      <button type="button" class="tabs__btn ${activeTab === "final" ? "tabs__btn--active" : ""}" data-tab="final" ${lockFinal ? `disabled title="${finalTitle}"` : ""}>Examen final</button>
-    </nav>
+    <div class="app-top-bar">
+      <header class="header header--app">
+        <h1>CET</h1>
+        <p>Consignes d'exploitation TaM</p>
+        ${renderUnlockBanner()}
+      </header>
+      <nav class="tabs" aria-label="Modes">
+        <button type="button" class="tabs__btn ${activeTab === "revision" ? "tabs__btn--active" : ""}" data-tab="revision">Révision</button>
+        <button type="button" class="tabs__btn ${activeTab === "pretest" ? "tabs__btn--active" : ""}" data-tab="pretest" ${lockPretest ? `disabled title="${pretestTitle}"` : ""}>Pré-examen</button>
+        <button type="button" class="tabs__btn ${activeTab === "final" ? "tabs__btn--active" : ""}" data-tab="final" ${lockFinal ? `disabled title="${finalTitle}"` : ""}>Examen final</button>
+      </nav>
+    </div>
     ${mainHtml}`;
 }
 
@@ -289,11 +314,6 @@ function renderPauseWarnModal() {
 
 /* ─── Révision ─── */
 
-function isModulePerfect(axisId, moduleId) {
-  const prog = getModuleProgress(axisId, moduleId);
-  return !!(prog && prog.total > 0 && prog.score === prog.total);
-}
-
 /** Pas de reprise ni de bandeau « QCM en cours » si le module est déjà à 100 %. */
 function discardActiveQuizIfPerfect(axisId, moduleId) {
   if (!isModulePerfect(axisId, moduleId)) return;
@@ -303,8 +323,39 @@ function discardActiveQuizIfPerfect(axisId, moduleId) {
   }
 }
 
+/** QCM révision interrompu dans ce chapitre (hors module déjà à 100 %). */
+function formatModuleStatusLine(stats, inProgress, activeQuiz) {
+  if (inProgress && activeQuiz) {
+    return `<span class="module-card__best module-card__best--active">QCM en cours (q. ${activeQuiz.index + 1})</span>`;
+  }
+  if (stats.perfect) {
+    return `<span class="module-card__best module-card__best--perfect" title="Toutes les questions validées"><span class="module-card__celebrate" aria-hidden="true">🥳</span> ${stats.validated}/${stats.total}</span>`;
+  }
+  if (stats.validated > 0) {
+    return `<span class="module-card__best">Validées : ${stats.validated}/${stats.total}</span>`;
+  }
+  if (stats.bestRun) {
+    return `<span class="module-card__best">Meilleur : ${stats.bestRun.score}/${stats.total}</span>`;
+  }
+  return "";
+}
+
+function isChapterQuizInProgress(axisId) {
+  const active = getActiveQuizSession();
+  if (!active || active.axisId !== axisId) return false;
+  if (active.index >= (active.questionIds?.length ?? 0)) return false;
+  if (isModulePerfect(axisId, active.moduleId)) return false;
+  return true;
+}
+
 function persistQuizSession() {
-  if (screen !== "quiz" || !route.axisId || !route.moduleId || !quiz.questions?.length) return;
+  if (
+    screen !== "quiz" ||
+    !route.axisId ||
+    !route.moduleId ||
+    !quiz.questions?.length
+  )
+    return;
   if (isModulePerfect(route.axisId, route.moduleId)) return;
   saveActiveQuizSession({
     axisId: route.axisId,
@@ -386,10 +437,15 @@ function renderHome() {
         ${AXES.map((axis) => {
           const modules = MODULES[axis.id] || [];
           const qCount = modules.reduce((n, m) => n + m.questions.length, 0);
+          const chapterInProgress =
+            axis.available && isChapterQuizInProgress(axis.id);
           return `
             <button type="button" class="axis-card" data-axis="${axis.id}" ${axis.available ? "" : "disabled"}>
               <span class="axis-card__num">Chapitre ${axis.num}</span>
-              <div class="axis-card__title">${escapeHtml(axis.title)}</div>
+              <div class="axis-card__title-row">
+                <div class="axis-card__title">${escapeHtml(axis.title)}</div>
+                ${chapterInProgress ? `<span class="axis-card__status">En cours</span>` : ""}
+              </div>
               <p class="axis-card__desc">CET p. ${axis.cetPages} — ${escapeHtml(axis.desc)}</p>
               <div class="axis-card__meta">
                 ${axis.available ? `<span class="badge">${modules.length} modules · ${qCount} questions</span>` : `<span class="badge badge--soon">Bientôt</span>`}
@@ -397,11 +453,13 @@ function renderHome() {
             </button>`;
         }).join("")}
       </div>
-      <p class="footer-note">Progression globale : <strong>${stats.validated} / ${stats.total}</strong> questions validées (au moins une bonne réponse en QCM).</p>
+      <p class="footer-note">Progression globale : <strong>${stats.validated} / ${stats.total}</strong> questions validées <strong>en QCM</strong>.</p>
       ${doneCount ? `<p class="footer-note">${doneCount} module(s) avec score enregistré.</p>` : ""}
       ${renderResumeQuizBanner()}
-      <p class="footer-note">Votre progression est enregistrée sur cet appareil (rechargement de page sans perte). Utilisez toujours la même adresse (ex. <strong>localhost:8080</strong>).</p>
-      <p class="footer-note">Document interne TaM — outil d'entraînement personnel.</p>
+      ${migrationNotice ? `<p class="footer-note footer-note--info">${migrationNotice}</p>` : ""}
+      <p class="footer-note">Compteur global : une question est comptabilisée dès qu’elle a été <strong>bien répondue au moins une fois</strong>.</p>
+      <p class="footer-note">Votre progression est enregistrée dans <strong>CE</strong> navigateur, sur <strong>CET</strong> appareil. Pour la retrouver, <strong>ouvrez toujours l'application avec le même lien dans le même navigateur</strong> (favori ou raccourci).</p>
+      <p class="footer-note">Document interne TaM — Outil d'entraînement personnel.</p>
     </main>`;
 }
 
@@ -436,8 +494,8 @@ function renderAxis() {
       <div class="modules">
         ${modules
           .map((m) => {
-            const prog = getModuleProgress(route.axisId, m.id);
-            const perfect = !!(prog && prog.total > 0 && prog.score === prog.total);
+            const stats = getModuleQuestionStats(route.axisId, m.id);
+            const perfect = stats.perfect;
             const inProgress =
               !perfect &&
               activeQuiz?.axisId === route.axisId &&
@@ -445,14 +503,11 @@ function renderAxis() {
               activeQuiz.index < (activeQuiz.questionIds?.length ?? 0);
             const { headline, subtitle } = splitModuleTitle(m.title);
             const nQ = m.questions.length;
-            const bestLine = prog
-              ? perfect
-                ? `<span class="module-card__best module-card__best--perfect" title="Module maîtrisé à 100 %"><span class="module-card__celebrate" aria-hidden="true">🥳</span> ${prog.score}/${prog.total}</span>`
-                : `<span class="module-card__best">Meilleur : ${prog.score}/${prog.total}</span>`
-              : "";
-            const progressLine = inProgress
-              ? `<span class="module-card__best module-card__best--active">QCM en cours (q. ${activeQuiz.index + 1})</span>`
-              : "";
+            const statusLine = formatModuleStatusLine(
+              stats,
+              inProgress,
+              activeQuiz,
+            );
             const descParagraph = subtitle
               ? `<p class="module-card__desc">${escapeHtml(subtitle)}</p>`
               : `<p class="module-card__desc module-card__desc--muted">Paragraphe ${escapeHtml(m.code)}</p>`;
@@ -466,8 +521,7 @@ function renderAxis() {
                   ${descParagraph}
                   <div class="module-card__foot">
                     <span class="module-card__count">${formatQuestionCount(nQ)}</span>
-                    ${progressLine}
-                    ${bestLine}
+                    ${statusLine}
                   </div>
                 </div>
               </button>`;
@@ -493,7 +547,8 @@ function renderQuiz() {
     })
     .join("");
 
-  const nextLabel = quiz.index + 1 < total ? "Question suivante" : "Voir le résultat";
+  const nextLabel =
+    quiz.index + 1 < total ? "Question suivante" : "Voir le résultat";
   let postChoicesHtml = "";
   if (quiz.answered && quiz.feedbackModalDismissed) {
     postChoicesHtml = `<div class="quiz-actions"><button type="button" class="btn btn--primary" data-next>${nextLabel}</button></div>`;
@@ -502,8 +557,12 @@ function renderQuiz() {
   let modalHtml = "";
   if (quiz.answered && !quiz.feedbackModalDismissed) {
     const ok = quiz.selected === q.correct;
-    const title = ok ? "Bravo. Réponse correcte !" : "Mauvaise réponse. À revoir !";
-    const titleCls = ok ? "quiz-modal__title quiz-modal__title--ok" : "quiz-modal__title quiz-modal__title--ko";
+    const title = ok
+      ? "Bravo. Réponse correcte !"
+      : "Mauvaise réponse. À revoir !";
+    const titleCls = ok
+      ? "quiz-modal__title quiz-modal__title--ok"
+      : "quiz-modal__title quiz-modal__title--ko";
     modalHtml = `
     <div class="quiz-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="quiz-feedback-title">
       <div class="quiz-modal">
@@ -526,7 +585,8 @@ function renderQuiz() {
   }
 
   setTimeout(() => {
-    if (quiz.answered && !quiz.feedbackModalDismissed) document.body.classList.add("quiz-modal-open");
+    if (quiz.answered && !quiz.feedbackModalDismissed)
+      document.body.classList.add("quiz-modal-open");
   }, 0);
 
   return `
@@ -560,11 +620,17 @@ function renderResults() {
 }
 
 function bindRevision() {
-  app.querySelectorAll(".axis-card[data-axis]:not(:disabled)").forEach((btn) => {
-    btn.addEventListener("click", () => navigate("axis", { axisId: btn.dataset.axis }));
-  });
+  app
+    .querySelectorAll(".axis-card[data-axis]:not(:disabled)")
+    .forEach((btn) => {
+      btn.addEventListener("click", () =>
+        navigate("axis", { axisId: btn.dataset.axis }),
+      );
+    });
 
-  app.querySelector("[data-back='home']")?.addEventListener("click", () => navigate("home"));
+  app
+    .querySelector("[data-back='home']")
+    ?.addEventListener("click", () => navigate("home"));
   app.querySelector("[data-back='axis']")?.addEventListener("click", () => {
     if (screen === "quiz") persistQuizSession();
     navigate("axis");
@@ -601,8 +667,14 @@ function bindRevision() {
   });
 
   if (screen === "quiz") bindQuizHandlers();
-  app.querySelector("[data-retry]")?.addEventListener("click", () => startQuiz(route.axisId, route.moduleId, true));
-  app.querySelector("[data-modules]")?.addEventListener("click", () => navigate("axis"));
+  app
+    .querySelector("[data-retry]")
+    ?.addEventListener("click", () =>
+      startQuiz(route.axisId, route.moduleId, true),
+    );
+  app
+    .querySelector("[data-modules]")
+    ?.addEventListener("click", () => navigate("axis"));
 }
 
 function bindQuizHandlers() {
@@ -692,8 +764,8 @@ function renderPretest() {
 function renderPretestChapters() {
   const pre = getPretestUnlockProgress();
   const statsLine = pre.complete
-    ? `<p class="footer-note">Examen final déverrouillé (chaque chapitre ≥ ${pre.thresholdPct} % sur une session).</p>`
-    : `<p class="footer-note">Pour l'examen final : ≥ ${pre.thresholdPct} % « Je maîtrise » sur une session terminée, par chapitre.</p>`;
+    ? `<p class="footer-note">Examen final déverrouillé.</p>`
+    : `<p class="footer-note">${EXAM_FINAL_GOAL_TEXT}</p>`;
 
   return `
     <main class="main">
@@ -704,10 +776,12 @@ function renderPretestChapters() {
             const n = getQuestionsForAxis(axis.id).length;
             const active = getActivePretestSession(axis.id);
             const ch = pre.chapters.find((c) => c.axisId === axis.id);
-            const bestPct = ch?.bestPct ?? 0;
+            const pct = ch?.masteryPct ?? 0;
+            const mastered = ch?.mastered ?? 0;
+            const total = ch?.total ?? n;
             const okBadge = ch?.ok
-              ? `<span class="badge badge--ok">Examen final : OK (${bestPct} %)</span>`
-              : `<span class="badge">Meilleur : ${bestPct} % / ${pre.thresholdPct} % requis</span>`;
+              ? `<span class="badge badge--ok">Examen final : OK (${pct} %)</span>`
+              : `<span class="badge">Maîtrise : ${mastered} / ${total} (${pct} %) · ${pre.thresholdPct} % requis</span>`;
             const badge = active
               ? `<span class="badge badge--active">Session : ${active.index}/${active.targetCount}</span>`
               : okBadge;
@@ -737,7 +811,7 @@ function renderPretestSetup() {
       <label class="radio-row">
         <input type="radio" name="pretest-size" value="${n}" ${n === (sizes.includes(pref) ? pref : sizes[0]) ? "checked" : ""} />
         <span>${n} questions</span>
-      </label>`
+      </label>`,
     )
     .join("");
 
@@ -747,7 +821,7 @@ function renderPretestSetup() {
       <h2 class="screen-title">${escapeHtml(axis.title)}</h2>
       <p class="screen-sub">${chapterCount} questions dans ce chapitre</p>
       <div class="setup-box">
-        <p class="setup-box__lead">Nombre de cartes pour cette session :</p>
+        <p class="setup-box__lead">Choisissez votre objectif potentiel de cartes à maîtriser pour cette session.</p>
         <div class="radio-group">${radios}</div>
         <p class="footer-note">Une session interrompue reprend à la carte suivante. Les erreurs (« À revoir ») reviennent progressivement sur les sessions suivantes.</p>
         ${
@@ -830,7 +904,7 @@ function renderFinalSetup() {
       <label class="radio-row">
         <input type="radio" name="final-size" value="${n}" ${n === pref ? "checked" : ""} />
         <span>${n} questions (tous chapitres)</span>
-      </label>`
+      </label>`,
     )
     .join("");
 
@@ -875,7 +949,7 @@ function renderFinalResults() {
                <p class="errors-list__q">${escapeHtml(e.prompt)}</p>
                <p class="errors-list__ref">(${escapeHtml(e.moduleRef)})</p>
                <p class="errors-list__a"><strong>Réponse attendue :</strong> ${escapeHtml(e.answer)}</p>
-             </li>`
+             </li>`,
              )
              .join("")}
          </ul>`;
@@ -901,7 +975,8 @@ function renderFlashcard() {
   if (!q) return `<main class="main"><p>Question introuvable.</p></main>`;
 
   const total = cardSession.queue.length;
-  const pct = ((cardSession.index + (cardSession.flipped ? 1 : 0)) / total) * 100;
+  const pct =
+    ((cardSession.index + (cardSession.flipped ? 1 : 0)) / total) * 100;
   const moduleRef = `voir ch. ${q.moduleCode}`;
 
   const actionsPretest = cardSession.flipped
@@ -931,7 +1006,7 @@ function renderFlashcard() {
         <button type="button" class="flashcard__tap" data-flip ${cardSession.flipped ? "disabled" : ""}>
           <div class="flashcard__recto">
             <p class="flashcard__chapter">${escapeHtml(q.axisTitle)}</p>
-            <h2 class="flashcard__prompt">${escapeHtml(q.prompt)}</h2>
+            <h2 class="flashcard__prompt">${escapeHtml(promptForCard(q))}</h2>
             <p class="flashcard__ref">(${escapeHtml(moduleRef)})</p>
           </div>
         </button>
@@ -1005,18 +1080,23 @@ function bindPretest() {
   });
 
   app.querySelector("[data-pretest-start]")?.addEventListener("click", () => {
-    const n = Number(app.querySelector('input[name="pretest-size"]:checked')?.value || 25);
+    const n = Number(
+      app.querySelector('input[name="pretest-size"]:checked')?.value || 25,
+    );
     savePretestPref(route.axisId, n);
     launchPretestSession(route.axisId, n, null);
   });
 
   app.querySelector("[data-pretest-resume]")?.addEventListener("click", () => {
     const session = getActivePretestSession(route.axisId);
-    if (session) launchPretestSession(route.axisId, session.targetCount, session);
+    if (session)
+      launchPretestSession(route.axisId, session.targetCount, session);
   });
 
   app.querySelector("[data-pretest-new]")?.addEventListener("click", () => {
-    const n = Number(app.querySelector('input[name="pretest-size"]:checked')?.value || 25);
+    const n = Number(
+      app.querySelector('input[name="pretest-size"]:checked')?.value || 25,
+    );
     savePretestPref(route.axisId, n);
     saveActivePretestSession(route.axisId, null);
     launchPretestSession(route.axisId, n, null);
@@ -1027,7 +1107,9 @@ function bindPretest() {
 
 function bindFinal() {
   app.querySelector("[data-final-start]")?.addEventListener("click", () => {
-    const n = Number(app.querySelector('input[name="final-size"]:checked')?.value || 50);
+    const n = Number(
+      app.querySelector('input[name="final-size"]:checked')?.value || 50,
+    );
     saveFinalPref(n);
     saveActiveFinalSession(null);
     launchFinalSession(n);
@@ -1133,6 +1215,50 @@ function render() {
   if (activeTab === "revision") bindRevision();
   else if (activeTab === "pretest") bindPretest();
   else bindFinal();
+
+  bindHiddenResetGesture();
+}
+
+async function requestFullProgressReset() {
+  const ok = await showConfirm({
+    title: "Réinitialiser la progression",
+    message:
+      "Effacer toute votre progression CET sur cet appareil ?\n\nScores, questions validées, pré-examen et examens en cours seront supprimés. Cette action est irréversible.",
+    confirmLabel: "Tout effacer",
+    cancelLabel: "Annuler",
+    danger: true,
+  });
+  if (!ok) return;
+
+  resetAllUserProgress();
+  migrationNotice = "";
+  activeTab = "revision";
+  screen = "home";
+  route = { axisId: null, moduleId: null };
+  cardSession = null;
+  pendingHelp = null;
+  render();
+}
+
+/** Réinitialisation cachée : 5 appuis rapides sur le titre « CET » dans l'en-tête. */
+function bindHiddenResetGesture() {
+  const title = app.querySelector(".header--app h1");
+  if (!title) return;
+  title.classList.add("header__cet-title");
+  title.replaceWith(title.cloneNode(true));
+  const fresh = app.querySelector(".header--app h1");
+  if (!fresh) return;
+  fresh.addEventListener("click", () => {
+    cetTitleTapCount += 1;
+    clearTimeout(cetTitleTapTimer);
+    cetTitleTapTimer = setTimeout(() => {
+      cetTitleTapCount = 0;
+    }, 2500);
+    if (cetTitleTapCount >= 5) {
+      cetTitleTapCount = 0;
+      requestFullProgressReset();
+    }
+  });
 }
 
 /* ─── Init ─── */
@@ -1144,7 +1270,9 @@ function tryRestoreOnLoad() {
     savedQuiz.index < savedQuiz.questionIds.length &&
     MODULES[savedQuiz.axisId]
   ) {
-    const mod = MODULES[savedQuiz.axisId].find((m) => m.id === savedQuiz.moduleId);
+    const mod = MODULES[savedQuiz.axisId].find(
+      (m) => m.id === savedQuiz.moduleId,
+    );
     if (mod && !isModulePerfect(savedQuiz.axisId, savedQuiz.moduleId)) {
       activeTab = "revision";
       route = { axisId: savedQuiz.axisId, moduleId: savedQuiz.moduleId };
@@ -1172,6 +1300,11 @@ function tryRestoreOnLoad() {
 }
 
 function init() {
+  const mig = migrateStorage();
+  if (mig.orphanQuestionsRemoved > 0) {
+    migrationNotice = `${mig.orphanQuestionsRemoved} question(s) retirée(s) du CET ont été déduites de votre progression globale.`;
+  }
+
   const restored = tryRestoreOnLoad();
   if (!restored && !isHelpDismissed("revision")) pendingHelp = "revision";
   render();
