@@ -1,11 +1,50 @@
 import { AXES, MODULES } from "./data.js";
+import {
+  getQuestionPool,
+  getQuestionById,
+  getQuestionsForAxis,
+  getAxisById,
+  getTotalQuestionCount,
+  sessionSizesForChapter,
+  SESSION_SIZE_OPTIONS,
+} from "./pool.js";
+import {
+  loadRevisionProgress,
+  saveModuleScore,
+  getModuleProgress,
+  recordQuestionSeen,
+  recordQuestionCorrect,
+  getMasteryStats,
+  isUnlockComplete,
+  isPretestTabUnlocked,
+  isFinalExamUnlocked,
+  isDevBypassUnlock,
+  getPretestUnlockProgress,
+  recordPretestSessionResult,
+  PRETEST_FINAL_UNLOCK_RATE,
+  applySrsMaster,
+  applySrsReview,
+  onPretestSessionComplete,
+  needsPretestPauseWarning,
+  getPretestPref,
+  savePretestPref,
+  getActivePretestSession,
+  saveActivePretestSession,
+  getFinalPref,
+  saveFinalPref,
+  isHelpDismissed,
+  dismissHelp,
+} from "./progress.js";
+import { createPretestSession } from "./pretest-session.js";
 
-const STORAGE_KEY = "tam-cet-revision-v1";
-const STORAGE_KEY_LEGACY = "tam-bible-revision-v1";
+const app = document.getElementById("app");
 
-/** @type {"home"|"axis"|"quiz"|"results"} */
+/** @type {"revision"|"pretest"|"final"} */
+let activeTab = "revision";
+/** @type {string} */
 let screen = "home";
 let route = { axisId: null, moduleId: null };
+
 let quiz = {
   questions: [],
   index: 0,
@@ -13,49 +52,60 @@ let quiz = {
   answered: false,
   selected: null,
   feedbackModalDismissed: false,
+  moduleTitle: "",
+  moduleCode: "",
 };
 
-const app = document.getElementById("app");
+/** @type {null | { mode: "pretest"|"final", axisId?: string, targetCount: number, queue: string[], index: number, flipped: boolean, errors: object[] }} */
+let cardSession = null;
 
-function loadProgress() {
-  try {
-    const raw =
-      localStorage.getItem(STORAGE_KEY) ||
-      localStorage.getItem(STORAGE_KEY_LEGACY) ||
-      "{}";
-    const data = JSON.parse(raw);
-    if (
-      Object.keys(data).length &&
-      !localStorage.getItem(STORAGE_KEY) &&
-      localStorage.getItem(STORAGE_KEY_LEGACY)
-    ) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    }
-    return data;
-  } catch {
-    return {};
-  }
-}
+/** @type {null | "revision"|"pretest"|"final"} */
+let pendingHelp = null;
+let showPauseWarn = false;
+let pauseWarnContinue = null;
 
-function saveModuleScore(axisId, moduleId, score, total) {
-  const all = loadProgress();
-  const key = `${axisId}/${moduleId}`;
-  const prev = all[key];
-  if (!prev || score > prev.score) {
-    all[key] = { score, total, at: Date.now() };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-  }
-}
+const HELP_TEXT = {
+  revision: {
+    title: "Mode Révision",
+    body: `<p>Parcourez les <strong>chapitres</strong> puis les <strong>modules</strong> : chaque module est un <strong>QCM</strong> (4 choix, correction immédiate).</p>
+      <p>Votre progression est enregistrée sur cet appareil (meilleur score par module).</p>
+      <p>L'onglet <strong>Pré-examen</strong> s'ouvre lorsque chaque question a été <strong>vue et répondue correctement au moins une fois</strong> en révision (404/404).</p>
+      <p>L'<strong>Examen final</strong> s'ouvre en plus lorsque chaque chapitre a atteint au moins <strong>80 %</strong> de « Je maîtrise » sur une session de pré-examen terminée.</p>`,
+  },
+  pretest: {
+    title: "Mode Pré-examen",
+    body: `<p>Cartes <strong>recto-verso</strong> par <strong>chapitre</strong> : réfléchissez, retournez la carte, puis indiquez <strong>Je maîtrise</strong> ou <strong>À revoir</strong> (répétition espacée).</p>
+      <p>Choisissez un quota par session (25 à 150). Une session interrompue reprend où vous l'avez laissée.</p>
+      <p>Les erreurs sont reprises sur les sessions suivantes, mélangées avec de nouvelles cartes.</p>
+      <p><strong>Conseil :</strong> laissez au moins <strong>5 minutes</strong> entre deux sessions de pré-examen (quel que soit le chapitre) pour mieux mémoriser.</p>
+      <p>Pour déverrouiller l'<strong>examen final</strong> : au moins <strong>80 %</strong> de « Je maîtrise » sur une session <strong>terminée</strong>, pour <strong>chaque chapitre</strong> (meilleur score conservé).</p>`,
+  },
+  final: {
+    title: "Mode Examen final",
+    body: `<p>Même principe de <strong>carte</strong>, mais sur <strong>tous les chapitres</strong> mélangés.</p>
+      <p>Accès réservé après révision complète du CET et pré-examen solide (≥ 80 % « Je maîtrise » par chapitre).</p>
+      <p>Après le verso, indiquez <strong>Correct</strong> ou <strong>Incorrect</strong> (auto-évaluation honnête). Pas de résultat carte par carte : le bilan arrive à la fin.</p>
+      <p>Seuil de réussite : <strong>80 %</strong> (orange entre 70 % et 80 %, rouge en dessous).</p>`,
+  },
+};
 
-function getModuleProgress(axisId, moduleId) {
-  return loadProgress()[`${axisId}/${moduleId}`] || null;
-}
-
-function navigate(nextScreen, nextRoute = {}) {
-  screen = nextScreen;
-  route = { ...route, ...nextRoute };
-  render();
-}
+const FINAL_ENCOURAGE = {
+  green: [
+    "Excellent travail — vous êtes prêt(e) pour l'examen officiel.",
+    "Très bon niveau. Continuez ainsi jusqu'à l'épreuve.",
+    "Objectif atteint : félicitations pour cette session.",
+  ],
+  orange: [
+    "Vous y êtes presque — quelques points à revoir avant l'examen.",
+    "Bon parcours : un dernier effort sur les thèmes signalés ci-dessous.",
+    "Proche du seuil : repassez les questions en rouge ci-dessous.",
+  ],
+  red: [
+    "Ce n'est pas encore suffisant — reprenez la révision et les pré-examens par chapitre.",
+    "Ne vous découragez pas : ciblez les modules faibles puis réessayez.",
+    "Priorité : revoir les questions listées ci-dessous, puis une nouvelle session.",
+  ],
+};
 
 function shuffle(arr) {
   const a = [...arr];
@@ -66,19 +116,22 @@ function shuffle(arr) {
   return a;
 }
 
-/** Découpe « SM — Signal de manœuvre » en titre court + libellé (tiret cadratin). */
+function escapeHtml(raw) {
+  return String(raw)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 function splitModuleTitle(fullTitle) {
   const parts = fullTitle.split(/ — /);
   if (parts.length >= 2) {
-    return {
-      headline: parts[0].trim(),
-      subtitle: parts.slice(1).join(" — ").trim(),
-    };
+    return { headline: parts[0].trim(), subtitle: parts.slice(1).join(" — ").trim() };
   }
   return { headline: fullTitle.trim(), subtitle: "" };
 }
 
-/** Titre module dans l'en-tête quiz / résultat : ligne principale + (précision) sans « — ». */
 function formatModuleTitleForHeader(fullTitle) {
   const { headline, subtitle } = splitModuleTitle(fullTitle);
   if (!subtitle) {
@@ -88,16 +141,247 @@ function formatModuleTitleForHeader(fullTitle) {
 }
 
 function formatQuestionCount(n) {
-  if (n === 1) return "1 question";
-  return `${n} questions`;
+  return n === 1 ? "1 question" : `${n} questions`;
 }
 
-function escapeHtml(raw) {
-  return String(raw)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+function correctChoiceText(q) {
+  return q.choices[q.correct];
+}
+
+function navigate(nextScreen, nextRoute = {}) {
+  screen = nextScreen;
+  route = { ...route, ...nextRoute };
+  render();
+}
+
+function setTab(tab) {
+  if (tab === "pretest" && !isPretestTabUnlocked()) return;
+  if (tab === "final" && !isFinalExamUnlocked()) return;
+  activeTab = tab;
+  cardSession = null;
+  if (tab === "revision") screen = "home";
+  else if (tab === "pretest") screen = "pretest-chapters";
+  else screen = "final-setup";
+
+  if (tab === "pretest" && !isHelpDismissed("pretest")) pendingHelp = "pretest";
+  if (tab === "final" && !isHelpDismissed("final")) pendingHelp = "final";
+  render();
+}
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function finalScoreTier(score, total) {
+  const vert = Math.ceil(0.8 * total);
+  const orange = Math.ceil(0.7 * total);
+  if (score >= vert) return "green";
+  if (score >= orange) return "orange";
+  return "red";
+}
+
+/* ─── Shell ─── */
+
+function renderUnlockBanner() {
+  if (isDevBypassUnlock()) {
+    return `<p class="header__unlock header__unlock--dev">Mode test actif (déverrouillage complet).</p>`;
+  }
+  const rev = getMasteryStats();
+  const pre = getPretestUnlockProgress();
+  const lines = [];
+  if (!rev.complete) {
+    lines.push(
+      `Révision : ${rev.validated} / ${rev.total} questions validées (requis pour le pré-examen).`
+    );
+  } else if (!pre.complete) {
+    lines.push(`Pré-examen : atteignez ≥ ${pre.thresholdPct} % « Je maîtrise » par chapitre pour l'examen final.`);
+    const pending = pre.chapters
+      .filter((c) => !c.ok)
+      .map((c) => `ch. ${c.num} (${c.bestPct} %)`)
+      .join(" · ");
+    if (pending) lines.push(`Reste : ${pending}.`);
+  }
+  if (!lines.length) return "";
+  return `<p class="header__unlock">${lines.join(" ")}</p>`;
+}
+
+function renderTabsShell(mainHtml) {
+  const lockPretest = !isPretestTabUnlocked();
+  const lockFinal = !isFinalExamUnlocked();
+  const pretestTitle = lockPretest
+    ? "Validez les 404 questions en révision"
+    : "Pré-examen par chapitre";
+  const finalTitle = lockFinal
+    ? isUnlockComplete()
+      ? `Pré-examen : ≥ ${Math.round(PRETEST_FINAL_UNLOCK_RATE * 100)} % « Je maîtrise » par chapitre requis`
+      : "Terminez d'abord la révision complète"
+    : "Examen final";
+  return `
+    <header class="header header--app">
+      <h1>CET</h1>
+      <p>Consignes d'exploitation TaM</p>
+      ${renderUnlockBanner()}
+    </header>
+    <nav class="tabs" aria-label="Modes">
+      <button type="button" class="tabs__btn ${activeTab === "revision" ? "tabs__btn--active" : ""}" data-tab="revision">Révision</button>
+      <button type="button" class="tabs__btn ${activeTab === "pretest" ? "tabs__btn--active" : ""}" data-tab="pretest" ${lockPretest ? `disabled title="${pretestTitle}"` : ""}>Pré-examen</button>
+      <button type="button" class="tabs__btn ${activeTab === "final" ? "tabs__btn--active" : ""}" data-tab="final" ${lockFinal ? `disabled title="${finalTitle}"` : ""}>Examen final</button>
+    </nav>
+    ${mainHtml}`;
+}
+
+function bindTabs() {
+  app.querySelectorAll("[data-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (btn.disabled) return;
+      setTab(btn.dataset.tab);
+    });
+  });
+}
+
+function renderHelpModal(mode) {
+  const h = HELP_TEXT[mode];
+  app.innerHTML = `
+    <div class="help-backdrop" role="dialog" aria-modal="true">
+      <div class="help-modal">
+        <h2>${escapeHtml(h.title)}</h2>
+        <div class="help-modal__body">${h.body}</div>
+        <label class="help-modal__dismiss"><input type="checkbox" data-help-dismiss /> Ne plus afficher</label>
+        <button type="button" class="btn btn--primary" data-help-close>Compris</button>
+      </div>
+    </div>`;
+  app.querySelector("[data-help-close]").addEventListener("click", () => {
+    if (app.querySelector("[data-help-dismiss]").checked) dismissHelp(mode);
+    pendingHelp = null;
+    render();
+  });
+}
+
+function renderPauseWarnModal() {
+  app.innerHTML = `
+    <div class="help-backdrop" role="dialog" aria-modal="true">
+      <div class="help-modal">
+        <h2>Pause conseillée</h2>
+        <div class="help-modal__body">
+          <p>Pour mieux mémoriser, nous conseillons d'attendre <strong>au moins 5 minutes</strong> entre deux sessions de pré-examen (quel que soit le chapitre).</p>
+          <p>Vous pouvez tout de même continuer si vous le souhaitez.</p>
+        </div>
+        <button type="button" class="btn btn--ghost" data-pause-cancel>Attendre</button>
+        <button type="button" class="btn btn--primary" data-pause-go>Continuer quand même</button>
+      </div>
+    </div>`;
+  app.querySelector("[data-pause-cancel]").addEventListener("click", () => {
+    showPauseWarn = false;
+    pauseWarnContinue = null;
+    render();
+  });
+  app.querySelector("[data-pause-go]").addEventListener("click", () => {
+    showPauseWarn = false;
+    const fn = pauseWarnContinue;
+    pauseWarnContinue = null;
+    fn?.();
+  });
+}
+
+/* ─── Révision ─── */
+
+function startQuiz(axisId, moduleId) {
+  const mod = MODULES[axisId].find((m) => m.id === moduleId);
+  for (const q of mod.questions) recordQuestionSeen(q.id);
+  quiz = {
+    questions: shuffle(mod.questions),
+    index: 0,
+    score: 0,
+    answered: false,
+    selected: null,
+    moduleTitle: mod.title,
+    moduleCode: mod.code,
+    feedbackModalDismissed: false,
+  };
+  navigate("quiz", { axisId, moduleId });
+}
+
+function renderRevision() {
+  switch (screen) {
+    case "home":
+      return renderHome();
+    case "axis":
+      return renderAxis();
+    case "quiz":
+      return renderQuiz();
+    case "results":
+      return renderResults();
+    default:
+      screen = "home";
+      return renderHome();
+  }
+}
+
+function renderHome() {
+  const stats = getMasteryStats();
+  const doneCount = Object.keys(loadRevisionProgress()).length;
+
+  return `
+    <main class="main">
+      <p class="intro-note">Choisissez un chapitre, puis un module pour lancer un QCM.</p>
+      <div class="axes">
+        ${AXES.map((axis) => {
+          const modules = MODULES[axis.id] || [];
+          const qCount = modules.reduce((n, m) => n + m.questions.length, 0);
+          return `
+            <button type="button" class="axis-card" data-axis="${axis.id}" ${axis.available ? "" : "disabled"}>
+              <span class="axis-card__num">Chapitre ${axis.num}</span>
+              <div class="axis-card__title">${escapeHtml(axis.title)}</div>
+              <p class="axis-card__desc">CET p. ${axis.cetPages} — ${escapeHtml(axis.desc)}</p>
+              <div class="axis-card__meta">
+                ${axis.available ? `<span class="badge">${modules.length} modules · ${qCount} questions</span>` : `<span class="badge badge--soon">Bientôt</span>`}
+              </div>
+            </button>`;
+        }).join("")}
+      </div>
+      <p class="footer-note">Progression globale : <strong>${stats.validated} / ${stats.total}</strong> questions validées (au moins une bonne réponse en QCM).</p>
+      ${doneCount ? `<p class="footer-note">${doneCount} module(s) avec score enregistré.</p>` : ""}
+      <p class="footer-note">Document interne TaM — outil d'entraînement personnel.</p>
+    </main>`;
+}
+
+function renderAxis() {
+  const axis = getAxisById(route.axisId);
+  const modules = MODULES[route.axisId] || [];
+
+  return `
+    <main class="main">
+      <button type="button" class="link-back" data-back="home">← Chapitres</button>
+      <h2 class="screen-title">${escapeHtml(axis.title)}</h2>
+      <p class="screen-sub">Chapitre ${axis.num} — CET p. ${axis.cetPages}</p>
+      <div class="modules">
+        ${modules
+          .map((m) => {
+            const prog = getModuleProgress(route.axisId, m.id);
+            const { headline, subtitle } = splitModuleTitle(m.title);
+            const nQ = m.questions.length;
+            const bestLine = prog ? `<span class="module-card__best">Meilleur : ${prog.score}/${prog.total}</span>` : "";
+            const descParagraph = subtitle
+              ? `<p class="module-card__desc">${escapeHtml(subtitle)}</p>`
+              : `<p class="module-card__desc module-card__desc--muted">Paragraphe ${escapeHtml(m.code)}</p>`;
+            return `
+              <button type="button" class="module-card" data-module="${m.id}">
+                <div class="module-card__banner">
+                  <span class="module-card__ref">${escapeHtml(m.code)}</span>
+                  <span class="module-card__name">${escapeHtml(headline)}</span>
+                </div>
+                <div class="module-card__body">
+                  ${descParagraph}
+                  <div class="module-card__foot">
+                    <span class="module-card__count">${formatQuestionCount(nQ)}</span>
+                    ${bestLine}
+                  </div>
+                </div>
+              </button>`;
+          })
+          .join("")}
+      </div>
+    </main>`;
 }
 
 function renderQuiz() {
@@ -112,15 +396,11 @@ function renderQuiz() {
         if (i === q.correct) cls += " choice--correct";
         else if (i === quiz.selected) cls += " choice--wrong";
       }
-      return `<button type="button" class="${cls}" data-choice="${i}" ${
-        quiz.answered ? "disabled" : ""
-      }>${escapeHtml(text)}</button>`;
+      return `<button type="button" class="${cls}" data-choice="${i}" ${quiz.answered ? "disabled" : ""}>${escapeHtml(text)}</button>`;
     })
     .join("");
 
-  const nextLabel =
-    quiz.index + 1 < total ? "Question suivante" : "Voir le résultat";
-
+  const nextLabel = quiz.index + 1 < total ? "Question suivante" : "Voir le résultat";
   let postChoicesHtml = "";
   if (quiz.answered && quiz.feedbackModalDismissed) {
     postChoicesHtml = `<div class="quiz-actions"><button type="button" class="btn btn--primary" data-next>${nextLabel}</button></div>`;
@@ -131,51 +411,74 @@ function renderQuiz() {
     const ok = quiz.selected === q.correct;
     const title = ok ? "Bravo. Réponse correcte !" : "Mauvaise réponse. À revoir !";
     const titleCls = ok ? "quiz-modal__title quiz-modal__title--ok" : "quiz-modal__title quiz-modal__title--ko";
-    const answerLabel = ok ? "Réponse correcte" : "Bonne réponse";
-    const bodyInner = `
-        <p class="quiz-modal__label">${answerLabel}</p>
-        <p class="quiz-modal__correct-choice">${escapeHtml(q.choices[q.correct])}</p>
-        <p class="quiz-modal__text">${escapeHtml(q.explanation)}</p>`;
     modalHtml = `
-    <div class="quiz-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="quiz-feedback-title" aria-describedby="quiz-feedback-question">
+    <div class="quiz-modal-backdrop" role="dialog" aria-modal="true">
       <div class="quiz-modal">
-        <h2 id="quiz-feedback-title" class="${titleCls}">${title}</h2>
-        <div class="quiz-modal__question-wrap">
-          <p class="quiz-modal__question-label">La question était :</p>
-          <p id="quiz-feedback-question" class="quiz-modal__question">${escapeHtml(q.prompt)}</p>
-        </div>
-        <div class="quiz-modal__body">${bodyInner}</div>
+        <h2 class="${titleCls}">${title}</h2>
+        <p class="quiz-modal__correct-choice">${escapeHtml(q.choices[q.correct])}</p>
+        <p class="quiz-modal__text">${escapeHtml(q.explanation)}</p>
         <div class="quiz-modal__actions">
-          <button type="button" class="btn btn--ghost quiz-modal__btn-narrow" data-modal-close>Fermer</button>
+          <button type="button" class="btn btn--ghost" data-modal-close>Fermer</button>
           <button type="button" class="btn btn--primary" data-modal-next>${nextLabel}</button>
         </div>
       </div>
     </div>`;
   }
 
-  app.innerHTML = `
-    <header class="header">
-      <button type="button" class="header__back" data-back="axis">← Modules</button>
-      <h1>${escapeHtml(quiz.moduleCode)}</h1>
-      ${formatModuleTitleForHeader(quiz.moduleTitle)}
-    </header>
+  setTimeout(() => {
+    if (quiz.answered && !quiz.feedbackModalDismissed) document.body.classList.add("quiz-modal-open");
+  }, 0);
+
+  return `
     <main class="main quiz-main">
-      <div class="quiz-progress" aria-hidden="true">
-        <div class="quiz-progress__bar" style="width:${pct}%"></div>
-      </div>
-      <p style="font-size:0.8rem;color:var(--muted);margin:0 0 0.75rem;">
-        Question ${quiz.index + 1} / ${total}
-      </p>
+      <button type="button" class="link-back" data-back="axis">← Modules</button>
+      <p class="screen-sub">${escapeHtml(quiz.moduleCode)}</p>
+      <div class="quiz-progress" aria-hidden="true"><div class="quiz-progress__bar" style="width:${pct}%"></div></div>
+      <p class="quiz-meta">Question ${quiz.index + 1} / ${total}</p>
       <article class="quiz-card">
-        <p class="quiz-card__tag">Quiz · sans image</p>
         <h2 class="quiz-card__question">${escapeHtml(q.prompt)}</h2>
         <div class="choices">${choicesHtml}</div>
         ${postChoicesHtml}
       </article>
       ${modalHtml}
     </main>`;
+}
 
-  app.querySelector("[data-back]").addEventListener("click", () => navigate("axis"));
+function renderResults() {
+  const total = quiz.questions.length;
+  const pct = Math.round((quiz.score / total) * 100);
+  return `
+    <main class="main">
+      <h2 class="screen-title">Résultat</h2>
+      <div class="results">
+        <p class="results__score">${quiz.score}/${total}</p>
+        <p class="results__label">${pct}% de bonnes réponses</p>
+        <button type="button" class="btn btn--primary" data-retry>Recommencer ce module</button>
+        <button type="button" class="btn btn--ghost" data-modules>Autres modules</button>
+      </div>
+    </main>`;
+}
+
+function bindRevision() {
+  app.querySelectorAll(".axis-card[data-axis]:not(:disabled)").forEach((btn) => {
+    btn.addEventListener("click", () => navigate("axis", { axisId: btn.dataset.axis }));
+  });
+
+  app.querySelector("[data-back='home']")?.addEventListener("click", () => navigate("home"));
+  app.querySelector("[data-back='axis']")?.addEventListener("click", () => navigate("axis"));
+
+  app.querySelectorAll("[data-module]").forEach((btn) => {
+    btn.addEventListener("click", () => startQuiz(route.axisId, btn.dataset.module));
+  });
+
+  if (screen === "quiz") bindQuizHandlers();
+  app.querySelector("[data-retry]")?.addEventListener("click", () => startQuiz(route.axisId, route.moduleId));
+  app.querySelector("[data-modules]")?.addEventListener("click", () => navigate("axis"));
+}
+
+function bindQuizHandlers() {
+  const q = quiz.questions[quiz.index];
+  const total = quiz.questions.length;
 
   function goNext() {
     if (quiz.index + 1 < total) {
@@ -185,12 +488,7 @@ function renderQuiz() {
       quiz.feedbackModalDismissed = false;
       render();
     } else {
-      saveModuleScore(
-        route.axisId,
-        route.moduleId,
-        quiz.score,
-        quiz.questions.length
-      );
+      saveModuleScore(route.axisId, route.moduleId, quiz.score, total);
       navigate("results");
     }
   }
@@ -201,7 +499,11 @@ function renderQuiz() {
         quiz.selected = Number(btn.dataset.choice);
         quiz.answered = true;
         quiz.feedbackModalDismissed = false;
-        if (quiz.selected === q.correct) quiz.score++;
+        recordQuestionSeen(q.id);
+        if (quiz.selected === q.correct) {
+          quiz.score++;
+          recordQuestionCorrect(q.id);
+        }
         render();
       });
     });
@@ -210,180 +512,444 @@ function renderQuiz() {
       quiz.feedbackModalDismissed = true;
       render();
     });
-    app.querySelector("[data-modal-next]")?.addEventListener("click", () => goNext());
-    app.querySelector("[data-next]")?.addEventListener("click", () => goNext());
-  }
-
-  if (quiz.answered && !quiz.feedbackModalDismissed) {
-    document.body.classList.add("quiz-modal-open");
+    app.querySelector("[data-modal-next]")?.addEventListener("click", goNext);
+    app.querySelector("[data-next]")?.addEventListener("click", goNext);
   }
 }
 
-function startQuiz(axisId, moduleId) {
-  const mod = MODULES[axisId].find((m) => m.id === moduleId);
-  quiz = {
-    questions: shuffle(mod.questions),
-    index: 0,
-    score: 0,
-    answered: false,
-    selected: null,
-    moduleTitle: mod.title,
-    moduleCode: mod.code,
-    feedbackModalDismissed: false,
+/* ─── Pré-examen ─── */
+
+function launchPretestSession(axisId, count, resumeSession) {
+  const start = () => {
+    const session = resumeSession || createPretestSession(axisId, count);
+    if (!resumeSession) saveActivePretestSession(axisId, session);
+    cardSession = {
+      mode: "pretest",
+      axisId,
+      targetCount: session.targetCount,
+      queue: session.queue,
+      index: session.index ?? 0,
+      masterCount: session.masterCount ?? 0,
+      flipped: false,
+    };
+    screen = "pretest-card";
+    render();
   };
-  navigate("quiz", { axisId, moduleId });
+
+  if (!resumeSession && needsPretestPauseWarning()) {
+    showPauseWarn = true;
+    pauseWarnContinue = start;
+    render();
+    return;
+  }
+  start();
 }
 
-function renderHome() {
-  const progress = loadProgress();
-  const doneCount = Object.keys(progress).length;
+function renderPretest() {
+  switch (screen) {
+    case "pretest-chapters":
+      return renderPretestChapters();
+    case "pretest-setup":
+      return renderPretestSetup();
+    case "pretest-card":
+      return renderFlashcard();
+    default:
+      screen = "pretest-chapters";
+      return renderPretestChapters();
+  }
+}
 
-  app.innerHTML = `
-    <header class="header">
-      <h1>Révision CET</h1>
-      <p>Consignes d'exploitation TaM</p>
-    </header>
+function renderPretestChapters() {
+  const pre = getPretestUnlockProgress();
+  const statsLine = pre.complete
+    ? `<p class="footer-note">Examen final déverrouillé (chaque chapitre ≥ ${pre.thresholdPct} % sur une session).</p>`
+    : `<p class="footer-note">Pour l'examen final : ≥ ${pre.thresholdPct} % « Je maîtrise » sur une session terminée, par chapitre.</p>`;
+
+  return `
     <main class="main">
+      <p class="intro-note">Choisissez un chapitre pour une session de cartes.</p>
       <div class="axes">
-        ${AXES.map((axis) => {
-          const modules = MODULES[axis.id] || [];
-          const qCount = modules.reduce((n, m) => n + m.questions.length, 0);
-          return `
-            <button
-              type="button"
-              class="axis-card"
-              data-axis="${axis.id}"
-              ${axis.available ? "" : "disabled"}
-            >
-              <span class="axis-card__num">Chapitre ${axis.num}</span>
-              <div class="axis-card__title">${axis.title}</div>
-              <p class="axis-card__desc">CET p. ${axis.cetPages} — ${axis.desc}</p>
-              <div class="axis-card__meta">
-                ${
-                  axis.available
-                    ? `<span class="badge">${modules.length} modules · ${qCount} questions</span>`
-                    : `<span class="badge badge--soon">Bientôt</span>`
-                }
-              </div>
-            </button>`;
-        }).join("")}
-      </div>
-      ${
-        doneCount
-          ? `<p class="footer-note">${doneCount} module(s) déjà révisé(s) — progression enregistrée sur cet appareil.</p>`
-          : ""
-      }
-      <p class="footer-note">
-        Document interne TaM — outil d'entraînement personnel, ne remplace pas la formation officielle.
-      </p>
-    </main>`;
-
-  app.querySelectorAll(".axis-card[data-axis]:not(:disabled)").forEach((btn) => {
-    btn.addEventListener("click", () =>
-      navigate("axis", { axisId: btn.dataset.axis, moduleId: null })
-    );
-  });
-}
-
-function renderAxis() {
-  const axis = AXES.find((a) => a.id === route.axisId);
-  const modules = MODULES[route.axisId] || [];
-
-  app.innerHTML = `
-    <header class="header">
-      <button type="button" class="header__back" data-back="home">← Accueil</button>
-      <h1>${axis.title}</h1>
-      <p>Chapitre ${axis.num} — CET p. ${axis.cetPages}</p>
-    </header>
-    <main class="main">
-      <p style="font-size:0.875rem;color:var(--muted);margin:0 0 1rem;">
-        Choisissez un sous-thème. Chaque module = quiz texte issu du CET.
-      </p>
-      <div class="modules">
-        ${modules
-          .map((m) => {
-            const prog = getModuleProgress(route.axisId, m.id);
-            const { headline, subtitle } = splitModuleTitle(m.title);
-            const nQ = m.questions.length;
-            const countLabel = formatQuestionCount(nQ);
-            const bestLine = prog
-              ? `<span class="module-card__best">Meilleur : ${prog.score}/${prog.total}</span>`
-              : "";
-            const descParagraph = subtitle
-              ? `<p class="module-card__desc">${escapeHtml(subtitle)}</p>`
-              : `<p class="module-card__desc module-card__desc--muted">Paragraphe ${escapeHtml(m.code)} — même intitulé que dans le CET</p>`;
+        ${AXES.filter((a) => a.available)
+          .map((axis) => {
+            const n = getQuestionsForAxis(axis.id).length;
+            const active = getActivePretestSession(axis.id);
+            const ch = pre.chapters.find((c) => c.axisId === axis.id);
+            const bestPct = ch?.bestPct ?? 0;
+            const okBadge = ch?.ok
+              ? `<span class="badge badge--ok">Examen final : OK (${bestPct} %)</span>`
+              : `<span class="badge">Meilleur : ${bestPct} % / ${pre.thresholdPct} % requis</span>`;
+            const badge = active
+              ? `<span class="badge badge--active">Session : ${active.index}/${active.targetCount}</span>`
+              : okBadge;
             return `
-              <button
-                type="button"
-                class="module-card"
-                data-module="${m.id}"
-                aria-label="${escapeHtml(m.code)}, ${escapeHtml(headline)}, ${escapeHtml(countLabel)}"
-              >
-                <div class="module-card__banner">
-                  <span class="module-card__ref">${escapeHtml(m.code)}</span>
-                  <span class="module-card__name">${escapeHtml(headline)}</span>
-                </div>
-                <div class="module-card__body">
-                  ${descParagraph}
-                  <div class="module-card__foot">
-                    <span class="module-card__count">${countLabel}</span>
-                    ${bestLine}
-                  </div>
-                </div>
+              <button type="button" class="axis-card" data-pretest-axis="${axis.id}">
+                <span class="axis-card__num">Chapitre ${axis.num}</span>
+                <div class="axis-card__title">${escapeHtml(axis.title)}</div>
+                <div class="axis-card__meta">${badge} · ${n} questions</div>
               </button>`;
           })
           .join("")}
       </div>
+      ${statsLine}
     </main>`;
-
-  app.querySelector("[data-back]").addEventListener("click", () => navigate("home"));
-  app.querySelectorAll(".module-card[data-module]").forEach((btn) => {
-    btn.addEventListener("click", () => startQuiz(route.axisId, btn.dataset.module));
-  });
 }
 
-function renderResults() {
-  const total = quiz.questions.length;
-  const pct = Math.round((quiz.score / total) * 100);
+function renderPretestSetup() {
+  const axis = getAxisById(route.axisId);
+  const chapterCount = getQuestionsForAxis(route.axisId).length;
+  const sizes = sessionSizesForChapter(chapterCount);
+  const pref = getPretestPref(route.axisId);
+  const active = getActivePretestSession(route.axisId);
 
-  app.innerHTML = `
-    <header class="header">
-      <h1>Résultat</h1>
-      ${formatModuleTitleForHeader(quiz.moduleTitle)}
-    </header>
+  const radios = sizes
+    .map(
+      (n) => `
+      <label class="radio-row">
+        <input type="radio" name="pretest-size" value="${n}" ${n === (sizes.includes(pref) ? pref : sizes[0]) ? "checked" : ""} />
+        <span>${n} questions</span>
+      </label>`
+    )
+    .join("");
+
+  return `
     <main class="main">
-      <div class="results">
-        <p class="results__score">${quiz.score}/${total}</p>
-        <p class="results__label">${pct}% de bonnes réponses</p>
-        <button type="button" class="btn btn--primary" data-retry>Recommencer ce module</button>
-        <button type="button" class="btn btn--ghost" data-modules>Autres modules</button>
+      <button type="button" class="link-back" data-pretest-back>← Chapitres</button>
+      <h2 class="screen-title">${escapeHtml(axis.title)}</h2>
+      <p class="screen-sub">${chapterCount} questions dans ce chapitre</p>
+      <div class="setup-box">
+        <p class="setup-box__lead">Nombre de cartes pour cette session :</p>
+        <div class="radio-group">${radios}</div>
+        <p class="footer-note">Une session interrompue reprend à la carte suivante. Les erreurs (« À revoir ») reviennent progressivement sur les sessions suivantes.</p>
+        ${
+          active
+            ? `<button type="button" class="btn btn--primary" data-pretest-resume>Reprendre (${active.index} / ${active.targetCount})</button>
+               <button type="button" class="btn btn--ghost" data-pretest-new>Nouvelle session</button>`
+            : `<button type="button" class="btn btn--primary" data-pretest-start>Démarrer</button>`
+        }
       </div>
     </main>`;
-
-  app.querySelector("[data-retry]").addEventListener("click", () =>
-    startQuiz(route.axisId, route.moduleId)
-  );
-  app.querySelector("[data-modules]").addEventListener("click", () => navigate("axis"));
 }
 
-function render() {
-  document.body.classList.remove("quiz-modal-open");
+/* ─── Examen final ─── */
+
+function buildFinalQueue(count) {
+  return shuffle(getQuestionPool().map((q) => q.questionId)).slice(0, count);
+}
+
+function launchFinalSession(count) {
+  cardSession = {
+    mode: "final",
+    targetCount: count,
+    queue: buildFinalQueue(count),
+    index: 0,
+    flipped: false,
+    errors: [],
+    correctCount: 0,
+  };
+  screen = "final-card";
+  render();
+}
+
+function renderFinal() {
   switch (screen) {
-    case "home":
-      renderHome();
-      break;
-    case "axis":
-      renderAxis();
-      break;
-    case "quiz":
-      renderQuiz();
-      break;
-    case "results":
-      renderResults();
-      break;
+    case "final-setup":
+      return renderFinalSetup();
+    case "final-card":
+      return renderFlashcard();
+    case "final-results":
+      return renderFinalResults();
     default:
-      navigate("home");
+      screen = "final-setup";
+      return renderFinalSetup();
   }
 }
 
+function renderFinalSetup() {
+  const total = getTotalQuestionCount();
+  const pref = getFinalPref();
+  const sizes = SESSION_SIZE_OPTIONS.filter((n) => n <= total);
+
+  const radios = sizes
+    .map(
+      (n) => `
+      <label class="radio-row">
+        <input type="radio" name="final-size" value="${n}" ${n === pref ? "checked" : ""} />
+        <span>${n} questions (tous chapitres)</span>
+      </label>`
+    )
+    .join("");
+
+  return `
+    <main class="main">
+      <p class="intro-note">Session sur l'ensemble du CET (${total} questions).</p>
+      <div class="setup-box">
+        <p class="setup-box__lead">Nombre de cartes :</p>
+        <div class="radio-group">${radios}</div>
+        <button type="button" class="btn btn--primary" data-final-start>Démarrer l'examen</button>
+      </div>
+    </main>`;
+}
+
+function renderFinalResults() {
+  const { correctCount, targetCount, errors } = cardSession;
+  const tier = finalScoreTier(correctCount, targetCount);
+  const pct = Math.round((correctCount / targetCount) * 100);
+  const msg = pickRandom(FINAL_ENCOURAGE[tier]);
+
+  const errHtml =
+    errors.length === 0
+      ? '<p class="footer-note">Aucune erreur déclarée — bravo.</p>'
+      : `<h3 class="errors-title">Questions à revoir (${errors.length})</h3>
+         <ul class="errors-list">
+           ${errors
+             .map(
+               (e) => `
+             <li class="errors-list__item">
+               <span class="errors-list__chapter">${escapeHtml(e.axisTitle)}</span>
+               <p class="errors-list__q">${escapeHtml(e.prompt)}</p>
+               <p class="errors-list__ref">(${escapeHtml(e.moduleRef)})</p>
+               <p class="errors-list__a"><strong>Réponse attendue :</strong> ${escapeHtml(e.answer)}</p>
+             </li>`
+             )
+             .join("")}
+         </ul>`;
+
+  return `
+    <main class="main">
+      <h2 class="screen-title">Résultat — Examen final</h2>
+      <div class="results results--tier-${tier}">
+        <p class="results__score">${correctCount}/${targetCount}</p>
+        <p class="results__label">${pct}% — ${tier === "green" ? "Réussi" : tier === "orange" ? "Presque" : "À retravailler"}</p>
+        <p class="results__encourage">${escapeHtml(msg)}</p>
+      </div>
+      ${errHtml}
+      <button type="button" class="btn btn--primary" data-final-retry>Nouvelle session</button>
+    </main>`;
+}
+
+/* ─── Carte flashcard (pré-examen + final) ─── */
+
+function renderFlashcard() {
+  const qid = cardSession.queue[cardSession.index];
+  const q = getQuestionById(qid);
+  if (!q) return `<main class="main"><p>Question introuvable.</p></main>`;
+
+  const total = cardSession.queue.length;
+  const pct = ((cardSession.index + (cardSession.flipped ? 1 : 0)) / total) * 100;
+  const moduleRef = `voir ch. ${q.moduleCode}`;
+
+  const actionsPretest = cardSession.flipped
+    ? `<div class="flashcard-actions">
+        <button type="button" class="btn btn--primary" data-srs-master>Je maîtrise</button>
+        <button type="button" class="btn btn--ghost" data-srs-review>À revoir</button>
+      </div>`
+    : `<p class="flashcard-hint">Réfléchissez, puis touchez la carte pour voir la réponse.</p>`;
+
+  const actionsFinal = cardSession.flipped
+    ? `<div class="flashcard-actions">
+        <button type="button" class="btn btn--primary" data-final-ok>Correct</button>
+        <button type="button" class="btn btn--ghost" data-final-ko>Incorrect</button>
+      </div>`
+    : `<p class="flashcard-hint">Réfléchissez, puis touchez la carte pour voir la réponse.</p>`;
+
+  return `
+    <main class="main">
+      ${
+        cardSession.mode === "pretest"
+          ? `<button type="button" class="link-back" data-card-abort>← Quitter la session</button>`
+          : ""
+      }
+      <div class="quiz-progress" aria-hidden="true"><div class="quiz-progress__bar" style="width:${pct}%"></div></div>
+      <p class="quiz-meta">Carte ${cardSession.index + 1} / ${total}</p>
+      <article class="flashcard ${cardSession.flipped ? "flashcard--flipped" : ""}">
+        <button type="button" class="flashcard__tap" data-flip ${cardSession.flipped ? "disabled" : ""}>
+          <div class="flashcard__recto">
+            <p class="flashcard__chapter">${escapeHtml(q.axisTitle)}</p>
+            <h2 class="flashcard__prompt">${escapeHtml(q.prompt)}</h2>
+            <p class="flashcard__ref">(${escapeHtml(moduleRef)})</p>
+          </div>
+        </button>
+        ${
+          cardSession.flipped
+            ? `<div class="flashcard__verso">
+                <p class="flashcard__label">Réponse attendue</p>
+                <p class="flashcard__answer">${escapeHtml(correctChoiceText(q))}</p>
+                <p class="flashcard__explain">${escapeHtml(q.explanation)}</p>
+              </div>`
+            : ""
+        }
+      </article>
+      ${cardSession.mode === "pretest" ? actionsPretest : actionsFinal}
+    </main>`;
+}
+
+function advanceCard() {
+  const axisId = cardSession.axisId;
+  cardSession.index++;
+  cardSession.flipped = false;
+
+  if (cardSession.index >= cardSession.queue.length) {
+    if (cardSession.mode === "pretest") {
+      const total = cardSession.queue.length;
+      recordPretestSessionResult(axisId, cardSession.masterCount ?? 0, total);
+      onPretestSessionComplete(axisId);
+      saveActivePretestSession(axisId, null);
+      cardSession = null;
+      screen = "pretest-chapters";
+    } else {
+      screen = "final-results";
+    }
+    render();
+    return;
+  }
+
+  if (cardSession.mode === "pretest") {
+    const session = getActivePretestSession(axisId);
+    if (session) {
+      session.index = cardSession.index;
+      saveActivePretestSession(axisId, session);
+    }
+  }
+  render();
+}
+
+function bindPretest() {
+  app.querySelectorAll("[data-pretest-axis]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      route.axisId = btn.dataset.pretestAxis;
+      screen = "pretest-setup";
+      render();
+    });
+  });
+
+  app.querySelector("[data-pretest-back]")?.addEventListener("click", () => {
+    screen = "pretest-chapters";
+    render();
+  });
+
+  app.querySelector("[data-pretest-start]")?.addEventListener("click", () => {
+    const n = Number(app.querySelector('input[name="pretest-size"]:checked')?.value || 25);
+    savePretestPref(route.axisId, n);
+    launchPretestSession(route.axisId, n, null);
+  });
+
+  app.querySelector("[data-pretest-resume]")?.addEventListener("click", () => {
+    const session = getActivePretestSession(route.axisId);
+    if (session) launchPretestSession(route.axisId, session.targetCount, session);
+  });
+
+  app.querySelector("[data-pretest-new]")?.addEventListener("click", () => {
+    const n = Number(app.querySelector('input[name="pretest-size"]:checked')?.value || 25);
+    savePretestPref(route.axisId, n);
+    saveActivePretestSession(route.axisId, null);
+    launchPretestSession(route.axisId, n, null);
+  });
+
+  bindFlashcard();
+}
+
+function bindFinal() {
+  app.querySelector("[data-final-start]")?.addEventListener("click", () => {
+    const n = Number(app.querySelector('input[name="final-size"]:checked')?.value || 50);
+    saveFinalPref(n);
+    launchFinalSession(n);
+  });
+  app.querySelector("[data-final-retry]")?.addEventListener("click", () => {
+    cardSession = null;
+    screen = "final-setup";
+    render();
+  });
+  bindFlashcard();
+}
+
+function bindFlashcard() {
+  app.querySelector("[data-flip]")?.addEventListener("click", () => {
+    if (!cardSession.flipped) {
+      cardSession.flipped = true;
+      render();
+    }
+  });
+
+  app.querySelector("[data-card-abort]")?.addEventListener("click", () => {
+    if (cardSession?.mode === "pretest" && route.axisId) {
+      const session = getActivePretestSession(route.axisId);
+      if (session) {
+        session.index = cardSession.index;
+        saveActivePretestSession(route.axisId, session);
+      }
+    }
+    cardSession = null;
+    screen = "pretest-chapters";
+    render();
+  });
+
+  app.querySelector("[data-srs-master]")?.addEventListener("click", () => {
+    const qid = cardSession.queue[cardSession.index];
+    applySrsMaster(qid);
+    cardSession.masterCount = (cardSession.masterCount ?? 0) + 1;
+    if (cardSession.mode === "pretest" && route.axisId) {
+      const session = getActivePretestSession(cardSession.axisId);
+      if (session) {
+        session.masterCount = cardSession.masterCount;
+        saveActivePretestSession(cardSession.axisId, session);
+      }
+    }
+    advanceCard();
+  });
+
+  app.querySelector("[data-srs-review]")?.addEventListener("click", () => {
+    const qid = cardSession.queue[cardSession.index];
+    applySrsReview(qid);
+    advanceCard();
+  });
+
+  app.querySelector("[data-final-ok]")?.addEventListener("click", () => {
+    cardSession.correctCount++;
+    advanceCard();
+  });
+
+  app.querySelector("[data-final-ko]")?.addEventListener("click", () => {
+    const qid = cardSession.queue[cardSession.index];
+    const q = getQuestionById(qid);
+    cardSession.errors.push({
+      axisTitle: q.axisTitle,
+      prompt: q.prompt,
+      moduleRef: `voir ch. ${q.moduleCode}`,
+      answer: correctChoiceText(q),
+    });
+    advanceCard();
+  });
+}
+
+/* ─── Render racine ─── */
+
+function render() {
+  document.body.classList.remove("quiz-modal-open");
+
+  if (showPauseWarn) {
+    renderPauseWarnModal();
+    return;
+  }
+
+  if (pendingHelp) {
+    renderHelpModal(pendingHelp);
+    return;
+  }
+
+  let mainHtml = "";
+  if (activeTab === "revision") mainHtml = renderRevision();
+  else if (activeTab === "pretest") mainHtml = renderPretest();
+  else mainHtml = renderFinal();
+
+  app.innerHTML = renderTabsShell(mainHtml);
+  bindTabs();
+
+  if (activeTab === "revision") bindRevision();
+  else if (activeTab === "pretest") bindPretest();
+  else bindFinal();
+}
+
+/* ─── Init ─── */
+
+if (!isHelpDismissed("revision")) pendingHelp = "revision";
 render();
