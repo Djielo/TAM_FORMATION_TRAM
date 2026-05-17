@@ -77,7 +77,7 @@ let cetTitleTapTimer = null;
 
 /** Formulation unique — déverrouillage de l'onglet Examen final. */
 const EXAM_FINAL_GOAL_TEXT =
-  "Pour atteindre l'<strong>examen final</strong>, vous devez maîtriser <strong>80 %</strong> des réponses de chaque chapitre (acronymes inclus).";
+  "Pour atteindre l'<strong>Examen final</strong>, vous devez maîtriser <strong>80 %</strong> des réponses de chaque chapitre (acronymes inclus).";
 
 function axisChapterLabel(axis) {
   if (axis.id === "acronymes") return "Acronymes";
@@ -92,9 +92,9 @@ function axisCetMeta(axis) {
 function revisionHelpBody() {
   const n = getTotalQuestionCount();
   return `<p><strong>Conseil :</strong> commencez par le chapitre <strong>Acronymes</strong> pour connaître les sigles utilisés dans les questions des chapitres 1 à 4.</p>
-      <p>Parcourez les <strong>chapitres</strong> et les <strong>modules</strong> contenant les <strong>QCM</strong>.</p>
-      <p>Votre progression est enregistrée sur cet appareil (meilleur score par module).</p>
-      <p>L'onglet <strong>Pré-examen</strong> s'ouvre lorsque chaque question du QCMa été <strong>vue et répondue correctement au moins une fois</strong> en révision (${n}/${n}).</p>
+      <p>Parcourez les <strong>chapitres</strong> et les <strong>modules</strong> contenant les <strong>QCM</strong>. (mode "Révision").</p>
+      <p>Votre progression est enregistrée sur cet appareil (même lien dans même navigateur).</p>
+      <p>L'onglet <strong>Pré-examen</strong> s'ouvre lorsque chaque question du QCM a été <strong>répondue correctement au moins une fois</strong> (${n}/${n}).</p>
       <p>${EXAM_FINAL_GOAL_TEXT}</p>`;
 }
 
