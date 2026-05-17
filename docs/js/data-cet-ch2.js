@@ -122,7 +122,7 @@ export const MODULES_CH2 = [
         choices: [
           "Autorisé à 10 km/h",
           "Formellement interdit — risque de déraillement",
-          "Autorisé en marche à vue",
+          "Autorisé en Marche À Vue",
           "Autorisé si PCC informé",
         ],
         correct: 1,
@@ -160,13 +160,13 @@ export const MODULES_CH2 = [
           "Hors zone Gare Saint-Roch, place Albert 1er et Corum, par quoi les conflits sont-ils gérés, en principe général ?",
         choices: [
           "La priorité à droite uniquement",
-          "La signalisation lumineuse (marche à vue complétée par la signalisation)",
+          "La signalisation lumineuse (Marche À Vue complétée par la signalisation)",
           "Appel au PCC",
           "La priorité systématique à la rame venant de droite",
         ],
         correct: 1,
         explanation:
-          "Marche à vue ; conflits gérés par signalisation lumineuse sauf zones spécifiques (p.21).",
+          "Marche À Vue ; conflits gérés par signalisation lumineuse sauf zones spécifiques (p.21).",
       },
       {
         id: "sg-08",
@@ -263,7 +263,7 @@ export const MODULES_CH2 = [
         choices: [
           "Passage autorisé en voie directe",
           "Arrêt absolu — franchissement interdit",
-          "Marche à vue à 30 km/h",
+          "Marche À Vue à 30 km/h",
           "Passage autorisé, voie déviée",
         ],
         correct: 1,
@@ -302,7 +302,7 @@ export const MODULES_CH2 = [
           "Passage autorisé si voie libre",
           "Arrêt absolu — franchissement interdit",
           "15 km/h en zone gare",
-          "Marche à vue sans limite",
+          "Marche À Vue sans limite",
         ],
         correct: 1,
         explanation:
@@ -316,7 +316,7 @@ export const MODULES_CH2 = [
           "Non — le feu éteint autorise le passage",
           "Oui — arrêt absolu, franchissement interdit dans les deux cas",
           "Non — feu éteint = 30 km/h max",
-          "Oui — marche à vue dans les deux cas",
+          "Oui — Marche À Vue dans les deux cas",
         ],
         correct: 1,
         explanation:
@@ -334,7 +334,7 @@ export const MODULES_CH2 = [
         id: "indir-09",
         prompt: "INDIR ou INDES éteint ou bloqué au rouge : action immédiate ?",
         choices: [
-          "Passer en marche à vue",
+          "Passer en Marche À Vue",
           "Arrêt immédiat de la rame et appel au PCC",
           "Couper la traction seulement",
           "Enclencher les feux de détresse et continuer",
@@ -477,7 +477,7 @@ export const MODULES_CH2 = [
         choices: [
           "Voie interdite temporaire",
           "Aiguille dé-contrôlée — appeler le PCC",
-          "Passage en marche à vue",
+          "Passage en Marche À Vue",
           "Fin de ligne",
         ],
         correct: 1,
@@ -530,7 +530,7 @@ export const MODULES_CH2 = [
         choices: [
           "Franchissement autorisé",
           "Arrêt obligatoire — franchissement interdit",
-          "Marche à vue à 30 km/h",
+          "Marche À Vue à 30 km/h",
           "Passage autorisé en voie déviée",
         ],
         correct: 1,
@@ -543,7 +543,7 @@ export const MODULES_CH2 = [
           "Arrêt obligatoire",
           "Franchissement autorisé",
           "Arrêt absolu",
-          "Prochain SM au rouge — marche à vue",
+          "Prochain SM au rouge — Marche À Vue",
         ],
         correct: 1,
         explanation: "T vert = franchissement autorisé (p.23).",
@@ -569,7 +569,7 @@ export const MODULES_CH2 = [
         choices: [
           "Passage à 15 km/h",
           "Arrêt obligatoire — franchissement interdit",
-          "Marche à vue sans limite",
+          "Marche À Vue sans limite",
           "Franchissement autorisé si retard",
         ],
         correct: 1,
@@ -582,7 +582,7 @@ export const MODULES_CH2 = [
           "Par rapport au SM, que vous annonce surtout le SA concernant la manœuvre à venir ?",
         choices: [
           "Un arrêt absolu immédiat",
-          "Un prochain feu de manœuvre au rouge — passage en marche à vue",
+          "Un prochain feu de manœuvre au rouge — passage en Marche À Vue",
           "La destination au dépôt",
           "L'absence de tension",
         ],
@@ -653,13 +653,13 @@ export const MODULES_CH2 = [
         prompt: "SA : T orange (haut) allumé. Signification ?",
         choices: [
           "Arrêt absolu",
-          "Prochain feu de manœuvre au rouge — franchissement autorisé en marche à vue",
+          "Prochain feu de manœuvre au rouge — franchissement autorisé en Marche À Vue",
           "Franchissement interdit",
           "Rame à quai sur le canton",
         ],
         correct: 1,
         explanation:
-          "T orange = prochain FM au rouge, passage autorisé en marche à vue (p.24).",
+          "T orange = prochain FM au rouge, passage autorisé en Marche À Vue (p.24).",
       },
       {
         id: "sa-04",
@@ -680,7 +680,7 @@ export const MODULES_CH2 = [
           "Franchir prudemment",
           "Prévenir le PCC",
           "Arrêt absolu sans appel",
-          "Marche à vue à 10 km/h",
+          "Marche À Vue à 10 km/h",
         ],
         correct: 1,
         explanation: "Feu en panne → prévenir le PCC (p.24, texte en rouge).",
@@ -732,9 +732,9 @@ export const MODULES_CH2 = [
           "Le SM au rouge et le SA au T orange imposent tous deux un arrêt immédiat sans MAV ?",
         choices: [
           "Oui pour les deux",
-          "Non — le SM rouge impose l'arrêt ; le SA orange autorise le passage en marche à vue",
+          "Non — le SM rouge impose l'arrêt ; le SA orange autorise le passage en Marche À Vue",
           "Non — les deux autorisent le passage",
-          "Oui — marche à vue pour les deux",
+          "Oui — Marche À Vue pour les deux",
         ],
         correct: 1,
         explanation:
@@ -765,7 +765,7 @@ export const MODULES_CH2 = [
           "Franchissement autorisé en MAV",
           "Arrêt absolu",
           "30 km/h",
-          "Marche à vue — rame à quai",
+          "Marche À Vue — rame à quai",
         ],
         correct: 1,
         explanation: "T rouge = arrêt absolu (p.24).",
@@ -853,7 +853,7 @@ export const MODULES_CH2 = [
           "Non — le SMA autorise toujours le passage",
           "Oui — arrêt (absolu pour SMA, obligatoire pour SM) — franchissement interdit",
           "Non — le SM impose 30 km/h",
-          "Oui — marche à vue pour les deux",
+          "Oui — Marche À Vue pour les deux",
         ],
         correct: 1,
         explanation:
@@ -889,7 +889,7 @@ export const MODULES_CH2 = [
         choices: [
           "Arrêt absolu",
           "Franchissement autorisé",
-          "Marche à vue 30 km/h",
+          "Marche À Vue 30 km/h",
           "Appel PCC",
         ],
         correct: 1,
@@ -1018,7 +1018,7 @@ export const MODULES_CH2 = [
           "Absence de tension — arrêt absolu",
           "Tension présente — circulation autorisée",
           "Feu en panne",
-          "Marche à vue",
+          "Marche À Vue",
         ],
         correct: 1,
         explanation:
@@ -1117,7 +1117,7 @@ export const MODULES_CH2 = [
           "Franchissement autorisé",
           "Franchissement interdit",
           "30 km/h",
-          "Marche à vue illimitée",
+          "Marche À Vue illimitée",
         ],
         correct: 1,
         explanation: "Barre horizontale = franchissement interdit (p.27).",
@@ -1402,7 +1402,7 @@ export const MODULES_CH2 = [
         choices: [
           "Non — seulement si trafic dense",
           "Oui — point par point même sans autre rame",
-          "Non — marche à vue libre",
+          "Non — Marche À Vue libre",
           "Uniquement la nuit",
         ],
         correct: 1,
@@ -1441,7 +1441,7 @@ export const MODULES_CH2 = [
         prompt:
           "Vous avez engagé le PLP ; l'autre rame est engagée (PLG) : conduite à tenir ?",
         choices: [
-          "Continuer en marche à vue",
+          "Continuer en Marche À Vue",
           "Arrêt absolu, appel PCC, puis reprise selon consignes",
           "Reculer sans avis",
           "Passer en priorité à droite systématiquement",
@@ -1486,7 +1486,7 @@ export const MODULES_CH2 = [
           "En zone place Albert 1er, comment se comportent pour vous les prescriptions des points 1 à 5b de l'article 2.4.1 (zone Gare Saint-Roch) ?",
         choices: [
           "Ne s'appliquent pas",
-          "S'appliquent également (marche à vue, procédures)",
+          "S'appliquent également (Marche À Vue, procédures)",
           "Remplacent entièrement la signalisation lumineuse",
           "Valent uniquement la nuit",
         ],

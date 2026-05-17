@@ -256,7 +256,7 @@ export const MODULES_CH3 = [
       {
         id: "ch3-32-02",
         prompt:
-          "Parmi les éléments suivants, qu'implique notamment la marche à vue ?",
+          "Parmi les éléments suivants, qu'implique notamment la Marche À Vue ?",
         choices: [
           "Adapter la vitesse à l'environnement",
           "Rouler toujours à 70 km/h",
@@ -543,7 +543,7 @@ export const MODULES_CH3 = [
           "Changement de voie par communication et départ sens inverse sur l'autre voie",
           "Marche arrière sur même voie",
           "Remorquage",
-          "Haut le pied",
+          "Haut Le Pied",
         ],
         correct: 0,
         explanation: "Retournement = communication + autre voie (p.46).",
@@ -722,17 +722,17 @@ export const MODULES_CH3 = [
     ],
   },
 
-  // ─── 3.3 Haut le pied ─────────────────────────────────────
+  // ─── 3.3 Haut Le Pied ─────────────────────────────────────
   {
     id: "circ-33",
     code: "3.3",
-    title: "Circulation haut le pied (sans voyageurs)",
+    title: "Circulation Haut Le Pied (sans voyageurs)",
     cetPage: 49,
     questions: [
       {
         id: "ch3-33-01",
         prompt:
-          "En circulation haut le pied (HLP), à quelle vitesse maximale franchit-on une station ?",
+          "En circulation Haut Le Pied (HLP), à quelle vitesse maximale franchit-on une station ?",
         choices: ["15 km/h", "30 km/h", "40 km/h", "10 km/h"],
         correct: 0,
         explanation: "15 km/h en station en HLP (p.49).",

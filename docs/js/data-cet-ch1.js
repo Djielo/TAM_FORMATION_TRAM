@@ -182,7 +182,7 @@ export const MODULES_CH1 = [
         choices: [
           "Test Cabine M1 (ou M2)",
           "Sortie dépôt",
-          "Haut le pied",
+          "Haut Le Pied",
           "Remorquage",
         ],
         correct: 0,
@@ -899,7 +899,7 @@ export const MODULES_CH1 = [
           "Rail glissant (feuilles, verglas, pluie fine…)",
           "Passage piéton",
           "Gong en panne",
-          "Haut le pied",
+          "Haut Le Pied",
         ],
         correct: 0,
         explanation: "Adhérence dégradée : action manuelle (p.15).",
@@ -1086,11 +1086,11 @@ export const MODULES_CH1 = [
     ],
   },
 
-  // ─── 1.8-B Haut le pied ───────────────────────────────────
+  // ─── 1.8-B Haut Le Pied ───────────────────────────────────
   {
     id: "panne-18b",
     code: "1.8-B",
-    title: "Pannes — Haut le pied",
+    title: "Pannes — Haut Le Pied",
     cetPage: 17,
     questions: [
       {
@@ -1123,7 +1123,7 @@ export const MODULES_CH1 = [
       {
         id: "ch1-18b-04",
         prompt: "Défaut rétrovision quai ou zone dégagement quai : mode ?",
-        choices: ["Haut le pied", "Remorquage", "Fin de tour", "Commercial"],
+        choices: ["Haut Le Pied", "Remorquage", "Fin de tour", "Commercial"],
         correct: 0,
         explanation: "Colonnes B p.17–18.",
       },

@@ -74,7 +74,6 @@ let pendingHelp = null;
 let showPauseWarn = false;
 let pauseWarnContinue = null;
 /** @type {string} */
-let migrationNotice = "";
 let cetTitleTapCount = 0;
 let cetTitleTapTimer = null;
 
@@ -490,12 +489,8 @@ function renderRevision() {
 }
 
 function renderHome() {
-  const stats = getMasteryStats();
-  const doneCount = Object.keys(loadRevisionProgress()).length;
-
   return `
     <main class="main">
-      <p class="intro-note">Choisissez un chapitre, puis un module pour lancer un QCM.</p>
       <div class="axes">
         ${AXES.map((axis) => {
           const modules = MODULES[axis.id] || [];
@@ -516,28 +511,8 @@ function renderHome() {
             </button>`;
         }).join("")}
       </div>
-      <p class="footer-note">Progression globale : <strong>${stats.validated} / ${stats.total}</strong> questions validées <strong>en QCM</strong>.</p>
-      ${doneCount ? `<p class="footer-note">${doneCount} module(s) avec score enregistré.</p>` : ""}
-      ${renderResumeQuizBanner()}
-      ${migrationNotice ? `<p class="footer-note footer-note--info">${migrationNotice}</p>` : ""}
-      <p class="footer-note">Compteur global : une question est comptabilisée dès qu’elle a été <strong>bien répondue au moins une fois</strong>.</p>
-      <p class="footer-note">Votre progression est enregistrée dans <strong>CE</strong> navigateur, sur <strong>CET</strong> appareil. Pour la retrouver, <strong>ouvrez toujours l'application avec le même lien dans le même navigateur</strong> (favori ou raccourci).</p>
-      <p class="footer-note">Document interne TaM — Outil d'entraînement personnel.</p>
+      <p class="footer-note">Basé sur doc TaM — Outil d'entraînement personnel.</p>
     </main>`;
-}
-
-function renderResumeQuizBanner() {
-  const saved = getActiveQuizSession();
-  if (!saved?.axisId || !saved?.moduleId) return "";
-  if (isModulePerfect(saved.axisId, saved.moduleId)) return "";
-  const mod = MODULES[saved.axisId]?.find((m) => m.id === saved.moduleId);
-  if (!mod) return "";
-  const axis = getAxisById(saved.axisId);
-  return `<div class="resume-banner">
-      <p><strong>QCM en cours</strong> — ${escapeHtml(axis?.title || "")} · ${escapeHtml(mod.code)} (question ${(saved.index ?? 0) + 1})</p>
-      <button type="button" class="btn btn--primary btn--sm" data-resume-quiz>Reprendre le module</button>
-      <button type="button" class="btn btn--ghost btn--sm" data-discard-quiz>Abandonner</button>
-    </div>`;
 }
 
 function renderAxis() {
@@ -718,15 +693,6 @@ function bindRevision() {
         startQuiz(route.axisId, moduleId, true);
       }
     });
-  });
-
-  app.querySelector("[data-resume-quiz]")?.addEventListener("click", () => {
-    const saved = getActiveQuizSession();
-    if (saved) startQuiz(saved.axisId, saved.moduleId, false);
-  });
-  app.querySelector("[data-discard-quiz]")?.addEventListener("click", () => {
-    saveActiveQuizSession(null);
-    render();
   });
 
   if (screen === "quiz") bindQuizHandlers();
@@ -1316,7 +1282,6 @@ async function requestFullProgressReset() {
   if (!ok) return;
 
   resetAllUserProgress();
-  migrationNotice = "";
   activeTab = "revision";
   screen = "home";
   route = { axisId: null, moduleId: null };
@@ -1348,23 +1313,11 @@ function bindHiddenResetGesture() {
 
 /* ─── Init ─── */
 
+/** Reprise au chargement : examen final en cours uniquement (pas de QCM révision). */
 function tryRestoreOnLoad() {
   const savedQuiz = getActiveQuizSession();
-  if (
-    savedQuiz?.questionIds?.length &&
-    savedQuiz.index < savedQuiz.questionIds.length &&
-    MODULES[savedQuiz.axisId]
-  ) {
-    const mod = MODULES[savedQuiz.axisId].find(
-      (m) => m.id === savedQuiz.moduleId,
-    );
-    if (mod && !isModulePerfect(savedQuiz.axisId, savedQuiz.moduleId)) {
-      activeTab = "revision";
-      route = { axisId: savedQuiz.axisId, moduleId: savedQuiz.moduleId };
-      quiz = buildQuizFromSaved(savedQuiz, mod);
-      screen = "quiz";
-      return true;
-    }
+  if (savedQuiz?.axisId && savedQuiz?.moduleId) {
+    const mod = MODULES[savedQuiz.axisId]?.find((m) => m.id === savedQuiz.moduleId);
     if (mod && isModulePerfect(savedQuiz.axisId, savedQuiz.moduleId)) {
       saveActiveQuizSession(null);
     }
@@ -1385,11 +1338,7 @@ function tryRestoreOnLoad() {
 }
 
 function init() {
-  const mig = migrateStorage();
-  if (mig.orphanQuestionsRemoved > 0) {
-    migrationNotice = `${mig.orphanQuestionsRemoved} question(s) retirée(s) du CET ont été déduites de votre progression globale.`;
-  }
-
+  migrateStorage();
   const restored = tryRestoreOnLoad();
   if (!restored && !isHelpDismissed("revision")) pendingHelp = "revision";
   render();
