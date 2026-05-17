@@ -80,7 +80,7 @@ let cetTitleTapTimer = null;
 
 /** Formulation unique — déverrouillage de l'onglet Examen final. */
 const EXAM_FINAL_GOAL_TEXT =
-  "Pour atteindre l'<strong>Examen final</strong>, vous devez maîtriser <strong>80 %</strong> des réponses du mode <strong>Pré-examen</strong> (acronymes inclus).";
+  "L'<strong>Examen final</strong> reste verrouillé tant que la <strong>Révision</strong> (QCM) n'est pas complète sur tout le <strong>CET</strong> (100 % de bonnes réponses) et que chaque chapitre n'a pas atteint <strong>80 %</strong> en mode <strong>Pré-examen</strong> (acronymes inclus).";
 
 function axisChapterLabel(axis) {
   if (axis.id === "acronymes") return "Acronymes";
@@ -93,12 +93,10 @@ function axisCetMeta(axis) {
 }
 
 function revisionHelpBody() {
-  const n = getTotalQuestionCount();
-  return `<p><strong>Important : Votre progression est enregistrée sur cet appareil (même lien et même navigateur).</strong></p>
-      <p><strong>Conseil :</strong> commencez par le chapitre <strong>"Acronymes"</strong> pour connaître les sigles utilisés dans les questions des chapitres 1 à 4.</p>
-      <p>Parcourez les <strong>chapitres</strong> et les <strong>modules</strong> en mode <strong>"Révision"</strong> (QCM).</p>
-      <p>L'onglet <strong>"Pré-examen"</strong> se débloque <strong>chapitre par chapitre</strong> : lorsque toutes les questions d'un chapitre ont été <strong>répondues correctement au moins une fois</strong> en Révision (QCM), les cartes de ce chapitre deviennent accessibles en Pré-examen (ex. Acronymes seuls, puis ch. 1, etc.).</p>
-      <p>L'onglet<strong>"Examen final"</strong> reste réservé après révision complète du CET (${n}/${n}) et maîtrise SRS par chapitre.</p>
+  return `<p><strong>Important :</strong> votre progression est enregistrée sur cet appareil (même lien et même navigateur).</p>
+      <p><strong>Conseil :</strong> commencez par le chapitre <strong>Acronymes</strong> pour connaître les sigles utilisés dans les questions des chapitres 1 à 4.</p>
+      <p>Parcourez les <strong>chapitres</strong> et les <strong>modules</strong> en mode <strong>Révision</strong> (QCM).</p>
+      <p>L'onglet <strong>Pré-examen</strong> devient accessible dès qu'<strong>un chapitre</strong> est validé à <strong>100 %</strong> en Révision (QCM). Chaque chapitre s'y débloque ensuite <strong>indépendamment</strong> quand toutes ses questions ont été <strong>répondues correctement au moins une fois</strong> en mode Révision.</p>
       <p>${EXAM_FINAL_GOAL_TEXT}</p>`;
 }
 
@@ -121,7 +119,7 @@ const HELP_TEXT = {
   final: {
     title: "Mode Examen final",
     body: `<p>Même principe de <strong>carte</strong>, mais sur <strong>tous les chapitres</strong> mélangés.</p>
-      <p>Accès réservé après révision complète du CET. ${EXAM_FINAL_GOAL_TEXT}</p>
+      <p>${EXAM_FINAL_GOAL_TEXT}</p>
       <p>Après le verso, indiquez <strong>Correct</strong> ou <strong>Incorrect</strong> (auto-évaluation honnête). Pas de résultat carte par carte : le bilan arrive à la fin.</p>
       <p>Seuil de réussite : <strong>80 %</strong> (orange entre 70 % et 80 %, rouge en dessous).</p>`,
   },
