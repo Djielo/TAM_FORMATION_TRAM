@@ -32,7 +32,6 @@ import {
   isPretestChapterUnlocked,
   isPretestTabUnlocked,
   isUnlockComplete,
-  loadRevisionProgress,
   migrateStorage,
   needsPretestPauseWarning,
   onPretestSessionComplete,
@@ -200,6 +199,23 @@ function formatQuestionCount(n) {
   return n === 1 ? "1 question" : `${n} questions`;
 }
 
+/** « 18 sur 23 validés (78 %) » — chapitres et modules. */
+function formatValidatedCount(validated, total, includePct = true) {
+  const core = `${validated} sur ${total} validés`;
+  if (!includePct || total <= 0) return core;
+  const pct = Math.round((validated / total) * 100);
+  return `${core} (${pct} %)`;
+}
+
+/** Ligne meta tuile chapitre (accueil Révision) : modules + avancement QCM. */
+function formatAxisHomeMeta(axis) {
+  const modules = MODULES[axis.id] || [];
+  const modPart =
+    modules.length === 1 ? "1 module" : `${modules.length} modules`;
+  const rev = getAxisRevisionMastery(axis.id);
+  return `${modPart} · ${formatValidatedCount(rev.validated, rev.total)}`;
+}
+
 function correctChoiceText(q) {
   return q.choices[q.correct];
 }
@@ -255,7 +271,7 @@ function renderUnlockBanner() {
     const preLine = preUnlocked
       ? ` · Pré-examen : ${preUnlocked} chapitre(s) débloqué(s)`
       : "";
-    return `<p class="header__unlock">Révision : ${rev.validated} / ${rev.total} questions validées${preLine}.</p>`;
+    return `<p class="header__unlock">Révision : ${formatValidatedCount(rev.validated, rev.total)}${preLine}.</p>`;
   }
 
   if (!pre.complete) {
@@ -375,10 +391,10 @@ function formatModuleStatusLine(stats, inProgress, activeQuiz) {
     return `<span class="module-card__best module-card__best--active">QCM en cours (q. ${activeQuiz.index + 1})</span>`;
   }
   if (stats.perfect) {
-    return `<span class="module-card__best module-card__best--perfect" title="Toutes les questions validées"><span class="module-card__celebrate" aria-hidden="true">🥳</span> ${stats.validated}/${stats.total}</span>`;
+    return `<span class="module-card__best module-card__best--perfect" title="Toutes les questions validées"><span class="module-card__celebrate" aria-hidden="true">🥳</span> ${formatValidatedCount(stats.validated, stats.total)}</span>`;
   }
   if (stats.validated > 0) {
-    return `<span class="module-card__best">Validées : ${stats.validated}/${stats.total}</span>`;
+    return `<span class="module-card__best">${formatValidatedCount(stats.validated, stats.total)}</span>`;
   }
   if (stats.bestRun) {
     return `<span class="module-card__best">Meilleur : ${stats.bestRun.score}/${stats.total}</span>`;
@@ -418,8 +434,25 @@ function persistQuizSession() {
 }
 
 function applySavedChoiceLayout(base, layout) {
-  if (!layout) return shuffleQuestionChoices(base);
-  return { ...base, choices: [...layout.choices], correct: layout.correct };
+  if (
+    !layout?.choices?.length ||
+    layout.choices.length !== base.choices.length
+  ) {
+    return shuffleQuestionChoices(base);
+  }
+  const sameChoiceSet =
+    layout.choices.every((label) => base.choices.includes(label)) &&
+    base.choices.every((label) => layout.choices.includes(label));
+  if (!sameChoiceSet) {
+    return shuffleQuestionChoices(base);
+  }
+  const newChoices = layout.choices.map(
+    (label) => base.choices[base.choices.indexOf(label)],
+  );
+  const correctLabel = layout.choices[layout.correct];
+  const newCorrect = newChoices.indexOf(correctLabel);
+  if (newCorrect < 0) return shuffleQuestionChoices(base);
+  return { ...base, choices: newChoices, correct: newCorrect };
 }
 
 function buildQuizFromSaved(saved, mod) {
@@ -493,10 +526,12 @@ function renderHome() {
     <main class="main">
       <div class="axes">
         ${AXES.map((axis) => {
-          const modules = MODULES[axis.id] || [];
-          const qCount = modules.reduce((n, m) => n + m.questions.length, 0);
           const chapterInProgress =
             axis.available && isChapterQuizInProgress(axis.id);
+          const rev = axis.available ? getAxisRevisionMastery(axis.id) : null;
+          let badgeClass = "badge";
+          if (rev?.complete) badgeClass += " badge--ok";
+          else if (chapterInProgress) badgeClass += " badge--active";
           return `
             <button type="button" class="${axis.id === "acronymes" ? "axis-card axis-card--recommended" : "axis-card"}" data-axis="${axis.id}" ${axis.available ? "" : "disabled"}>
               <span class="axis-card__num">${axisChapterLabel(axis)}</span>
@@ -506,7 +541,11 @@ function renderHome() {
               </div>
               <p class="axis-card__desc">${axisCetMeta(axis)}</p>
               <div class="axis-card__meta">
-                ${axis.available ? `<span class="badge">${modules.length} modules · ${qCount} questions</span>` : `<span class="badge badge--soon">Bientôt</span>`}
+                ${
+                  axis.available
+                    ? `<span class="${badgeClass}">${formatAxisHomeMeta(axis)}</span>`
+                    : `<span class="badge badge--soon">Bientôt</span>`
+                }
               </div>
             </button>`;
         }).join("")}
@@ -652,7 +691,7 @@ function renderResults() {
         <p class="results__score">${quiz.score}/${total}</p>
         <p class="results__label">${pct}% de bonnes réponses</p>
         <button type="button" class="btn btn--primary" data-retry>Recommencer ce module</button>
-        <button type="button" class="btn btn--ghost" data-modules>Autres modules</button>
+        <button type="button" class="btn btn--ghost" data-modules>Revenir aux modules</button>
       </div>
     </main>`;
 }
@@ -1317,7 +1356,9 @@ function bindHiddenResetGesture() {
 function tryRestoreOnLoad() {
   const savedQuiz = getActiveQuizSession();
   if (savedQuiz?.axisId && savedQuiz?.moduleId) {
-    const mod = MODULES[savedQuiz.axisId]?.find((m) => m.id === savedQuiz.moduleId);
+    const mod = MODULES[savedQuiz.axisId]?.find(
+      (m) => m.id === savedQuiz.moduleId,
+    );
     if (mod && isModulePerfect(savedQuiz.axisId, savedQuiz.moduleId)) {
       saveActiveQuizSession(null);
     }
