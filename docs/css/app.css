@@ -158,6 +158,16 @@ body.app-dialog-open {
   color: var(--accent-strong, var(--accent));
 }
 
+.axis-card--locked {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.axis-card--locked:hover {
+  transform: none;
+  border-color: var(--border);
+}
+
 .axis-card:disabled {
   opacity: 0.55;
   cursor: not-allowed;

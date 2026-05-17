@@ -14,10 +14,12 @@ import {
   appendFinalExamResult,
   applySrsMaster,
   applySrsReview,
+  countPretestUnlockedChapters,
   dismissHelp,
   getActiveFinalSession,
   getActivePretestSession,
   getActiveQuizSession,
+  getAxisRevisionMastery,
   getFinalPref,
   getMasteryStats,
   getModuleQuestionStats,
@@ -27,6 +29,7 @@ import {
   isFinalExamUnlocked,
   isHelpDismissed,
   isModulePerfect,
+  isPretestChapterUnlocked,
   isPretestTabUnlocked,
   isUnlockComplete,
   loadRevisionProgress,
@@ -77,7 +80,7 @@ let cetTitleTapTimer = null;
 
 /** Formulation unique — déverrouillage de l'onglet Examen final. */
 const EXAM_FINAL_GOAL_TEXT =
-  "Pour atteindre l'<strong>Examen final</strong>, vous devez maîtriser <strong>80 %</strong> des réponses de chaque chapitre (acronymes inclus).";
+  "Pour atteindre l'<strong>Examen final</strong>, vous devez maîtriser <strong>80 %</strong> des réponses du mode <strong>Pré-examen</strong> (acronymes inclus).";
 
 function axisChapterLabel(axis) {
   if (axis.id === "acronymes") return "Acronymes";
@@ -91,10 +94,11 @@ function axisCetMeta(axis) {
 
 function revisionHelpBody() {
   const n = getTotalQuestionCount();
-  return `<p><strong>Conseil :</strong> commencez par le chapitre <strong>Acronymes</strong> pour connaître les sigles utilisés dans les questions des chapitres 1 à 4.</p>
-      <p>Parcourez les <strong>chapitres</strong> et les <strong>modules</strong> contenant les <strong>QCM</strong>. (mode "Révision").</p>
-      <p>Votre progression est enregistrée sur cet appareil (même lien dans même navigateur).</p>
-      <p>L'onglet <strong>Pré-examen</strong> s'ouvre lorsque chaque question du QCM a été <strong>répondue correctement au moins une fois</strong> (${n}/${n}).</p>
+  return `<p><strong>Important : Votre progression est enregistrée sur cet appareil (même lien et même navigateur).</strong></p>
+      <p><strong>Conseil :</strong> commencez par le chapitre <strong>"Acronymes"</strong> pour connaître les sigles utilisés dans les questions des chapitres 1 à 4.</p>
+      <p>Parcourez les <strong>chapitres</strong> et les <strong>modules</strong> en mode <strong>"Révision"</strong> (QCM).</p>
+      <p>L'onglet <strong>"Pré-examen"</strong> se débloque <strong>chapitre par chapitre</strong> : lorsque toutes les questions d'un chapitre ont été <strong>répondues correctement au moins une fois</strong> en Révision (QCM), les cartes de ce chapitre deviennent accessibles en Pré-examen (ex. Acronymes seuls, puis ch. 1, etc.).</p>
+      <p>L'onglet<strong>"Examen final"</strong> reste réservé après révision complète du CET (${n}/${n}) et maîtrise SRS par chapitre.</p>
       <p>${EXAM_FINAL_GOAL_TEXT}</p>`;
 }
 
@@ -107,7 +111,8 @@ const HELP_TEXT = {
   },
   pretest: {
     title: "Mode Pré-examen",
-    body: `<p>Cartes <strong>recto-verso</strong> par <strong>chapitre</strong> : réfléchissez, retournez la carte, puis indiquez <strong>Je maîtrise</strong> ou <strong>À revoir</strong> (répétition espacée).</p>
+    body: `<p>Chaque chapitre (<strong>Acronymes</strong>, ch. 1 à 4) s'ouvre en Pré-examen dès que vous avez validé <strong>100 %</strong> de ses questions en <strong>Révision</strong> (QCM).</p>
+      <p>Cartes <strong>recto-verso</strong> par chapitre débloqué : réfléchissez, retournez la carte, puis indiquez <strong>Je maîtrise</strong> ou <strong>À revoir</strong> (répétition espacée).</p>
       <p>Choisissez un quota par session (25 à 150). Une session interrompue reprend où vous l'avez laissée.</p>
       <p>Les erreurs sont reprises sur les sessions suivantes, mélangées avec de nouvelles cartes.</p>
       <p><strong>Conseil :</strong> laissez au moins <strong>5 minutes</strong> entre deux sessions de pré-examen (quel que soit le chapitre) pour mieux mémoriser.</p>
@@ -249,7 +254,11 @@ function renderUnlockBanner() {
   const pre = getPretestUnlockProgress();
 
   if (!rev.complete) {
-    return `<p class="header__unlock">Révision : ${rev.validated} / ${rev.total} questions validées.</p>`;
+    const preUnlocked = countPretestUnlockedChapters();
+    const preLine = preUnlocked
+      ? ` · Pré-examen : ${preUnlocked} chapitre(s) débloqué(s)`
+      : "";
+    return `<p class="header__unlock">Révision : ${rev.validated} / ${rev.total} questions validées${preLine}.</p>`;
   }
 
   if (!pre.complete) {
@@ -276,8 +285,8 @@ function renderTabsShell(mainHtml) {
   const lockFinal = !isFinalExamUnlocked();
   const totalQ = getTotalQuestionCount();
   const pretestTitle = lockPretest
-    ? `Validez les ${totalQ} questions en révision`
-    : "Pré-examen par chapitre";
+    ? "Validez toutes les questions d'au moins un chapitre en Révision (QCM)"
+    : "Pré-examen par chapitre (débloqué au fil de la révision)";
   const finalTitle = lockFinal
     ? isUnlockComplete()
       ? "Pré-examen : maîtriser 80 % des réponses de chaque chapitre"
@@ -778,6 +787,7 @@ function bindQuizHandlers() {
 /* ─── Pré-examen ─── */
 
 function launchPretestSession(axisId, count, resumeSession) {
+  if (!isPretestChapterUnlocked(axisId)) return;
   const start = () => {
     const session = resumeSession || createPretestSession(axisId, count);
     if (!resumeSession) saveActivePretestSession(axisId, session);
@@ -804,6 +814,14 @@ function launchPretestSession(axisId, count, resumeSession) {
 }
 
 function renderPretest() {
+  if (
+    route.axisId &&
+    (screen === "pretest-setup" || screen === "pretest-card") &&
+    !isPretestChapterUnlocked(route.axisId)
+  ) {
+    screen = "pretest-chapters";
+    route.axisId = null;
+  }
   switch (screen) {
     case "pretest-chapters":
       return renderPretestChapters();
@@ -825,24 +843,35 @@ function renderPretestChapters() {
 
   return `
     <main class="main">
-      <p class="intro-note">Choisissez un chapitre pour une session de cartes.</p>
+      <p class="intro-note">Choisissez un chapitre débloqué pour une session de cartes. Un chapitre s'ouvre après <strong>100 %</strong> de bonnes réponses en Révision (QCM) sur ce chapitre.</p>
       <div class="axes">
         ${AXES.filter((a) => a.available)
           .map((axis) => {
             const n = getQuestionsForAxis(axis.id).length;
+            const rev = getAxisRevisionMastery(axis.id);
+            const unlocked = isPretestChapterUnlocked(axis.id);
             const active = getActivePretestSession(axis.id);
             const ch = pre.chapters.find((c) => c.axisId === axis.id);
             const pct = ch?.masteryPct ?? 0;
             const mastered = ch?.mastered ?? 0;
             const total = ch?.total ?? n;
+            const lockBadge = `<span class="badge badge--soon">Révision : ${rev.validated} / ${rev.total} · Pré-examen après 100 %</span>`;
             const okBadge = ch?.ok
               ? `<span class="badge badge--ok">Examen final : OK (${pct} %)</span>`
-              : `<span class="badge">Maîtrise : ${mastered} / ${total} (${pct} %) · ${pre.thresholdPct} % requis</span>`;
-            const badge = active
-              ? `<span class="badge badge--active">Session : ${active.index}/${active.targetCount}</span>`
-              : okBadge;
+              : `<span class="badge">Maîtrise cartes : ${mastered} / ${total} (${pct} %) · ${pre.thresholdPct} % requis</span>`;
+            const badge = !unlocked
+              ? lockBadge
+              : active
+                ? `<span class="badge badge--active">Session : ${active.index}/${active.targetCount}</span>`
+                : okBadge;
+            const cardClass = unlocked
+              ? "axis-card"
+              : "axis-card axis-card--locked";
+            const lockTitle = unlocked
+              ? ""
+              : ` title="Validez les ${rev.total} questions de ce chapitre en Révision (QCM)"`;
             return `
-              <button type="button" class="axis-card" data-pretest-axis="${axis.id}">
+              <button type="button" class="${cardClass}" data-pretest-axis="${axis.id}" ${unlocked ? "" : "disabled"}${lockTitle}>
                 <span class="axis-card__num">${axisChapterLabel(axis)}</span>
                 <div class="axis-card__title">${escapeHtml(axis.title)}</div>
                 <div class="axis-card__meta">${badge} · ${n} questions</div>
@@ -1124,7 +1153,9 @@ function advanceCard() {
 function bindPretest() {
   app.querySelectorAll("[data-pretest-axis]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      route.axisId = btn.dataset.pretestAxis;
+      const axisId = btn.dataset.pretestAxis;
+      if (!isPretestChapterUnlocked(axisId)) return;
+      route.axisId = axisId;
       screen = "pretest-setup";
       render();
     });

@@ -106,7 +106,11 @@ export function getModuleQuestionStats(axisId, moduleId) {
   }
   const prog = getModuleProgress(axisId, moduleId);
   const bestRun = prog
-    ? { score: prog.score, storedTotal: prog.total, stale: prog.total !== total }
+    ? {
+        score: prog.score,
+        storedTotal: prog.total,
+        stale: prog.total !== total,
+      }
     : null;
   return {
     total,
@@ -215,6 +219,32 @@ export function isUnlockComplete() {
   return getMasteryStats().complete;
 }
 
+/** Révision QCM : questions du chapitre ayant été répondues correctement au moins une fois. */
+export function getAxisRevisionMastery(axisId) {
+  const questions = getQuestionsForAxis(axisId);
+  const m = loadMastery();
+  let validated = 0;
+  for (const q of questions) {
+    if (m[q.questionId]?.everCorrect) validated++;
+  }
+  const total = questions.length;
+  return {
+    validated,
+    total,
+    rate: total > 0 ? validated / total : 0,
+    complete: total > 0 && validated === total,
+  };
+}
+
+export function isPretestChapterUnlocked(axisId) {
+  if (isDevBypassUnlock()) return true;
+  return getAxisRevisionMastery(axisId).complete;
+}
+
+export function countPretestUnlockedChapters() {
+  return AXES.filter((a) => a.available && isPretestChapterUnlocked(a.id)).length;
+}
+
 /** Contournement formateur / test local (?dev=1 sur localhost ou clé localStorage). */
 export function isDevBypassUnlock() {
   try {
@@ -233,7 +263,8 @@ export function isDevBypassUnlock() {
 }
 
 export function isPretestTabUnlocked() {
-  return isDevBypassUnlock() || isUnlockComplete();
+  if (isDevBypassUnlock()) return true;
+  return countPretestUnlockedChapters() > 0;
 }
 
 export function loadPretestStats() {
