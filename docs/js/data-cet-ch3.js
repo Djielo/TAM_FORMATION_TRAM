@@ -10,7 +10,7 @@ export const MODULES_CH3 = [
       {
         id: "ch3-31a-01",
         prompt:
-          "Taux d'alcoolémie maximum pour un conducteur de transport public (CET) ?",
+          "Quel est le taux maximal d'alcoolémie autorisé au sang pour un conducteur de transport public de voyageurs selon le CET ?",
         choices: [
           "Strictement inférieur à 0,20 g/l de sang",
           "0,50 g/l comme tout conducteur",
@@ -23,7 +23,7 @@ export const MODULES_CH3 = [
       {
         id: "ch3-31a-02",
         prompt:
-          "Habilitation ligne/matériel : suspension automatique si absence de conduite commerciale depuis…",
+          "À partir de quelle durée sans conduite commerciale sur au moins une ligne autorisée l'habilitation ligne/matériel est-elle suspendue automatiquement ?",
         choices: [
           "Plus de 70 jours sur au moins une ligne autorisée",
           "30 jours",
@@ -35,7 +35,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-31a-03",
-        prompt: "Badge (prise de service) : quand ?",
+        prompt:
+          "À quels moments le conducteur doit-il badger lors de la prise de service au dépôt et lors de la montée dans la rame ?",
         choices: [
           "À l'arrivée au dépôt et au montée dans la rame",
           "Uniquement en fin de service",
@@ -47,7 +48,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-31a-04",
-        prompt: "Relève en ligne : le conducteur relèveur doit être sur place…",
+        prompt:
+          "Pour une relève en ligne, combien de temps au minimum avant l'heure théorique le conducteur relèveur doit-il être sur place ?",
         choices: [
           "Au moins 2 minutes avant l'heure théorique",
           "À l'heure pile",
@@ -60,14 +62,15 @@ export const MODULES_CH3 = [
       {
         id: "ch3-31a-05",
         prompt:
-          "Rame à relever absente à l'heure : le relèveur appelle le PCC dans un délai max de…",
+          "Si la rame à relever est toujours absente à l'heure théorique de relève, dans quel délai maximum le relèveur doit-il appeler le PCC ?",
         choices: ["5 minutes", "15 minutes", "1 minute", "30 minutes"],
         correct: 0,
         explanation: "Appel PCC sous 5 min après heure théorique de relève (p.39).",
       },
       {
         id: "ch3-31a-06",
-        prompt: "Déplacements pour relève ou pause :",
+        prompt:
+          "Pour les déplacements entre relève ou pause, quelle consigne suit-on au sujet de la planchette et du véhicule personnel ?",
         choices: [
           "Selon planchette, sans véhicule personnel",
           "En voiture personnelle autorisée",
@@ -89,7 +92,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-31b-01",
-        prompt: "Prise de rame au dépôt : la préparation sur remisage…",
+        prompt:
+          "Pour la prise de rame au dépôt, comment doit être réalisée la préparation sur remisage ?",
         choices: [
           "Suit la procédure du chapitre 1 (partie 1)",
           "Est facultative si la rame a roulé la veille",
@@ -101,7 +105,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-31b-02",
-        prompt: "Sortie du dépôt et mise en ligne : autorisation…",
+        prompt:
+          "Pour la sortie du dépôt et la mise en ligne, qui délivre l'autorisation et précise notamment quoi pour le départ ?",
         choices: [
           "Du PCC (itinéraire de départ)",
           "Du conducteur seul",
@@ -113,7 +118,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-31b-03",
-        prompt: "Avant sortie dépôt : tests obligatoires…",
+        prompt:
+          "Quels tests sont obligatoires avant la sortie du dépôt, parmi les propositions suivantes ?",
         choices: [
           "Télécommande d'aiguille (INDIR) et balises Petrarque",
           "Uniquement le gong",
@@ -125,7 +131,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-31b-04",
-        prompt: "Test de la veille après sortie dépôt : clé KC sur…",
+        prompt:
+          "Pour le test de la veille après sortie du dépôt, sur quelle position de la clé KC le réalise-t-on jusqu'à obtention du signal sonore ?",
         choices: [
           "CN — maintien/relâchement jusqu'au signal sonore",
           "N uniquement",
@@ -137,7 +144,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-31b-05",
-        prompt: "Balise Petrarque arrière OK : conséquence attendue ?",
+        prompt:
+          "Quand la balise Petrarque indique « arrière OK », quel effet attendez-vous parmi les suivants avant la barrière ?",
         choices: [
           "Allumage du feu avant la barrière",
           "Ouverture immédiate de la barrière",
@@ -159,7 +167,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-31c-01",
-        prompt: "Toute action de conduite (avec ou sans voyageurs) s'effectue…",
+        prompt:
+          "Comment doit s'effectuer toute action de conduite, avec ou sans voyageurs à bord ?",
         choices: [
           "En position assise, pieds au sol, buste droit",
           "Debout si peu de monde",
@@ -171,7 +180,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-31c-02",
-        prompt: "Dans la cabine, il est interdit de…",
+        prompt:
+          "Laquelle de ces affirmations décrit correctement les interdictions qui s'appliquent dans la cabine ?",
         choices: [
           "Fumer, s'alimenter, téléphoner ou oreillettes (hors mains libres à l'arrêt)",
           "Parler au PCC",
@@ -183,7 +193,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-31c-03",
-        prompt: "Arrêt prolongé en ligne : le conducteur…",
+        prompt:
+          "En cas d'arrêt prolongé en ligne, comment doit se comporter le conducteur ?",
         choices: [
           "Reste au poste, joignable PCC, feux de détresse",
           "Peut quitter la cabine librement",
@@ -195,7 +206,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-31c-04",
-        prompt: "Présence autorisée en cabine (hors conducteur) :",
+        prompt:
+          "Outre le conducteur, qui peut être présent en cabine et quelle obligation lie cette présence au PCC ?",
         choices: [
           "Cadres, maîtrise, maintenance en mission, formateurs, personnes avec autorisation écrite — signalement PCC",
           "Tout voyageur",
@@ -207,7 +219,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-31c-05",
-        prompt: "Quitter la cabine en ligne (hors action courante) :",
+        prompt:
+          "Pour quitter la cabine en ligne hors actions courantes d'exploitation, quelles conditions doit-on réunir ?",
         choices: [
           "Force majeure, après évacuation, PCC informé, mesures anti-accident",
           "À tout moment 5 minutes",
@@ -229,7 +242,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-32-01",
-        prompt: "Sens de marche : la conduite s'effectue…",
+        prompt:
+          "Pour respecter le sens de marche, depuis quelle cabine doit-on conduire la rame ?",
         choices: [
           "Depuis la cabine située dans le sens de la marche (marche arrière interdite)",
           "Depuis n'importe quelle cabine",
@@ -241,7 +255,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32-02",
-        prompt: "Marche à vue signifie notamment…",
+        prompt:
+          "Parmi les éléments suivants, qu'implique notamment la marche à vue ?",
         choices: [
           "Adapter la vitesse à l'environnement",
           "Rouler toujours à 70 km/h",
@@ -253,7 +268,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32-03",
-        prompt: "Passage d'un sectionneur (IS) :",
+        prompt:
+          "Au passage d'un sectionneur (IS), que doit-on faire ou éviter ?",
         choices: [
           "Éviter d'être en traction",
           "Accélérer au maximum",
@@ -265,7 +281,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32-04",
-        prompt: "Sortie de courbe : reprise de vitesse…",
+        prompt:
+          "En sortie de courbe, à quel moment peut-on reprendre la vitesse ?",
         choices: [
           "Quand toute la rame est en alignement droit",
           "Dès l'entrée en courbe",
@@ -277,7 +294,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32-05",
-        prompt: "Baisse de vigilance répétée :",
+        prompt:
+          "Face à une baisse de vigilance répétée, que doit faire le conducteur ?",
         choices: [
           "Alerter immédiatement le PCC sur l'état de santé",
           "Continuer le service",
@@ -299,7 +317,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-32a-01",
-        prompt: "Le GLO (gabarit limite d'obstacle) matérialise…",
+        prompt:
+          "Que représente au sol le tracé du GLO par rapport à la circulation du tram ?",
         choices: [
           "La zone de circulation tram tenant compte du gabarit",
           "La limite vitesse 30 km/h",
@@ -311,7 +330,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32a-02",
-        prompt: "Obstacle empiétant sur la limite GLO :",
+        prompt:
+          "Si un obstacle empiète sur la limite du GLO, quelle est la conduite à tenir ?",
         choices: [
           "Arrêt et appel immédiat au PCC",
           "Passage à 10 km/h",
@@ -323,7 +343,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32a-03",
-        prompt: "Ouverture de voie (double ou unique) : vitesse max ?",
+        prompt:
+          "À l'ouverture de voie sur une infrastructure à double voie ou à voie unique : quelle vitesse maximale ne doit-on pas dépasser ?",
         choices: ["40 km/h", "30 km/h", "20 km/h", "70 km/h"],
         correct: 0,
         explanation: "Limitation 40 km/h en ouverture de voie (p.43).",
@@ -343,7 +364,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32a-05",
-        prompt: "Au terminus, le conducteur signale au PCC notamment…",
+        prompt:
+          "Au terminus, parmi ces éléments, que doit notamment signaler le conducteur au PCC au sujet de la voie ?",
         choices: [
           "Zones de rail glissant constatées",
           "Uniquement les retards voyageurs",
@@ -365,7 +387,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-32b-01",
-        prompt: "En voie double, circulation nominale…",
+        prompt:
+          "En voie double, sur quelle voie s'effectue la circulation nominale par rapport au sens de marche ?",
         choices: [
           "Sur la voie de droite (sens de marche)",
           "Sur la voie de gauche",
@@ -377,7 +400,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32b-02",
-        prompt: "En voie double, le conducteur respecte notamment…",
+        prompt:
+          "En voie double, que doit notamment respecter le conducteur parmi les éléments suivants : présence tension, feux carrefour, feux de manœuvre, signalisation verticale et au sol ?",
         choices: [
           "Présence tension, feux carrefour, manœuvre, signalisation verticale et au sol",
           "Uniquement les panneaux TIV",
@@ -412,7 +436,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32c-02",
-        prompt: "Franchissement signal + sirène / lampes flash :",
+        prompt:
+          "Si un signal est franchi alors que la sirène ou les lampes flash se déclenchent, quelle est la réaction attendue ?",
         choices: [
           "FU immédiat, arrêt, appel PCC",
           "Poursuite 30 km/h",
@@ -432,7 +457,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32c-04",
-        prompt: "Entrée en évitement : contrôle INDIR…",
+        prompt:
+          "À l'entrée en évitement, comment doit être conduit le contrôle INDIR par rapport à une aiguille prise par la pointe ?",
         choices: [
           "Comme pour toute aiguille prise par la pointe",
           "Inutile",
@@ -454,7 +480,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-32d-01",
-        prompt: "La VUT est autorisée…",
+        prompt:
+          "Dans quelles conditions la circulation en voie unique temporaire (VUT) est-elle autorisée ?",
         choices: [
           "Sur ordre du PCC ou consignes spécifiques",
           "Par décision conducteur",
@@ -466,14 +493,16 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32d-02",
-        prompt: "Vitesse maximale en VUT ?",
+        prompt:
+          "En circulation sur une voie unique temporaire (VUT) : quelle est la vitesse maximale autorisée ?",
         choices: ["30 km/h", "40 km/h", "20 km/h", "15 km/h"],
         correct: 0,
         explanation: "30 km/h max en VUT (p.45).",
       },
       {
         id: "ch3-32d-03",
-        prompt: "Manœuvre au bâton pilote numéroté : avant d'entrer en VUT…",
+        prompt:
+          "Pour une manœuvre au bâton pilote numéroté, que doit faire le conducteur avant d'entrer en VUT ?",
         choices: [
           "Demander autorisation PCC en annonçant le numéro du bâton",
           "Klaxonner",
@@ -485,7 +514,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32d-04",
-        prompt: "En VUT, le gong est obligatoire…",
+        prompt:
+          "En VUT, dans quel cas précis le conducteur doit-il obligatoirement utiliser le gong ?",
         choices: [
           "En sens inverse de circulation habituel",
           "Jamais",
@@ -507,7 +537,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-32e1-01",
-        prompt: "Retournement : définition CET ?",
+        prompt:
+          "Selon le CET, comment définit-on un retournement parmi les descriptions suivantes ?",
         choices: [
           "Changement de voie par communication et départ sens inverse sur l'autre voie",
           "Marche arrière sur même voie",
@@ -519,7 +550,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32e1-02",
-        prompt: "Rebroussement sur même voie équivaut à…",
+        prompt:
+          "Le rebroussement sur même voie correspond à quel mode de circulation parmi les suivants ?",
         choices: [
           "Circulation en VUT",
           "Voie double nominale",
@@ -531,7 +563,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32e1-03",
-        prompt: "Communication manuelle non signalisée : retournement…",
+        prompt:
+          "Pour une communication manuelle non signalisée, dans quelles conditions peut-on réaliser un retournement ?",
         choices: [
           "Sur ordre ou autorisation PCC",
           "Libre",
@@ -544,7 +577,7 @@ export const MODULES_CH3 = [
       {
         id: "ch3-32e1-04",
         prompt:
-          "Cas 1 (communication après station) : avant de manœuvrer l'aiguille…",
+          "Au cas n° 1 (communication après une station), quelles actions doit avoir réalisées le conducteur avant de manœuvrer l'aiguille ?",
         choices: [
           "Feux détresse, neutre, clé N, sortie cabine, porte fermée",
           "FU",
@@ -556,7 +589,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32e1-05",
-        prompt: "Croisement carrefour (ex. Albert 1er) en retournement :",
+        prompt:
+          "Pour franchir un carrefour (ex. Albert 1er) pendant un retournement, comment le conducteur fait-il déclencher le feu nécessaire ?",
         choices: [
           "Mode VUT en armoire de loge pour déclencher le feu",
           "Priorité à gauche",
@@ -578,14 +612,16 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-32e2-01",
-        prompt: "Vitesse max en terminus (retournement) ?",
+        prompt:
+          "Lors d'une manœuvre de retournement en terminus, quelle vitesse maximale ne doit-on pas dépasser ?",
         choices: ["15 km/h", "40 km/h", "30 km/h", "10 km/h"],
         correct: 0,
         explanation: "15 km/h en terminus (p.47).",
       },
       {
         id: "ch3-32e2-02",
-        prompt: "Marche arrière (cabine opposée au sens) :",
+        prompt:
+          "La marche arrière depuis une cabine située à l'opposé du sens de marche est-elle permise et dans quelles conditions exceptionnelles ?",
         choices: [
           "Strictement interdite sauf courte distance remorquage/poussage avec 2e agent",
           "Autorisée à 30 km/h",
@@ -597,7 +633,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32e2-03",
-        prompt: "Changement de cabine en terminus : vérifier notamment…",
+        prompt:
+          "Lors d'un changement de cabine en terminus, que doit-on notamment vérifier parmi les éléments suivants ?",
         choices: [
           "Présélection portes et girouette",
           "Pantographe bas",
@@ -609,7 +646,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32e2-04",
-        prompt: "Quitter la cabine hors pause/régulation :",
+        prompt:
+          "Hors pause ou régulation de service, peut-on quitter la cabine et sous quelle condition ?",
         choices: [
           "Uniquement avec autorisation PCC",
           "Libre",
@@ -631,7 +669,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-32e3-01",
-        prompt: "Rebroussement en conflit (deux rames, SM rouge…) : vitesse ?",
+        prompt:
+          "Lors d'un rebroussement en conflit (deux rames, SM rouge), quelle vitesse maximale respecter après changement de cabine ?",
         choices: [
           "5 km/h max après changement de cabine",
           "40 km/h",
@@ -643,7 +682,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32e3-02",
-        prompt: "Rebroussement : avant de reculer, souvent…",
+        prompt:
+          "Avant de reculer en rebroussement, que doit-on souvent faire au préalable au sujet de l'aiguille quittée ?",
         choices: [
           "S'engager en marche avant pour dégager complètement l'aiguille quittée",
           "Couper la batterie",
@@ -655,7 +695,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32e3-03",
-        prompt: "Rebroussement terminé : informer…",
+        prompt:
+          "Une fois le rebroussement terminé, qui doit être informé et de quoi avant la reprise ?",
         choices: [
           "Le PCC de la position avant reprise",
           "Les voyageurs seulement",
@@ -667,7 +708,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32e3-04",
-        prompt: "Rebroussement après station (ex. Boirargues) : autorisation…",
+        prompt:
+          "Pour un rebroussement après une station (ex. Boirargues), qui doit donner l'autorisation et à quel moment par rapport au changement de cabine et à la reprise ?",
         choices: [
           "PCC avant changement de cabine et reprise",
           "Conducteur seul",
@@ -689,14 +731,16 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-33-01",
-        prompt: "HLP : vitesse de passage en station ?",
+        prompt:
+          "En circulation haut le pied (HLP), à quelle vitesse maximale franchit-on une station ?",
         choices: ["15 km/h", "30 km/h", "40 km/h", "10 km/h"],
         correct: 0,
         explanation: "15 km/h en station en HLP (p.49).",
       },
       {
         id: "ch3-33-02",
-        prompt: "HLP en station : gong…",
+        prompt:
+          "En HLP à l'arrêt en station, dans quelles conditions le gong est-il obligatoire ou peut-on s'en passer ?",
         choices: [
           "Obligatoire sauf après 22 h sauf danger",
           "Interdit",
@@ -708,7 +752,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-33-03",
-        prompt: "En HLP, le conducteur veille aussi à…",
+        prompt:
+          "En HLP, à quoi le conducteur doit-il encore veiller au-delà de la conduite proprement dite ?",
         choices: [
           "Message girouette et feux de détresse",
           "Ouverture des portes",
@@ -730,7 +775,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-34-01",
-        prompt: "Feux de croisement et éclairage intérieur :",
+        prompt:
+          "Les feux de croisement et l'éclairage intérieur doivent-ils rester allumés et pendant quelles plages horaires ?",
         choices: [
           "Allumés jour et nuit",
           "Nuit seulement",
@@ -742,7 +788,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-34-02",
-        prompt: "Feux de détresse : cas obligatoire ?",
+        prompt:
+          "Dans quels cas parmi les suivants l'allumage des feux de détresse est-il obligatoire ?",
         choices: [
           "Arrêt anormal prolongé, HLP/VUT, destination atypique en zone gare, carrefour feu clignotant/éteint, remorquage/poussage",
           "Uniquement la nuit",
@@ -754,7 +801,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-34-03",
-        prompt: "Croisement d'une rame arrêtée (autre voie) :",
+        prompt:
+          "Lorsque l'on croise une rame à l'arrêt sur l'autre voie, quelle procédure respecter avant de poursuivre ?",
         choices: [
           "10 km/h, arrêt au niveau de sa cabine, informer PCC avant reprise",
           "40 km/h sans arrêt",
@@ -766,7 +814,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-34-04",
-        prompt: "Détresse HS en arrêt prolongé :",
+        prompt:
+          "Une rame hors service (HS) à l'arrêt prolongé avec détresse : quel aménagement doit être prévu devant elle ?",
         choices: [
           "Triangle ~40 m devant la rame",
           "Rien",
@@ -788,7 +837,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-35-01",
-        prompt: "Gong obligatoire notamment…",
+        prompt:
+          "Dans quels cas parmi les suivants le conducteur doit-il obligatoirement utiliser le gong ?",
         choices: [
           "Piétons/cyclistes proches voie, carrefour/zone piétonne dangereuse, rame ou bus arrêté",
           "Uniquement au dépôt",
@@ -800,7 +850,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-35-02",
-        prompt: "Gong 7 h–22 h : aussi…",
+        prompt:
+          "Entre 7 h et 22 h, dans quels autres cas le gong doit-il encore être utilisé ?",
         choices: [
           "Arrivée et départ station, croisement rame en marche (nacelle centrale)",
           "Jamais en station",
@@ -812,7 +863,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-35-03",
-        prompt: "Panne de gong :",
+        prompt:
+          "En cas de panne du gong, quelles mesures parmi les suivantes doit prendre le conducteur ?",
         choices: [
           "Informer PCC, 20 km/h max, klaxon si danger",
           "Circulation normale",
@@ -824,7 +876,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-35-04",
-        prompt: "Mode dégradé : gong au carrefour si…",
+        prompt:
+          "En mode dégradé au carrefour, dans quel cas précis doit-on également utiliser le gong ?",
         choices: [
           "Feux routiers en dérangement",
           "TIV à 40",
@@ -846,7 +899,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-36-01",
-        prompt: "Distance min entre rames en circulation (ligne) ?",
+        prompt:
+          "Sur ligne en exploitation commerciale, quelle distance minimale doit séparer deux rames en mouvement l'une derrière l'autre ?",
         choices: [
           "100 m (50 m si V max section ≤ 30 km/h)",
           "50 m toujours",
@@ -858,21 +912,24 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-36-02",
-        prompt: "Deux rames arrêtées hors station : distance min ?",
+        prompt:
+          "Deux rames à l'arrêt hors tout emplacement de station : quelle distance minimale doit les séparer ?",
         choices: ["5 m", "100 m", "2 m", "40 m"],
         correct: 0,
         explanation: "5 m hors station (p.50).",
       },
       {
         id: "ch3-36-03",
-        prompt: "Deux rames arrêtées en station : distance min ?",
+        prompt:
+          "Deux rames à l'arrêt dans une même station : quelle distance minimale doit les séparer ?",
         choices: ["2 m", "100 m", "5 m", "15 m"],
         correct: 0,
         explanation: "2 m en station (p.50).",
       },
       {
         id: "ch3-36-04",
-        prompt: "Entrée station quai double : autre rame sur quai ou voie opposée ?",
+        prompt:
+          "À l'entrée d'une station à quai double lorsqu'une autre rame occupe déjà le quai ou la voie opposée, quelle limitation de vitesse s'applique ?",
         choices: [
           "V max 15 km/h",
           "40 km/h",
@@ -894,7 +951,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-37a-01",
-        prompt: "Montée/descente voyageurs :",
+        prompt:
+          "Où et dans quelles conditions la montée et la descente des voyageurs sont-elles autorisées ?",
         choices: [
           "En station, côté quai désigné sauf consigne PCC",
           "Entre deux stations",
@@ -906,7 +964,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-37a-02",
-        prompt: "Vitesse entrée en station (service commercial) ?",
+        prompt:
+          "En service voyageurs, à quelle vitesse maximale franchit-on l'entrée d'une station, avec ou sans autre rame présente conformément aux distances du § 3.6 ?",
         choices: [
           "30 km/h avec gong, ou 15 km/h si autre rame (3.6)",
           "40 km/h",
@@ -918,7 +977,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-37a-03",
-        prompt: "Point d'arrêt commercial :",
+        prompt:
+          "Comment est défini le point d'arrêt commercial où doit s'effectuer l'immobilisation au quai ?",
         choices: [
           "Clou rouge aligné épaule conducteur",
           "Premier panneau TIV",
@@ -930,7 +990,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-37a-04",
-        prompt: "Déverrouillage des portes :",
+        prompt:
+          "À quel moment peut-on déverrouiller les portes voyageurs après l'arrêt en station ?",
         choices: [
           "Uniquement après arrêt complet",
           "En roulant à 5 km/h",
@@ -942,7 +1003,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-37a-05",
-        prompt: "Citadis 401 : ouverture en self au quai ?",
+        prompt:
+          "Sur Citadis 401 en ouverture automatique des portes (self) au quai, comment doit être utilisé le BPAL et quel côté doit être pré-sélectionné ?",
         choices: [
           "BPAL engagé côté droit pré-sélectionné",
           "Ouverture automatique toutes portes",
@@ -964,7 +1026,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-37b-01",
-        prompt: "Délai avant fermeture (décrochage BPAL) :",
+        prompt:
+          "Après décrochage du BPAL, combien de temps attend-on en général avant la fermeture des portes selon l'affluence ?",
         choices: [
           "~15 s faible affluence, ~30 s forte affluence",
           "5 s toujours",
@@ -976,7 +1039,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-37b-02",
-        prompt: "Fermeture forcée (forte affluence) :",
+        prompt:
+          "En forte affluence, comment réalise-t-on une fermeture forcée des portes au pupitre et quelles sécurités en résultent-elles ?",
         choices: [
           "Appui prolongé BPI — sécurités inhibées, message d'alerte",
           "BPAL rapide",
@@ -988,7 +1052,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-37b-03",
-        prompt: "Citadis 401 : fermeture forcée via BPAL côté sélection…",
+        prompt:
+          "Sur Citadis 401, la fermeture forcée déclenchée via le BPAL du côté déjà sélectionné est-elle permise et pourquoi ?",
         choices: [
           "Interdite (annule message, risque entrevoie)",
           "Recommandée",
@@ -1000,7 +1065,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-37b-04",
-        prompt: "Terminus : régulation quai départ avec self et commutateur…",
+        prompt:
+          "Au terminus, pour réguler un départ sur quai avec ouverture automatique des portes (self), sur quelle position du commutateur doit-on régler pour garder les portes centrales fermées de façon à préserver chauffage ou climatisation ?",
         choices: [
           "N (neutre) pour garder portes centrales fermées (chauffage/clim)",
           "CN",
@@ -1022,7 +1088,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-37c-01",
-        prompt: "Voie unique avec cantonnement : départ si feu manœuvre…",
+        prompt:
+          "En voie unique avec cantonnement, sous quel état du feu de manœuvre un départ depuis la station est-il autorisé ?",
         choices: [
           "Au vert uniquement",
           "Au rouge si retard",
@@ -1034,7 +1101,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-37c-02",
-        prompt: "Quai double, 2e position : avant reprise service…",
+        prompt:
+          "Sur quai double, depuis une deuxième position d'arrêt avant de reprendre le service voyageurs : où doit-on encore immobiliser la rame pour des raisons d'accessibilité ?",
         choices: [
           "Second arrêt en tête de quai (accessibilité)",
           "Départ direct",
@@ -1046,7 +1114,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-37c-03",
-        prompt: "Corum L1V2 — 2e position d'attente :",
+        prompt:
+          "À Corum pour la relation désignée L1V2 : à la deuxième position d'attente sur quai, quel usage fait-on des voyageurs (montée/descente ou simple attente) ?",
         choices: [
           "Attente uniquement — échange voyageurs interdit (quai non aligné)",
           "Arrêt commercial autorisé",
@@ -1058,7 +1127,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-37c-04",
-        prompt: "Après verrouillage portes, jusqu'à dégagement complet du quai :",
+        prompt:
+          "Après verrouillage des portes et jusqu'à ce que la rame ait entièrement dégagé le quai : que doit surveiller ou faire le conducteur ?",
         choices: [
           "Surveiller rétrovisions et gong ; si phonie, vérifier absence de piéton traîné",
           "Accélérer fort",
@@ -1080,7 +1150,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-37d-01",
-        prompt: "Tirage poignée en phase départ quai : risque…",
+        prompt:
+          "Si une poignée d'alarme est tirée pendant la phase de départ du quai, quels effets ou risques doit-on attendre parmi les suivants ?",
         choices: [
           "FU/FMS, portes à 15 s, ouverture possible côté entrevoie",
           "Aucun",
@@ -1092,7 +1163,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-37d-02",
-        prompt: "Après poignée : avant redépart…",
+        prompt:
+          "Après activation d'une poignée d'alarme : que doit faire le conducteur avant tout redépart ?",
         choices: [
           "Dialogue phonie, info voyageurs, contrôle sécurité (chutes)",
           "Repartir vite",
@@ -1104,7 +1176,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-37d-03",
-        prompt: "Porte défectueuse : première action ?",
+        prompt:
+          "Une porte défectueuse est constatée : quelle est la première mesure à prendre à bord ?",
         choices: [
           "Condamner + autocollant info voyageurs",
           "Rouler porte ouverte",
@@ -1116,7 +1189,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-37d-04",
-        prompt: "Impossible de condamner : isolement « contrôle portes »…",
+        prompt:
+          "Si une porte ne peut être condamnée et que l'on doit procéder à l'isolement « contrôle portes », sous quelles conditions la manœuvre est-elle acceptable ?",
         choices: [
           "Évacuation complète obligatoire avant, sur ordre PCC",
           "Sans condition",
@@ -1138,7 +1212,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-38-01",
-        prompt: "Incident ou retard : vis-à-vis des voyageurs…",
+        prompt:
+          "En présence d'un incident ou d'un retard : comment doit-on informer les voyageurs et avec quel ton ?",
         choices: [
           "Information impérative, ton rassurant, sonorisation",
           "Silence",
@@ -1150,7 +1225,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-38-02",
-        prompt: "Utilisation du micro cabine : distance bouche…",
+        prompt:
+          "Pour une annonce au micro cabine : à quelle distance environ doit se trouver la bouche du micro et comment moduler la voix ?",
         choices: [
           "5 à 6 cm, voix posée, pas trop fort",
           "Collée au micro",
@@ -1162,7 +1238,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-38-03",
-        prompt: "Interruption de service : message type invite à…",
+        prompt:
+          "En cas d'interruption de service : vers quelle action un message type oriente habituellement les voyageurs et avec quelles précisions sur les relais ?",
         choices: [
           "Quitter la rame et préciser relais (bus, rame suivante, etc.)",
           "Rester à bord",
@@ -1174,7 +1251,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-38-04",
-        prompt: "Avant de parler au micro après connexion :",
+        prompt:
+          "Une fois la liaison microphone établie : que doit faire le conducteur avant de prononcer la première syllabe ?",
         choices: [
           "Respirer (premier mot peut être coupé)",
           "Appuyer sur FU",
@@ -1196,7 +1274,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-39a-01",
-        prompt: "Niveaux d'appel radio vers le PCC :",
+        prompt:
+          "Quels niveaux d'appel radio vers le PCC sont prévus parmi les réponses suivantes ?",
         choices: [
           "Normal, urgent, détresse (écoute générale + détresse auto)",
           "Un seul niveau",
@@ -1208,7 +1287,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-39a-02",
-        prompt: "Citadis 402 : appel détresse…",
+        prompt:
+          "Sur Citadis 402, comment déclenche-t-on un appel détresse radio et comment l'annule-t-on ensuite ?",
         choices: [
           "Appui long ; annulation via bouton détresse",
           "Un clic",
@@ -1220,7 +1300,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-39a-03",
-        prompt: "Signalement obligatoire au PCC :",
+        prompt:
+          "Laquelle des réponses suivantes regroupe correctement des situations pour lesquelles un signalement obligatoire au PCC est attendu ?",
         choices: [
           "FU/FS après incident, piéton sur voie/tunnel, défauts sécurité, chantier mal protégé, feux R17/manœuvre HS",
           "Retard < 1 min",
@@ -1232,7 +1313,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-39a-04",
-        prompt: "Fin de service : signalements radio…",
+        prompt:
+          "À la fin de service : où doit-on retrouver ou reporter les signalements radio déjà effectués ?",
         choices: [
           "Reprise sur la feuille de route",
           "Oublier si service fini",
@@ -1254,7 +1336,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-39b-01",
-        prompt: "Panne phonie (secours pupitre inopérant) :",
+        prompt:
+          "Si la phonie de secours au pupitre est inopérante : comment peut-on néanmoins joindre le PCC ?",
         choices: [
           "Demander à un autre tram de prévenir le PCC, ou téléphone perso à l'arrêt",
           "Continuer sans avis",
@@ -1266,7 +1349,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-39b-02",
-        prompt: "Téléphone personnel pour joindre le PCC :",
+        prompt:
+          "Pour utiliser son téléphone personnel afin de joindre le PCC : dans quel état la rame doit-elle se trouver ?",
         choices: [
           "Rame à l'arrêt complet uniquement",
           "En marche à 30 km/h",
@@ -1278,7 +1362,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-39b-03",
-        prompt: "Fin de service après panne phonie :",
+        prompt:
+          "Après une panne de phonie jusqu'à la fin de service : que doit-on consigner à propos de l'incident ?",
         choices: [
           "Noter l'incident sur la feuille de route",
           "Rien",
@@ -1300,7 +1385,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-39c-01",
-        prompt: "Rentrée au dépôt : première étape ?",
+        prompt:
+          "Pour une rentrée au dépôt : quelle est la première démarche avant d'y circuler ?",
         choices: [
           "Demander autorisation PCC",
           "Stationner où l'on veut",
@@ -1312,7 +1398,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-39c-02",
-        prompt: "Feuille de route en rentrée :",
+        prompt:
+          "À la rentrée au dépôt : comment doit être exploitée et déposée la feuille de route ainsi que la planchette selon les étapes prévues ?",
         choices: [
           "Dégâts, km, heures ; dépôt dans boîte ; planchette en salle prise de service",
           "Jetable",
@@ -1324,7 +1411,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-39c-03",
-        prompt: "Circulation au dépôt : vitesse max ?",
+        prompt:
+          "À quelle vitesse maximale circule-t-on dans le dépôt et à combien est-on limité dans les ateliers selon les valeurs prévues ?",
         choices: [
           "10 km/h (3 km/h ateliers)",
           "40 km/h",
@@ -1336,7 +1424,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-39c-04",
-        prompt: "Zone ateliers :",
+        prompt:
+          "En zone ateliers du dépôt : les conducteurs peuvent-ils y assurer la conduite des rames comme sur le reste du site ?",
         choices: [
           "Conduite non autorisée aux conducteurs",
           "Libre à 10 km/h",
@@ -1358,7 +1447,8 @@ export const MODULES_CH3 = [
     questions: [
       {
         id: "ch3-39d-01",
-        prompt: "Feuille de route conducteur : sert à…",
+        prompt:
+          "À quoi sert la feuille de route du conducteur parmi les usages suivants ?",
         choices: [
           "Noter incidents du service du conducteur",
           "Uniquement km",
@@ -1370,7 +1460,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-39d-02",
-        prompt: "Feuille de route colorée (rame) :",
+        prompt:
+          "Pour la feuille de route colorée associée à la rame : quel type d'anomalies doit-on y porter exclusivement ?",
         choices: [
           "Anomalies strictement matériel roulant / embarqué",
           "Incidents voyageurs",
@@ -1382,7 +1473,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-39d-03",
-        prompt: "Rapport interne : particulièrement pour…",
+        prompt:
+          "Pour quels motifs rédige-t-on particulièrement un rapport interne parmi les réponses suivantes ?",
         choices: [
           "Réclamations, accidents corporels/matériels, dégâts rame",
           "Pause déjeuner",
@@ -1394,7 +1486,8 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-39d-04",
-        prompt: "Circulation au dépôt :",
+        prompt:
+          "Quelles sont les conditions de circulation au dépôt au regard des voyageurs, du PCC et des feux de manœuvre ?",
         choices: [
           "Sans voyageurs, sous contrôle PCC, feux manœuvre respectés",
           "Avec voyageurs autorisés",

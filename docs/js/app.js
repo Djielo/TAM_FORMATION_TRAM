@@ -11,7 +11,6 @@ import {
 } from "./pool.js";
 import { createPretestSession } from "./pretest-session.js";
 import {
-  PRETEST_FINAL_UNLOCK_RATE,
   appendFinalExamResult,
   applySrsMaster,
   applySrsReview,
@@ -78,15 +77,33 @@ let cetTitleTapTimer = null;
 
 /** Formulation unique — déverrouillage de l'onglet Examen final. */
 const EXAM_FINAL_GOAL_TEXT =
-  "Pour atteindre l'examen final. Vous devez maîtriser 80 % des réponses de chaque chapitre.";
+  "Pour atteindre l'<strong>examen final</strong>, vous devez maîtriser <strong>80 %</strong> des réponses de chaque chapitre (acronymes inclus).";
+
+function axisChapterLabel(axis) {
+  if (axis.id === "acronymes") return "Acronymes";
+  return `Chapitre ${axis.num}`;
+}
+
+function axisCetMeta(axis) {
+  if (axis.id === "acronymes") return escapeHtml(axis.desc);
+  return `CET p. ${axis.cetPages} — ${escapeHtml(axis.desc)}`;
+}
+
+function revisionHelpBody() {
+  const n = getTotalQuestionCount();
+  return `<p><strong>Conseil :</strong> commencez par le chapitre <strong>Acronymes</strong> pour connaître les sigles utilisés dans les questions des chapitres 1 à 4.</p>
+      <p>Parcourez les <strong>chapitres</strong> et les <strong>modules</strong> contenant les <strong>QCM</strong>.</p>
+      <p>Votre progression est enregistrée sur cet appareil (meilleur score par module).</p>
+      <p>L'onglet <strong>Pré-examen</strong> s'ouvre lorsque chaque question du QCMa été <strong>vue et répondue correctement au moins une fois</strong> en révision (${n}/${n}).</p>
+      <p>${EXAM_FINAL_GOAL_TEXT}</p>`;
+}
 
 const HELP_TEXT = {
   revision: {
     title: "Mode Révision",
-    body: `<p>Parcourez les <strong>chapitres</strong> puis les <strong>modules</strong> : chaque module est un <strong>QCM</strong> (4 choix, correction immédiate).</p>
-      <p>Votre progression est enregistrée sur cet appareil (meilleur score par module).</p>
-      <p>L'onglet <strong>Pré-examen</strong> s'ouvre lorsque chaque question a été <strong>vue et répondue correctement au moins une fois</strong> en révision (404/404).</p>
-      <p>${EXAM_FINAL_GOAL_TEXT}</p>`,
+    get body() {
+      return revisionHelpBody();
+    },
   },
   pretest: {
     title: "Mode Pré-examen",
@@ -130,6 +147,24 @@ function shuffle(arr) {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+/** Mélange les 4 propositions d'une question QCM (index `correct` mis à jour). */
+function shuffleQuestionChoices(q) {
+  const tagged = q.choices.map((text, originalIndex) => ({
+    text,
+    originalIndex,
+  }));
+  const shuffled = shuffle(tagged);
+  return {
+    ...q,
+    choices: shuffled.map((item) => item.text),
+    correct: shuffled.findIndex((item) => item.originalIndex === q.correct),
+  };
+}
+
+function prepareQuestionsForQuiz(questions) {
+  return questions.map(shuffleQuestionChoices);
 }
 
 function escapeHtml(raw) {
@@ -222,7 +257,11 @@ function renderUnlockBanner() {
     const totalCh = pre.chapters.length;
     const pending = pre.chapters
       .filter((c) => !c.ok)
-      .map((c) => `ch. ${c.num} (${c.masteryPct} %)`)
+      .map((c) =>
+        c.num != null
+          ? `ch. ${c.num} (${c.masteryPct} %)`
+          : `${c.title} (${c.masteryPct} %)`,
+      )
       .join(" · ");
     const main = `<p class="header__unlock">Pré-examen : ${okCount} / ${totalCh} chapitres validés.</p>`;
     if (!pending) return main;
@@ -235,8 +274,9 @@ function renderUnlockBanner() {
 function renderTabsShell(mainHtml) {
   const lockPretest = !isPretestTabUnlocked();
   const lockFinal = !isFinalExamUnlocked();
+  const totalQ = getTotalQuestionCount();
   const pretestTitle = lockPretest
-    ? "Validez les 404 questions en révision"
+    ? `Validez les ${totalQ} questions en révision`
     : "Pré-examen par chapitre";
   const finalTitle = lockFinal
     ? isUnlockComplete()
@@ -361,16 +401,32 @@ function persistQuizSession() {
     axisId: route.axisId,
     moduleId: route.moduleId,
     questionIds: quiz.questions.map((q) => q.id),
+    choiceLayout: quiz.questions.map((q) => ({
+      id: q.id,
+      choices: q.choices,
+      correct: q.correct,
+    })),
     index: quiz.index,
     score: quiz.score,
   });
 }
 
+function applySavedChoiceLayout(base, layout) {
+  if (!layout) return shuffleQuestionChoices(base);
+  return { ...base, choices: [...layout.choices], correct: layout.correct };
+}
+
 function buildQuizFromSaved(saved, mod) {
   const byId = Object.fromEntries(mod.questions.map((q) => [q.id, q]));
-  const questions = saved.questionIds.map((id) => byId[id]).filter(Boolean);
+  const layoutById = Object.fromEntries(
+    (saved.choiceLayout || []).map((row) => [row.id, row]),
+  );
+  const questions = saved.questionIds
+    .map((id) => applySavedChoiceLayout(byId[id], layoutById[id]))
+    .filter(Boolean);
+  const ordered = questions.length ? questions : shuffle(mod.questions);
   return {
-    questions: questions.length ? questions : shuffle(mod.questions),
+    questions: questions.length ? questions : prepareQuestionsForQuiz(ordered),
     index: Math.min(saved.index ?? 0, Math.max(0, questions.length - 1)),
     score: saved.score ?? 0,
     answered: false,
@@ -388,7 +444,7 @@ function startQuiz(axisId, moduleId, fresh = true) {
   if (fresh) {
     saveActiveQuizSession(null);
     quiz = {
-      questions: shuffle(mod.questions),
+      questions: prepareQuestionsForQuiz(shuffle(mod.questions)),
       index: 0,
       score: 0,
       answered: false,
@@ -440,13 +496,13 @@ function renderHome() {
           const chapterInProgress =
             axis.available && isChapterQuizInProgress(axis.id);
           return `
-            <button type="button" class="axis-card" data-axis="${axis.id}" ${axis.available ? "" : "disabled"}>
-              <span class="axis-card__num">Chapitre ${axis.num}</span>
+            <button type="button" class="${axis.id === "acronymes" ? "axis-card axis-card--recommended" : "axis-card"}" data-axis="${axis.id}" ${axis.available ? "" : "disabled"}>
+              <span class="axis-card__num">${axisChapterLabel(axis)}</span>
               <div class="axis-card__title-row">
                 <div class="axis-card__title">${escapeHtml(axis.title)}</div>
                 ${chapterInProgress ? `<span class="axis-card__status">En cours</span>` : ""}
               </div>
-              <p class="axis-card__desc">CET p. ${axis.cetPages} — ${escapeHtml(axis.desc)}</p>
+              <p class="axis-card__desc">${axisCetMeta(axis)}</p>
               <div class="axis-card__meta">
                 ${axis.available ? `<span class="badge">${modules.length} modules · ${qCount} questions</span>` : `<span class="badge badge--soon">Bientôt</span>`}
               </div>
@@ -490,7 +546,7 @@ function renderAxis() {
     <main class="main">
       <button type="button" class="link-back" data-back="home">← Chapitres</button>
       <h2 class="screen-title">${escapeHtml(axis.title)}</h2>
-      <p class="screen-sub">Chapitre ${axis.num} — CET p. ${axis.cetPages}</p>
+      <p class="screen-sub">${axis.id === "acronymes" ? axisCetMeta(axis) : `${axisChapterLabel(axis)} — CET p. ${axis.cetPages}`}</p>
       <div class="modules">
         ${modules
           .map((m) => {
@@ -787,7 +843,7 @@ function renderPretestChapters() {
               : okBadge;
             return `
               <button type="button" class="axis-card" data-pretest-axis="${axis.id}">
-                <span class="axis-card__num">Chapitre ${axis.num}</span>
+                <span class="axis-card__num">${axisChapterLabel(axis)}</span>
                 <div class="axis-card__title">${escapeHtml(axis.title)}</div>
                 <div class="axis-card__meta">${badge} · ${n} questions</div>
               </button>`;

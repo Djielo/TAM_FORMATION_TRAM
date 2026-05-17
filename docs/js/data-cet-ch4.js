@@ -10,7 +10,7 @@ export const MODULES_CH4 = [
       {
         id: "ch4-41-01",
         prompt:
-          "Incident imposant l'arrêt : séquence de base (4 étapes CET) ?",
+          "Face à un incident qui impose l'arrêt immédiat de la rame, quelles sont les quatre étapes de base décrites dans le CET ?",
         choices: [
           "Arrêt, détresse, appel flash PCC, information clients",
           "Évacuation immédiate sans appel",
@@ -22,7 +22,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-41-02",
-        prompt: "Arrêt prolongé : évacuation de la rame…",
+        prompt:
+          "Lorsque l'immobilisation de la rame se prolonge : dans quelles conditions l'évacuation est-elle possible ?",
         choices: [
           "Sur accord PCC",
           "Par décision conducteur seul",
@@ -34,7 +35,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-41-03",
-        prompt: "Départ urgent de la zone de danger (feu, projectiles…) :",
+        prompt:
+          "Vous devez quitter sans délai une zone où vous êtes exposé au danger — flammes à proximité, jets de projectiles ou autre agression analogue — : quelle conduite le CET préconise-t-il ?",
         choices: [
           "Autorisé ; prévenir PCC après ; respecter signalisation",
           "Interdit",
@@ -46,7 +48,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-41-04",
-        prompt: "Incident grave : rôle du conducteur en attente des secours ?",
+        prompt:
+          "Après un incident grave, tant que vous attendez les secours extérieurs : quel rôle opérationnel le conducteur conserve-t-il toujours sur place ?",
         choices: [
           "Coordinateur : témoignages, compte-rendu PCC",
           "Quitter les lieux",
@@ -59,7 +62,7 @@ export const MODULES_CH4 = [
       {
         id: "ch4-41-05",
         prompt:
-          "Maîtrise sur place : qui devient coordinateur face pompiers/police ?",
+          "Lorsque la maîtrise sur place passe aux services de sécurité (pompiers, police présents sur zone), qui prend la fonction de coordinateur aux relations avec ces services à la place du conducteur ?",
         choices: [
           "Le supérieur hiérarchique présent",
           "Le conducteur toujours",
@@ -81,7 +84,8 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-42a-01",
-        prompt: "Accident matériel : constat à remplir dans la rame pour…",
+        prompt:
+          "Après accident matériel seul avec dégâts aux biens, pourquoi le conducteur doit-il remplir le constat en restant à bord avant de quitter les lieux ?",
         choices: [
           "Rester joignable par le PCC pendant le pré-constat",
           "Partir chercher le tiers",
@@ -93,7 +97,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-42a-02",
-        prompt: "Choc latéral violent partie avant : mesure de sécurité ?",
+        prompt:
+          "Choc latéral violent sur le train avant : quelle manœuvre électrique de sécurité devez-vous déclencher en priorité, compte tenu du risque de toucher une zone Haute Tension ?",
         choices: [
           "Mettre le FS (risque électrique HT)",
           "FU en marche",
@@ -105,7 +110,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-42a-03",
-        prompt: "Déplacement des véhicules après accident matériel :",
+        prompt:
+          "Après accident matériel, qui autorise tout déplacement de la rame et la reprise du service régulier ?",
         choices: [
           "Uniquement sur ordre PCC ; reprise service idem",
           "Libre si dégâts légers",
@@ -117,7 +123,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-42a-04",
-        prompt: "Remise des documents accident matériel :",
+        prompt:
+          "Après constitution du dossier d'accident matériel, où dépose-t-on sans tarder la partie A du constat (« CONSTAT ACCIDENT ») comme le prévoit le CET ?",
         choices: [
           "CONSTAT ACCIDENT partie A au PCC ou boîte rouge JP le jour même",
           "Dans un mois",
@@ -140,7 +147,7 @@ export const MODULES_CH4 = [
       {
         id: "ch4-42b-01",
         prompt:
-          "Accident corporel : relevé de l'état du blessé — le conducteur doit…",
+          "Accident corporel : pour préciser aux secours radio l'état de la victime, que doit faire le conducteur concernant son poste et le blessé même si celui-ci se trouve à l'intérieur de la rame ?",
         choices: [
           "Sortir de cabine pour signalement précis même si blessé dans la rame",
           "Rester en cabine",
@@ -152,7 +159,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-42b-02",
-        prompt: "Reprise de service après accident corporel :",
+        prompt:
+          "Après prise en charge initiale sur une victime d'accident corporel : à quelle condition la reprise du service régulier est-elle possible ?",
         choices: [
           "Autorisation PCC après appel",
           "Dès que la rame roule",
@@ -164,7 +172,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-42b-03",
-        prompt: "Blessure légère, victime refuse les secours :",
+        prompt:
+          "Il s'agit d'une blessure légère mais la victime refuse l'intervention des secours : que faites-vous avant de poursuivre la course avec la rame ?",
         choices: [
           "Pas de reprise sans accord PCC ; relever ses coordonnées",
           "Repartir immédiatement",
@@ -176,7 +185,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-42b-04",
-        prompt: "Documents à remettre au PCC :",
+        prompt:
+          "À l'issue de la prise en charge d'un accident corporel : quel couple de formulaires remettez-vous systématiquement au PCC ?",
         choices: [
           "CONSTAT CORPOREL + CONSTAT ACCIDENT partie B",
           "Feuille de route seule",
@@ -198,7 +208,8 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-42c-01",
-        prompt: "Personne sous la rame : avant coupure batterie…",
+        prompt:
+          "Personne encore engagée sous la rame : que devez-vous accomplir avant toute manœuvre consistant à couper la batterie tracteur ou de service ?",
         choices: [
           "Appel d'urgence (avant coupure batterie)",
           "Coupure batterie d'abord",
@@ -210,7 +221,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-42c-02",
-        prompt: "Victime engagée sous le tramway : déplacement de la rame…",
+        prompt:
+          "Une victime est coincée sous le tramway : qui est habilité, selon ces consignes, à faire déplacer la rame pour la dégagement ?",
         choices: [
           "Réservé aux pompiers",
           "Par le conducteur avec FS",
@@ -222,7 +234,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-42c-03",
-        prompt: "Séquence : FS sert notamment à…",
+        prompt:
+          "Dans la séquence d'urgence consacrée aux personnes prises sous rame : à quel effet essentiel sert avant tout l'activation du FS ?",
         choices: [
           "Couper l'alimentation électrique (ouverture disjoncteur)",
           "Accélérer",
@@ -234,7 +247,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-42c-04",
-        prompt: "Si victime sous rame : après FS et urgence…",
+        prompt:
+          "Personne encore engagée sous le tram après action du FS et appel téléphonique d'urgence : quelles autres actions de sécurité et de préparation générale suivez-vous ensuite ?",
         choices: [
           "Pantographe bas, dé-préparation, protection blessé",
           "Reprise commerciale",
@@ -256,7 +270,8 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-42d-01",
-        prompt: "Malaise ou agression dans la cabine :",
+        prompt:
+          "Malaise du conducteur ou agression dans la cabine : quelles actions enchaîne-t-on tout de suite pour protéger le train et faire appeler les secours ?",
         choices: [
           "Arrêt, détresse, FS, appel détresse, informer clients si possible",
           "Poursuite terminus",
@@ -268,7 +283,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-42d-02",
-        prompt: "En cabine, le FS en malaise conducteur sert à…",
+        prompt:
+          "En cabine, lors d'un malaise ou d'agression du conducteur : quel effet poursuit-on en premier lieu en actionnant le FS ?",
         choices: [
           "Sécuriser l'immobilisation",
           "Accélérer",
@@ -290,7 +306,8 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-43-01",
-        prompt: "Déraillement : le conducteur peut-il tenter un ré-enraillement ?",
+        prompt:
+          "En cas de déraillement : le conducteur peut-il lui-même tenter un ré-enraillement depuis la plate-forme de conduite ?",
         choices: [
           "Non — interdit",
           "Oui à 5 km/h",
@@ -302,7 +319,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-43-02",
-        prompt: "Déraillement : avant dé-préparation pantographe…",
+        prompt:
+          "Déraillement : avant dé-préparation et abaissement du pantographe, quel contrôle visuel vous impose cet encadré compte tenu du risque d'arrachement sur la partie alimentée aérienne ?",
         choices: [
           "Contrôle visuel LAC (risque arrachement)",
           "Montée sur toit",
@@ -314,7 +332,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-43-03",
-        prompt: "Évacuation après déraillement :",
+        prompt:
+          "Une rame est immobilisée après déraillement : quel accord téléphonique de l'exploitation et quelles consignes d'évacuation (références 4.7 B ou D au même tableau) doivent encadrer toute mise à pied des voyageurs ?",
         choices: [
           "Après accord PCC (voir 4.7 B/D)",
           "Immédiate sans avis",
@@ -326,7 +345,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-43-04",
-        prompt: "Déraillement : signalisation de la rame immobilisée…",
+        prompt:
+          "Déraillement : après immobilisation de la composition, quel équipement de pré-signalisation complète la signalisation de votre convoi ?",
         choices: [
           "Triangle de pré-signalisation",
           "Uniquement klaxon",
@@ -348,7 +368,8 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-44a-01",
-        prompt: "Malaise voyageur à bord : arrêt de préférence…",
+        prompt:
+          "Un voyageur est pris en malaise alors que vous roulez : où arrêtez-vous la rame en priorité et quelles mesures prenez-vous sur le poste de conduite juste après l'arrêt (détresse, clé KC, cabine) ?",
         choices: [
           "À la station la plus proche, détresse, clé KC retirée, cabine fermée",
           "En pleine voie sans arrêt",
@@ -360,7 +381,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-44a-02",
-        prompt: "Après assistance au blessé à bord :",
+        prompt:
+          "Après avoir porté secours à un voyageur blessé à bord : quelle conduite tenez-vous ensuite sur la ligne radio jusqu'à contre-ordre du PCC ?",
         choices: [
           "Rappeler PCC et suivre ses consignes",
           "Repartir sans avis",
@@ -372,7 +394,9 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-44a-03",
-        prompt: "Témoins d'incident à bord :",
+        prompt:
+          "Des voyageurs ont assisté à l'incident : quelle information devez-vous recueillir sur eux ?",
+
         choices: [
           "Noter leurs coordonnées",
           "Inutiles",
@@ -394,7 +418,8 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-44b-01",
-        prompt: "Bris de vitre latérale : après appel urgence…",
+        prompt:
+          "Bris d'une vitre latérale côté voyageurs : après l'appel téléphonique d'urgence, comment protégez-vous les clients et quelle est la suite immédiate sur le plan des consignes PCC ?",
         choices: [
           "Éloigner clients de la vitre, attendre ordres PCC",
           "Repartir à 70 km/h",
@@ -406,7 +431,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-44b-02",
-        prompt: "Bris de vitre sans danger : PCC peut autoriser…",
+        prompt:
+          "Lorsque le bris de vitre ne présente pas de danger pour les personnes après sécurisation : quelle suite de trajet le PCC peut-il vous autoriser ?",
         choices: [
           "Fin de course commerciale jusqu'au terminus",
           "FU",
@@ -428,7 +454,10 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-44c-01",
-        prompt: "Casse pare-brise ou visibilité dangereuse :",
+        prompt:
+          "Pare-brise endommagé ou visibilité avant devenue trop dangereuse pour conduire : quelles actions interconnectées le CET impose-t-il (arrêt où possible station, alerte téléphonique d'urgence, information voyageurs, évacuation, ordres PCC) ?",
+
+
         choices: [
           "Arrêt station si possible, urgence, info clients, évacuation, ordres PCC",
           "Poursuite à 30 km/h",
@@ -440,7 +469,10 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-44c-02",
-        prompt: "Après évacuation pour pare-brise :",
+        prompt:
+          "Après évacuation des voyageurs pour cause de pare-brise : quel est le compte rendu attendu au PCC et quelle attitude devez-vous avoir ensuite ?",
+
+
         choices: [
           "Informer PCC fin d'évacuation et attendre ordres",
           "Reprendre le service",
@@ -462,7 +494,10 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-44d-01",
-        prompt: "Incendie à bord : priorité après arrêt et détresse ?",
+        prompt:
+          "Incendie à bord : après arrêt de la rame et mise en détresse, quelles priorités le CET rattache à cette situation — y compris sortie des voyageurs renvoyée au 4.7, appel d'urgence, évaluation situation et pantographe ?",
+
+
         choices: [
           "Évacuation voyageurs (4.7), appel urgence, évaluation, pantographe bas",
           "Lutter seul longtemps avant évacuation",
@@ -474,7 +509,10 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-44d-02",
-        prompt: "Après incendie même léger : pantographe…",
+        prompt:
+          "Après tout incendie à bord, même de faible ampleur : peut-on remonter le pantographe sans ordre explicite du PCC ?",
+
+
         choices: [
           "Interdit de remonter sans autorisation PCC",
           "Remonter pour repartir",
@@ -486,7 +524,10 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-44d-03",
-        prompt: "Incendie au remisage :",
+        prompt:
+          "Incendie sur site de remisage : dans quelle relation se trouvent ces consignes par rapport à celles applicables à bord en ligne ?",
+
+
         choices: [
           "Mêmes consignes qu'à bord",
           "Ignorer",
@@ -508,7 +549,12 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-44e-01",
-        prompt: "Colis suspect repéré :",
+        prompt:
+          "Colis suspect repéré parmi les voyageurs : quel comportement le CET impose-t-il tout de suite vis-à-vis de l'objet et de son déplacement ?",
+
+
+
+
         choices: [
           "Ne pas toucher ni déplacer ; prudence et discernement",
           "Ouvrir pour identifier",
@@ -520,7 +566,10 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-44e-02",
-        prompt: "Colis suspect en ligne, difficulté radio :",
+        prompt:
+          "Colis suspect en ligne lorsque vos essais radiotéléphoniques vers le PCC sont infructueux : quelle conduite de repli cet encadré précise ?",
+
+
         choices: [
           "Évacuer et rejoindre à pied terminus le plus proche",
           "Continuer le service",
@@ -532,7 +581,14 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-44e-03",
-        prompt: "Rame en tiroir après alerte bombe :",
+        prompt:
+          "La rame est parquée en cul-de-sac (« tiroir ») après alerte bombe à bord : comment vous positionnez-vous ainsi que les voyageurs en attendant police / TaM ?",
+
+
+
+
+
+
         choices: [
           "S'éloigner, périmètre de sécurité, attendre police/TaM",
           "Rester à bord",
@@ -554,7 +610,14 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-45a-01",
-        prompt: "Alerte bombe / colis suspect aux abords (ordre PCC ou police) :",
+        prompt:
+          "Ordre du PCC ou de la police pour bombe ou colis suspect aux abords de la voie : quelle ligne de conduite sur la rame résume l'arrêt, la mise en détresse radio et le respect des consignes suivantes ?",
+
+
+
+
+
+
         choices: [
           "Arrêt, détresse, suivre instructions",
           "Passer à 40 km/h",
@@ -562,11 +625,16 @@ export const MODULES_CH4 = [
           "Évacuation sans consigne",
         ],
         correct: 0,
-        explanation: "Trois étapes p.69.",
+        explanation: "Arrêt, détresse, puis application des instructions (p.69).",
       },
       {
         id: "ch4-45a-02",
-        prompt: "Ordre d'évacuer la rame (colis abords) :",
+        prompt:
+          "Le PCC vous prescrit d'évacuer la rame après colis suspect aux abords : comment informez-vous les voyageurs et quelle référence de règles d'évacuation la consigne associe-t-elle ?",
+
+
+
+
         choices: [
           "Prévenir clients, évacuation selon règles sécurité (4.6 B)",
           "Descente côté entrevoie sans avis",
@@ -588,7 +656,10 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-45b-01",
-        prompt: "Chute de LAC : descente des voyageurs…",
+        prompt:
+          "Chute de ligne aérienne de contact sur la voie : à quelle condition le PCC autorise-t-il la descente des voyageurs ?",
+
+
         choices: [
           "Uniquement quand PCC confirme LAC non alimentée",
           "Immédiatement",
@@ -600,7 +671,10 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-45b-02",
-        prompt: "Avarie pantographe après chute LAC : conducteur…",
+        prompt:
+          "Avarie au pantographe après chute de LAC : quel est le comportement du conducteur concernant l'accès à la toiture du véhicule ?",
+
+
         choices: [
           "Ne monte pas sur la toiture (risque électrique)",
           "Répare en toiture",
@@ -612,7 +686,10 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-45b-03",
-        prompt: "Avant descente clients (LAC) : informer qu'ils…",
+        prompt:
+          "Avant toute descente de clients lorsqu'une LAC est encore susceptible d'être sous tension : quel message de sécurité leur transmettez-vous clairement ?",
+
+
         choices: [
           "Ne doivent pas descendre tant que LAC alimentée",
           "Peuvent descendre librement",
@@ -624,7 +701,10 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-45b-04",
-        prompt: "Chute d'arbre sur voie ou rame :",
+        prompt:
+          "Chute d'arbre ou de végétal lourd touchant la voie ou la rame : à quel autre scénario CET rapproche-t-on les consignes applicables ?",
+
+
         choices: [
           "Mêmes consignes que chute de LAC",
           "Ignorer",
@@ -646,7 +726,10 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-45c-01",
-        prompt: "Inondation < 10 cm (sous bande rouge du repère) :",
+        prompt:
+          "Selon le repère CET sur une zone inondée : si le niveau d'eau reste sous la bande rouge (cas inférieur strict à 10 cm évoqué au tableau), comment franchissez-vous la zone et quel contact avec le PCC effectuez-vous ?",
+
+
         choices: [
           "Franchir en conduite manœuvre 5 km/h et informer PCC",
           "40 km/h",
@@ -658,7 +741,10 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-45c-02",
-        prompt: "Inondation > 10 cm (au-dessus repère rouge) :",
+        prompt:
+          "Lorsque la lame d'eau dépasse désormais la bande rouge du repère CET (cas supérieur à 10 cm) : quelle séquence de sécurité CET et de coordination PCC s'applique au conducteur ?",
+
+
         choices: [
           "Arrêt, détresse, urgence, ordres PCC, info voyageurs",
           "5 km/h",
@@ -670,9 +756,14 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-45c-03",
-        prompt: "Évacuation longue immobilisation (inondation) : PMR/enfants…",
+        prompt:
+          "Pour une évacuation liée à une inondation où l'immobilisation se prolonge : quelle règle spécifique les consignes prévoient-elles pour les voyageurs PMR et pour les enfants ?",
+
+
+
+
         choices: [
-          "Peuvent rester à bord en attendant assistance si ils le souhaitent",
+          "Peuvent rester à bord en attendant assistance s'ils le souhaitent",
           "Doivent descendre immédiatement",
           "Interdit de rester",
           "Descente toit",
@@ -693,7 +784,13 @@ export const MODULES_CH4 = [
       {
         id: "ch4-45d-01",
         prompt:
-          "Accident sur quai sans implication de votre rame (témoin) :",
+          "Sur quai vous êtes témoin d'un accident corporel dont votre rame n'est pas partie prenante mécanique dans le choc initial : quelle ligne d'action le CET prescrit-il au conducteur ?",
+
+
+
+
+
+
         choices: [
           "Arrêt, détresse, urgence, secours, éviter second accident, PCC",
           "Poursuite sans arrêt",
@@ -705,7 +802,10 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-45d-02",
-        prompt: "Reprise possible après accident plate-forme :",
+        prompt:
+          "Après accident sur plate-forme où vous avez dû immobiliser la rame : dès lors qu'une reprise commerciale devient techniquement envisageable, qui informez-vous en premier lieu ?",
+
+
         choices: [
           "Informer PCC dès que reprise envisageable",
           "Repartir sans avis",
@@ -727,7 +827,8 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-46a-01",
-        prompt: "LAC endommagée ou tendeur cassé :",
+        prompt:
+          "Une LAC présente une avarie importante ou vous constatez un tendeur cassé : quel est le comportement obligatoire du conducteur ?",
         choices: [
           "Arrêt impératif et appel PCC",
           "5 km/h",
@@ -739,7 +840,10 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-46a-02",
-        prompt: "Corps étranger dans gorge de rail ou aiguillage :",
+        prompt:
+          "Il y a corps étranger dans la gorge de rail ou dans l'aiguillage sur votre trajectoire : quel réflexe obligatoire impose la liste CET des situations d'arrêt immédiat ?",
+
+
         choices: [
           "Arrêt et PCC",
           "Dégager seul",
@@ -751,7 +855,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-46a-03",
-        prompt: "Croisement rame arrêtée : conducteur absent de cabine :",
+        prompt:
+          "Une rame est arrêtée en croisement et vous constatez l'absence du conducteur en cabine : quel réflexe impose le tableau CET sur les situations d'arrêt immédiat ?",
         choices: [
           "Arrêt et PCC",
           "Passer à 10 km/h",
@@ -763,7 +868,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-46a-04",
-        prompt: "Individu accroché à une rame :",
+        prompt:
+          "Un individu est accroché à votre rame ou à une composition voisine : quel réflexe impose la liste CET des arrêts obligatoires ?",
         choices: [
           "Arrêt et PCC",
           "Accélérer",
@@ -785,7 +891,8 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-46b-01",
-        prompt: "Feux éteints sur une autre rame :",
+        prompt:
+          "Vous voyez une autre rame circuler avec les feux extérieurs éteints : quelle précaution téléphonique indique pour vous la colonne B du tableau CET ?",
         choices: [
           "Prévenir le PCC (sans arrêt immédiat imposé)",
           "Arrêt FU",
@@ -797,7 +904,12 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-46b-02",
-        prompt: "Objet accroché à une rame ou comportement suspect au quai :",
+        prompt:
+          "Objet accroché visiblement à une composition tram ou comportement suspect d'une personne sur le quai : quel est votre réflexe téléphonique selon cet extrait tableau ?",
+
+
+
+
         choices: [
           "Prévenir le PCC",
           "Arrêt systématique",
@@ -809,7 +921,10 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-46b-03",
-        prompt: "Arbre ou poteau menaçant la voie :",
+        prompt:
+          "Arbre ou poteau menaçant la voie sur votre approche : quel signalement le CET prescrit-il dans la colonne des anomalies à signaler au PCC sans arrêt immédiat imposé par la même ligne du tableau ?",
+
+
         choices: [
           "Prévenir le PCC",
           "Passer vite",
@@ -831,7 +946,12 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-47a-01",
-        prompt: "Immobilisation en pleine voie :",
+        prompt:
+          "Votre rame est immobilisée en pleine voie sans quai adjacent : quel enchaînement CET couvre la signalisation (« détresse ou triangle »), l'appel téléphonique d'urgence et l'information aux voyageurs avant toute évocation d'évacuation ultérieure ?",
+
+
+
+
         choices: [
           "Détresse ou triangle, appel urgence, informer clients",
           "Repartir",
@@ -839,7 +959,7 @@ export const MODULES_CH4 = [
           "Évacuation immédiate sans appel",
         ],
         correct: 0,
-        explanation: "Trois étapes 4.7-A (p.74).",
+        explanation: "Détresse ou triangle, puis appel d'urgence et information clients (p.74).",
       },
     ],
   },
@@ -853,7 +973,12 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-47b-01",
-        prompt: "Évacuation en pleine voie :",
+        prompt:
+          "Évacuation d'une rame immobilisée en pleine voie : quel accord du PCC doit précéder toute mise à pied des voyageurs ?",
+
+
+
+
         choices: [
           "Après accord confirmé PCC",
           "Dès l'arrêt",
@@ -865,7 +990,10 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-47b-02",
-        prompt: "Évacuation : ouverture des portes…",
+        prompt:
+          "Évacuation en pleine voie : quel côté de la composition par rapport au sens de marche ouvre-t-on pour les voyageurs et quelle est la consigne pour l'ordre de descente depuis la plate-forme de conduite ?",
+
+
         choices: [
           "Côté droit sens de marche ; conducteur descend en premier",
           "Les deux côtés",
@@ -877,7 +1005,10 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-47b-03",
-        prompt: "Incendie ou force majeure : évacuation…",
+        prompt:
+          "Incendie ou force majeure au sens de l'encadré : peut-on évacuer sans autorisation préalable du PCC, contrairement au cas général en pleine voie ?",
+
+
         choices: [
           "Possible sans autorisation PCC",
           "Interdite",
@@ -889,7 +1020,14 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-47b-04",
-        prompt: "Évacuation côté entrevoie si danger côté droit :",
+        prompt:
+          "Vous envisagez une évacuation par le côté entrevoie parce que le côté droit présente un danger immédiat : quelle condition liée au trafic en sens opposé le PCC doit-il avoir sécurisée avant ouverture des portes ?",
+
+
+
+
+
+
         choices: [
           "Uniquement après autorisation PCC (trafic antagoniste arrêté)",
           "Libre",
@@ -901,7 +1039,10 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-47b-05",
-        prompt: "Voie unique Sabines–SJD : évacuation sans bus relais…",
+        prompt:
+          "Sur la portion en voie unique Sabines–SJD après évacuation, lorsque le bus relais de substitution n'est pas encore disponible sur place : comment les voyageurs doivent-ils rejoindre l'arrêt de car ?",
+
+
         choices: [
           "Chemin piéton le long de la voie vers arrêt bus de substitution",
           "Rester sur voie",
@@ -923,7 +1064,8 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-47c-01",
-        prompt: "Immobilisation en tunnel :",
+        prompt:
+          "Rame immobilisée dans un tunnel après signalisation (« détresse ou triangle ») et appel téléphonique d'urgence : quel est l'enchaînement radio si vous n'obtenez pas de réponse du PCC ?",
         choices: [
           "Détresse ou triangle, urgence, détresse si pas de réponse, informer clients",
           "Repartir",
@@ -945,7 +1087,10 @@ export const MODULES_CH4 = [
     questions: [
       {
         id: "ch4-47d-01",
-        prompt: "Évacuation tunnel : après accord PCC…",
+        prompt:
+          "Évacuation en tunnel après accord téléphonique explicite du PCC : quel est l'enchaînement d'informations voyageurs et d'orientation (portes utilisées et direction générale vers la sortie) ?",
+
+
         choices: [
           "Informer clients, porte droite, diriger vers sortie la plus proche",
           "Côté entrevoie direct",
@@ -957,7 +1102,8 @@ export const MODULES_CH4 = [
       },
       {
         id: "ch4-47d-02",
-        prompt: "Cas 4.7 A à D : en fin de procédure…",
+        prompt:
+          "Lorsque la situation relève des cas traités sous 4.7 A à D et que la séquence CET est terminée : quelle mention portez-vous sur votre feuille de route ?",
         choices: [
           "Noter l'incident sur la feuille de route",
           "Rien",

@@ -3,12 +3,21 @@
  * Point d'agrégation : axes + modules par chapitre (data-cet-ch1 … ch4).
  */
 
+import { MODULES_ACRONYMES } from "./data-cet-acronymes.js";
 import { MODULES_CH1 } from "./data-cet-ch1.js";
 import { MODULES_CH2 } from "./data-cet-ch2.js";
 import { MODULES_CH3 } from "./data-cet-ch3.js";
 import { MODULES_CH4 } from "./data-cet-ch4.js";
 
 export const AXES = [
+  {
+    id: "acronymes",
+    num: null,
+    title: "Acronymes",
+    desc: "Sigles du CET — à connaître avant les chapitres 1 à 4",
+    cetPages: "liste",
+    available: true,
+  },
   {
     id: "materiel",
     num: 1,
@@ -45,6 +54,7 @@ export const AXES = [
 
 /** Clés = id des axes dans AXES */
 export const MODULES = {
+  acronymes: MODULES_ACRONYMES,
   materiel: MODULES_CH1,
   signalisation: MODULES_CH2,
   circulation: MODULES_CH3,

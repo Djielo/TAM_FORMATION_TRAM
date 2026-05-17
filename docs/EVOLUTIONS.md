@@ -2,7 +2,7 @@
 
 Document de référence pour la suite du développement.
 
-**État actuel (données)** : 4 chapitres CET couverts dans `data-cet-ch1.js` … `ch4.js` — **88 modules**, **404 questions** QCM (choix multiples + correction).
+**État actuel (données)** : chapitre **Acronymes** (`data-cet-acronymes.js`) + 4 chapitres CET dans `data-cet-ch1.js` … `ch4.js` — **91 modules**, **448 questions** QCM (choix multiples + correction).
 
 **État actuel (interface)** : application statique dans `docs/` — onglets **Révision** (QCM par module) / **Pré-examen** (cartes par chapitre + SRS) / **Examen final** (cartes sur tout le CET + note), déverrouillage progressif, persistance `localStorage`, modales d'aide par mode. Fichiers principaux : `app.js`, `progress.js`, `pool.js`, `pretest-session.js`, `dialog.js`, `app.css`.
 
@@ -12,6 +12,10 @@ Document de référence pour la suite du développement.
 
 ```
 Sac général (toutes questions, mélangées)
+├── Sac 0 — Acronymes (à parcourir en premier)
+│   ├── A.1 — Liste fournie par le CET (sigles liste document CET)
+│   ├── A.2 — Matériel, circulation et urgence
+│   └── A.3 — Signalisation et zones spécifiques
 ├── Sac 1 — Utilisation du matériel roulant (CET p. 3–19)
 │   └── petits sacs par sous-thème (à définir)
 ├── Sac 2 — Respect de la signalisation (p. 20–37)
@@ -34,25 +38,21 @@ Chaque question garde une **étiquette** (module + axe) pour l’affichage en mo
 ## Enrichissement contenu
 
 Contenu CET ch. 1–4 : **fait** (voir `data.js` + fichiers par chapitre).  
+Chapitre **Acronymes** : **fait** — conseil d’accueil et pop-up Révision pour commencer par ce chapitre ; module **A.1** intitulé **« Liste fournie par le CET »** (pas « liste officielle »). Voir `docs/REDIGER-QUESTIONS-CET.md`.  
 Évolutions ponctuelles possibles si retour terrain (formateurs / conducteurs).
 
-### Qualité des énoncés (en cours de réflexion)
+### Qualité des énoncés
 
-Les `prompt` initiaux sont souvent au format **QCM télégraphique** (titre : complément …), lisible une fois le CET connu, peu clair sur **carte recto-verso**.
+Les `prompt` initiaux étaient souvent au format **QCM télégraphique** (titre : complément …). **Chapitres 1 à 4** : reformulation en phrases complètes dans `data-cet-ch1.js` … `ch4.js`, à partir du contenu déjà présent dans chaque question (`prompt` / `choices` / `explanation`) — **sans extrapolation** de faits non écrits dans le jeu de données.
 
-**Piste retenue** :
-- **`prompt`** : question complète pour le **QCM Révision** (une phrase, point d’interrogation si besoin — pas de « … »).
-- **`cardPrompt`** (optionnel) : variante un peu plus développée pour **Pré-examen / Examen final** si l’énoncé QCM reste trop sec sur petit écran.
-- **`pool.js`** expose les deux ; `promptForCard()` dans `app.js` choisit `cardPrompt` ou `prompt`.
+**Règles appliquées** :
+- **`prompt`** : question complète (pas de « … », pas de « les trois premiers » sans nommer FNS, INDIR, etc.).
+- **`cardPrompt`** (optionnel, ch. 1 surtout) : variante carte si besoin ; `promptForCard()` dans `app.js`.
+- **Distractions** : laissées plausibles ; les questions déjà difficiles (repères matériel, etc.) ne sont pas affaiblies.
 
-**À faire progressivement** (chapitre par chapitre, relecture métier) :
-1. Repérer les énoncés « incompréhensibles seuls » (souvent `…`, deux-points sans verbe, &lt; 40 caractères).
-2. Reformuler en **vraie question** (sens CET p. X), pas copier-coller brut.
-3. **Distractions** : rendre les 3 mauvaises réponses plus plausibles **là où** la bonne réponse se démarque trop (cas par cas ; ne pas affaiblir les questions déjà difficiles type repères 402 / AEEL).
+**Relecture terrain** : signalement au fil de l’usage Révision / Pré-examen ; ajustements ponctuels si un énoncé accroche encore.
 
-Pas de refonte des 404 questions en un bloc sans validation conducteur / formateur.
-
-Guide de rédaction (énoncés autonomes, pas de « les trois premiers », distracteurs plausibles) : **`docs/REDIGER-QUESTIONS-CET.md`**.
+Guide local (non versionné) : **`docs/REDIGER-QUESTIONS-CET.md`**.
 
 ---
 

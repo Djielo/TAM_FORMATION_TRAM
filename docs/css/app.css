@@ -149,6 +149,15 @@ body.app-dialog-open {
   transform: translateY(-1px);
 }
 
+.axis-card--recommended {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+}
+
+.axis-card--recommended .axis-card__num {
+  color: var(--accent-strong, var(--accent));
+}
+
 .axis-card:disabled {
   opacity: 0.55;
   cursor: not-allowed;
