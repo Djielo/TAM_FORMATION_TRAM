@@ -17,8 +17,6 @@ export const MODULES_CH2 = [
         choices: [
           "L'itinéraire poursuit le tracé principal sans emprunter la branche déviée",
           "L'itinéraire emprunte obligatoirement la branche latérale",
-          "Les lames d'aiguille ne sont pas plaquées contre le rail",
-          "L'aiguille est dé-contrôlée — appel PCC obligatoire",
         ],
         correct: 0,
         explanation:
@@ -30,8 +28,6 @@ export const MODULES_CH2 = [
         choices: [
           "L'itinéraire emprunte la branche déviée (gauche ou droite selon la position de l'aiguille)",
           "L'itinéraire reste sur le tracé principal sans bifurcation",
-          "L'aiguillage est entrebâillé (lames non plaquées)",
-          "Le franchissement est interdit quelle que soit la signalisation",
         ],
         correct: 0,
         explanation:
@@ -41,12 +37,7 @@ export const MODULES_CH2 = [
         id: "sg-rec-01",
         prompt:
           "À l'INDIR, comment reconnaître qu'un franchissement est autorisé en voie directe ?",
-        choices: [
-          "Barre verticale allumée en vert",
-          "Barre oblique allumée en jaune",
-          "Barre horizontale allumée en rouge",
-          "Feu éteint",
-        ],
+        choices: ["Barre verticale allumée en vert", "Barre oblique allumée en jaune"],
         correct: 0,
         explanation: "Barre verticale verte = passage autorisé, voie directe (p.22).",
       },
@@ -56,9 +47,7 @@ export const MODULES_CH2 = [
           "À l'INDIR, comment reconnaître qu'un franchissement est autorisé en voie déviée ?",
         choices: [
           "Barre oblique allumée en jaune (côté selon l'inclinaison de la barre)",
-          "Barre verticale allumée en vert",
           "Barre horizontale allumée en rouge seule",
-          "Affichage INDES « VU »",
         ],
         correct: 0,
         explanation:
@@ -70,8 +59,6 @@ export const MODULES_CH2 = [
           "Comment reconnaître un aiguillage « entrebâillé » sur l'appareil de voie ?",
         choices: [
           "Les lames d'aiguille ne sont pas plaquées contre le rail",
-          "L'INDIR affiche une barre verticale verte",
-          "L'INDIR affiche une barre oblique jaune",
           "L'appareil est motorisé et talonnable à 15 km/h",
         ],
         correct: 0,
@@ -85,8 +72,6 @@ export const MODULES_CH2 = [
         choices: [
           "Barre horizontale allumée en rouge, ou feu éteint",
           "Barre verticale allumée en vert",
-          "Barre oblique allumée en jaune",
-          "Affichage INDES « AT » en zone gare",
         ],
         correct: 0,
         explanation:
@@ -96,22 +81,22 @@ export const MODULES_CH2 = [
         id: "sg-01",
         prompt:
           "Franchissement d'un aiguillage en voie déviée : vitesse maximum (hors cas particulier) ?",
-        choices: ["10 km/h", "15 km/h", "30 km/h", "40 km/h"],
-        correct: 1,
+        choices: ["15 km/h", "10 km/h"],
+        correct: 0,
         explanation: "Voie déviée : 15 km/h (p.21).",
       },
       {
         id: "sg-02",
         prompt:
           "Franchissement d'un aiguillage en voie directe : vitesse maximum (hors cas particulier) ?",
-        choices: ["15 km/h", "30 km/h", "40 km/h", "50 km/h"],
-        correct: 2,
+        choices: ["40 km/h", "15 km/h"],
+        correct: 0,
         explanation: "Voie directe : 40 km/h (p.21).",
       },
       {
         id: "sg-03",
         prompt: "Franchissement d'aiguillage au dépôt : vitesse max ?",
-        choices: ["10 km/h", "15 km/h", "30 km/h", "40 km/h"],
+        choices: ["10 km/h", "15 km/h"],
         correct: 0,
         explanation: "Au dépôt : 10 km/h (p.21).",
       },
@@ -120,12 +105,10 @@ export const MODULES_CH2 = [
         prompt:
           "Que vaut le franchissement d'un aiguillage « entrebâillé » (lames non plaquées) ?",
         choices: [
-          "Autorisé à 10 km/h",
           "Formellement interdit — risque de déraillement",
-          "Autorisé en Marche À Vue",
           "Autorisé si PCC informé",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Strictement interdit — risque de déraillement (p.21).",
       },
       {
@@ -133,25 +116,18 @@ export const MODULES_CH2 = [
         prompt:
           "Que dit la consigne concernant le stationnement sur un aiguillage ?",
         choices: [
-          "Toujours autorisé",
           "Interdit sauf zone Gare Saint-Roch où les aiguilles sont sécurisées",
           "Autorisé au dépôt uniquement",
-          "Autorisé si moins de 5 minutes",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Interdit sauf exception Gare Saint-Roch (p.21).",
       },
       {
         id: "sg-06",
         prompt:
           "Concernant les appareils de voie motorisés, que dit-on du talonnage ?",
-        choices: [
-          "Toujours talonnables",
-          "Non talonnables",
-          "Talonnables à 15 km/h",
-          "Talonnables si SM au vert",
-        ],
-        correct: 1,
+        choices: ["Non talonnables", "Toujours talonnables"],
+        correct: 0,
         explanation: "Appareils motorisés non talonnables (p.21, texte rouge).",
       },
       {
@@ -159,12 +135,10 @@ export const MODULES_CH2 = [
         prompt:
           "Hors zone Gare Saint-Roch, place Albert 1er et Corum, par quoi les conflits sont-ils gérés, en principe général ?",
         choices: [
-          "La priorité à droite uniquement",
           "La signalisation lumineuse (Marche À Vue complétée par la signalisation)",
-          "Appel au PCC",
           "La priorité systématique à la rame venant de droite",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Marche À Vue ; conflits gérés par signalisation lumineuse sauf zones spécifiques (p.21).",
       },
@@ -173,12 +147,10 @@ export const MODULES_CH2 = [
         prompt:
           "Avant de franchir un aiguillage, que doit notamment vérifier le conducteur ?",
         choices: [
-          "Uniquement le prochain arrêt client",
           "La programmation de direction, les feux/INDIR et le placage des aiguilles",
-          "Seulement la pression des freins",
-          "Le numéro de la rame",
+          "Uniquement le prochain arrêt client",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Trois vérifications listées p.21.",
       },
     ],
@@ -197,12 +169,10 @@ export const MODULES_CH2 = [
         prompt:
           "La signalisation ferroviaire lumineuse sur équipement fixe regroupe notamment quelles familles d'indicateurs ou de feux ?",
         choices: [
-          "Uniquement les signaux routiers type R17",
           "INDIR, INDES, SM, SA, SMA, lampes flash, avertisseurs sonores, feux blancs (remisage, anticipation), feu de présence tension",
           "Seulement les panneaux TIV et les feux tricolores privés",
-          "Uniquement ce qui est affiché sur l'écran conducteur",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Le volet 2.2 couvre notamment INDIR, INDES, SM, SA, SMA et les feux / alarmes associés (CET, signalisation ferroviaire lumineuse).",
       },
@@ -211,12 +181,10 @@ export const MODULES_CH2 = [
         prompt:
           "À quoi sert principalement la signalisation ferroviaire lumineuse pour le conducteur ?",
         choices: [
-          "Remplacer uniquement la radio du PCC",
           "Indiquer l'itinéraire autorisé, les limitations et les protections aux points sensibles (aiguillages, cantonnement, remisage)",
-          "Afficher la liste des voyageurs",
-          "Gérer uniquement la climatisation de cabine",
+          "Remplacer uniquement la radio du PCC",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Elle renseigne itinéraires, protections et consignes aux points critiques, en complément des autres consignes (CET ch. 2).",
       },
@@ -225,12 +193,10 @@ export const MODULES_CH2 = [
         prompt:
           "À quoi servent respectivement les feux blancs dits « remisage » et « anticipation » ?",
         choices: [
-          "Contrôler uniquement la présence de voyageurs sur le quai",
           "Autoriser ou non la sortie du faisceau de remisage (remisage) et le départ depuis une station (anticipation) selon les cas décrits",
-          "Remplacer tous les SM en zone gare",
-          "Indiquer la couleur de la rame",
+          "Contrôler uniquement la présence de voyageurs sur le quai",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Rôle décrit dans le volet feux blancs 2.2-F / 2.2-G : gestion des mouvements en remisage et des départs lorsque le SM n'est pas visible.",
       },
@@ -248,25 +214,18 @@ export const MODULES_CH2 = [
         id: "indir-02",
         prompt: "À quoi sert l'INDIR pour le conducteur ?",
         choices: [
-          "Afficher la destination chiffrée ou lettre au dépôt",
           "Indiquer la position du premier aiguillage et si l'aiguille est correctement positionnée",
-          "Annoncer un prochain feu de manœuvre au rouge",
           "Contrôler la présence de tension caténaire",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "L'INDIR est un indicateur lumineux de position d'aiguille (CET p. 22).",
       },
       {
         id: "indir-03",
         prompt: "INDIR : barre horizontale allumée en rouge. Votre conduite ?",
-        choices: [
-          "Passage autorisé en voie directe",
-          "Arrêt absolu — franchissement interdit",
-          "Marche À Vue à 30 km/h",
-          "Passage autorisé, voie déviée",
-        ],
-        correct: 1,
+        choices: ["Arrêt absolu — franchissement interdit", "Passage autorisé en voie directe"],
+        correct: 0,
         explanation:
           "Barre horizontale rouge = arrêt absolu, franchissement interdit.",
       },
@@ -274,37 +233,28 @@ export const MODULES_CH2 = [
         id: "indir-04",
         prompt: "INDIR : barre verticale allumée en vert. Consigne ?",
         choices: [
-          "Arrêt absolu — franchissement interdit",
           "Passage autorisé, itinéraire en voie directe",
           "Passage autorisé, voie déviée selon l'inclinaison",
-          "Feu en panne — appeler le PCC",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Barre verticale verte = passage autorisé, voie directe.",
       },
       {
         id: "indir-05",
         prompt: "INDIR : barre oblique allumée en jaune. Que faire ?",
         choices: [
-          "Arrêt absolu",
           "Passage autorisé, itinéraire en voie déviée à gauche ou à droite selon l'inclinaison de la barre",
-          "Franchissement interdit jusqu'au PCC",
           "Passage autorisé uniquement en voie directe",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Barre oblique jaune = voie déviée ; le côté dépend de l'inclinaison de la barre (CET p. 22).",
       },
       {
         id: "indir-06",
         prompt: "INDIR éteint (feu éteint). Consigne ?",
-        choices: [
-          "Passage autorisé si voie libre",
-          "Arrêt absolu — franchissement interdit",
-          "15 km/h en zone gare",
-          "Marche À Vue sans limite",
-        ],
-        correct: 1,
+        choices: ["Arrêt absolu — franchissement interdit", "Passage autorisé si voie libre"],
+        correct: 0,
         explanation:
           "Feu éteint = arrêt absolu, franchissement interdit (comme barre rouge, p.22).",
       },
@@ -313,33 +263,26 @@ export const MODULES_CH2 = [
         prompt:
           "Barre horizontale rouge et feu éteint sur un INDIR : même consigne ?",
         choices: [
-          "Non — le feu éteint autorise le passage",
           "Oui — arrêt absolu, franchissement interdit dans les deux cas",
-          "Non — feu éteint = 30 km/h max",
           "Oui — Marche À Vue dans les deux cas",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Même signification : arrêt absolu, franchissement interdit.",
       },
       {
         id: "indir-08",
         prompt: "Combien d'indications distinctes l'INDIR peut-il présenter ?",
-        choices: ["2", "3", "4", "6"],
-        correct: 2,
+        choices: ["4", "2"],
+        correct: 0,
         explanation:
           "Quatre cas : barre rouge, verte, oblique jaune, feu éteint (p.22).",
       },
       {
         id: "indir-09",
         prompt: "INDIR ou INDES éteint ou bloqué au rouge : action immédiate ?",
-        choices: [
-          "Passer en Marche À Vue",
-          "Arrêt immédiat de la rame et appel au PCC",
-          "Couper la traction seulement",
-          "Enclencher les feux de détresse et continuer",
-        ],
-        correct: 1,
+        choices: ["Arrêt immédiat de la rame et appel au PCC", "Couper la traction seulement"],
+        correct: 0,
         explanation:
           "Encadré p.21 : tout feu éteint ou bloqué au rouge (y compris INDIR et INDES) → arrêt immédiat + appel PCC.",
       },
@@ -348,12 +291,10 @@ export const MODULES_CH2 = [
         prompt:
           "De quoi est composé l'INDIR du point de vue de la signalisation lumineuse ?",
         choices: [
-          "Deux feux superposés en forme de T",
           "Multipoints formant des barres de couleur variable",
-          "Trois feux blancs type R17",
-          "Un feu jaune de tension",
+          "Deux feux superposés en forme de T",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "L'INDIR utilise des multipoints (barres horizontale, verticale, oblique) — pas des T (p.22).",
       },
@@ -362,12 +303,10 @@ export const MODULES_CH2 = [
         prompt:
           "L'INDES diffère de l'INDIR : à quoi sert l'INDES pour le conducteur ?",
         choices: [
-          "Indiquer la position d'aiguille",
           "Informer le conducteur de sa destination (chiffres ou lettres)",
-          "Protéger les voies uniques",
-          "Signaler l'absence de tension",
+          "Indiquer la position d'aiguille",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "INDES = destination ; INDIR = position d'aiguille (p.22–23).",
       },
@@ -376,12 +315,10 @@ export const MODULES_CH2 = [
         prompt:
           "Avant de franchir un aiguillage, le contrôle de l'INDIR s'inscrit dans quelles vérifications obligatoires ?",
         choices: [
-          "Uniquement la vitesse au TIV",
           "L'état des feux et la position de l'INDIR ainsi que le bon placage des aiguilles",
           "Seulement le feu de traversée routière",
-          "La présence tension uniquement",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Avant franchissement : direction programmée, feux/INDIR, placage des aiguilles (p.21).",
       },
@@ -399,88 +336,56 @@ export const MODULES_CH2 = [
         id: "indes-02",
         prompt: "De quoi l'INDES informe-t-il le conducteur ?",
         choices: [
-          "La position de l'aiguille",
           "Sa destination (un ou deux chiffres ou lettres sur multipoints)",
           "La vitesse sur le prochain TIV",
-          "La priorité au feu routier",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Destination par chiffres ou lettres (p.23).",
       },
       {
         id: "indes-03",
         prompt: "Au dépôt, que signifie l'affichage INDES « L » ?",
-        choices: [
-          "Voie Unique",
-          "Destination lavage",
-          "Limite de manœuvre",
-          "Ligne 1",
-        ],
-        correct: 1,
+        choices: ["Destination lavage", "Limite de manœuvre"],
+        correct: 0,
         explanation: "L = destination Lavage (p.23).",
       },
       {
         id: "indes-04",
         prompt: "Au dépôt, que signifie l'affichage INDES « A » ?",
-        choices: [
-          "Arrêt absolu",
-          "Destination atelier",
-          "Albert 1er",
-          "Anticipation",
-        ],
-        correct: 1,
+        choices: ["Destination atelier", "Arrêt absolu"],
+        correct: 0,
         explanation: "A = destination Atelier (p.23).",
       },
       {
         id: "indes-05",
         prompt:
           "En zone dépôt ou en galerie Mistral, que signifie l'affichage INDES « VU » ?",
-        choices: [
-          "Voie 1",
-          "Voie Unique",
-          "Vert — passage autorisé",
-          "Vitesse unique 30 km/h",
-        ],
-        correct: 1,
+        choices: ["Voie Unique", "Voie 1"],
+        correct: 0,
         explanation: "VU = Voie Unique (p.23 ; sigle affiché INDES).",
       },
       {
         id: "indes-06",
         prompt:
           "En zone Gare Saint-Roch, que signifie l'affichage INDES « AT » ?",
-        choices: [
-          "Direction Atelier",
-          "En attente = Arrêt",
-          "Autorisation de transit",
-          "Albert 1er — retournement",
-        ],
-        correct: 1,
+        choices: ["En attente = Arrêt", "Direction Atelier"],
+        correct: 0,
         explanation: "AT = en attente = Arrêt (p.23, tableau zone gare).",
       },
       {
         id: "indes-07",
         prompt:
           "En zone Gare Saint-Roch, que signifie l'affichage INDES « PL » ?",
-        choices: [
-          "Pont de Lattes",
-          "Passage libre",
-          "Priorité à gauche",
-          "Plateforme logistique",
-        ],
-        correct: 1,
+        choices: ["Passage libre", "Pont de Lattes"],
+        correct: 0,
         explanation: "PL = direction Pont de Lattes (p.23).",
       },
       {
         id: "indes-08",
         prompt:
           "En zone Gare Saint-Roch, que signifie l'affichage INDES « XX » ?",
-        choices: [
-          "Voie interdite temporaire",
-          "Aiguille dé-contrôlée — appeler le PCC",
-          "Passage en Marche À Vue",
-          "Fin de ligne",
-        ],
-        correct: 1,
+        choices: ["Aiguille dé-contrôlée — appeler le PCC", "Voie interdite temporaire"],
+        correct: 0,
         explanation:
           "XX = aiguille dé-contrôlée, appel PCC (p.29, rappel p.23 zones).",
       },
@@ -488,8 +393,8 @@ export const MODULES_CH2 = [
         id: "indes-09",
         prompt:
           "INDES en position d'attente à la zone Gare : quelle indication ?",
-        choices: ["PL", "RO", "AT", "MA"],
-        correct: 2,
+        choices: ["AT", "PL"],
+        correct: 0,
         explanation:
           "Arrêt à l'INDES en position d'attente = AT (p.29, étape 1).",
       },
@@ -497,13 +402,8 @@ export const MODULES_CH2 = [
         id: "indes-10",
         prompt:
           "Deux voyants verts ou un voyant vert et un voyant rouge affichés simultanément sur l'INDES : que faire ?",
-        choices: [
-          "Passage autorisé",
-          "Anomalie — appeler le PCC",
-          "Ralentir à 15 km/h",
-          "Couper la traction",
-        ],
-        correct: 1,
+        choices: ["Anomalie — appeler le PCC", "Ralentir à 15 km/h"],
+        correct: 0,
         explanation: "Anomalie d'affichage → appel PCC (p.29).",
       },
     ],
@@ -519,8 +419,8 @@ export const MODULES_CH2 = [
       {
         id: "sm-02",
         prompt: "Le SM est composé de combien de feux superposés ?",
-        choices: ["1", "2", "3", "4"],
-        correct: 1,
+        choices: ["2", "1"],
+        correct: 0,
         explanation:
           "Deux feux superposés : T rouge en haut, T vert en bas (p.23).",
       },
@@ -528,24 +428,17 @@ export const MODULES_CH2 = [
         id: "sm-03",
         prompt: "SM : T rouge (feu du haut) allumé. Consigne ?",
         choices: [
-          "Franchissement autorisé",
           "Arrêt obligatoire — franchissement interdit",
-          "Marche À Vue à 30 km/h",
-          "Passage autorisé en voie déviée",
+          "Franchissement autorisé",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "T rouge = arrêt obligatoire, franchissement interdit.",
       },
       {
         id: "sm-04",
         prompt: "SM : T vert (feu du bas) allumé. Consigne ?",
-        choices: [
-          "Arrêt obligatoire",
-          "Franchissement autorisé",
-          "Arrêt absolu",
-          "Prochain SM au rouge — Marche À Vue",
-        ],
-        correct: 1,
+        choices: ["Franchissement autorisé", "Arrêt obligatoire"],
+        correct: 0,
         explanation: "T vert = franchissement autorisé (p.23).",
       },
       {
@@ -553,12 +446,10 @@ export const MODULES_CH2 = [
         prompt:
           "Le SM protège notamment les mouvements aux aiguillages, au remisage et au retournement : avec quelle exigence générale devez-vous le traiter ?",
         choices: [
-          "Respecté sauf urgence personnelle",
           "Respecté strictement sauf consigne contraire du PCC ou agent habilité",
-          "Contourné si la voie est visible",
-          "Ignoré en voie unique",
+          "Respecté sauf urgence personnelle",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Respect strict du SM sauf consigne PCC ou agent de maîtrise habilité (p.23).",
       },
@@ -567,12 +458,10 @@ export const MODULES_CH2 = [
         prompt:
           "En cantonnement, lorsque le SM d'entrée est au rouge alors que le canton est déjà occupé (ex. galerie Mistral, voie unique), quelle consigne en tirez-vous ?",
         choices: [
-          "Passage à 15 km/h",
           "Arrêt obligatoire — franchissement interdit",
-          "Marche À Vue sans limite",
           "Franchissement autorisé si retard",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Même signification que T rouge : arrêt obligatoire, franchissement interdit (p.23).",
       },
@@ -581,12 +470,10 @@ export const MODULES_CH2 = [
         prompt:
           "Par rapport au SM, que vous annonce surtout le SA concernant la manœuvre à venir ?",
         choices: [
-          "Un arrêt absolu immédiat",
           "Un prochain feu de manœuvre au rouge — passage en Marche À Vue",
-          "La destination au dépôt",
-          "L'absence de tension",
+          "Un arrêt absolu immédiat",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "SA = avertissement (T orange) ; SM = arrêt ou passage (T rouge/vert) — p.23–24.",
       },
@@ -595,12 +482,10 @@ export const MODULES_CH2 = [
         prompt:
           "Par rapport au SM, combien de feux superposés comporte le SMA et comment sont-ils répartis ?",
         choices: [
-          "Un seul feu blanc",
           "Trois feux superposés (T rouge, T orange, T vert)",
           "Des barres multipoints comme l'INDIR",
-          "Un losange et un point d'exclamation",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "SMA = 3 feux ; SM = 2 feux (p.23–24).",
       },
       {
@@ -608,12 +493,10 @@ export const MODULES_CH2 = [
         prompt:
           "Lampe flash déclenchée au franchissement d'un SM en voie unique (p.25) : signification pour le conducteur ?",
         choices: [
-          "Accélérer pour libérer le canton",
           "Franchissement non autorisé ou rame adverse — arrêt immédiat (FU), détresse, appel PCC",
           "Passage autorisé à 40 km/h",
-          "Feu de tension en panne",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Alarme = franchissement SM non autorisé ou rame en sens inverse — arrêt immédiat FU (p.25).",
       },
@@ -621,13 +504,8 @@ export const MODULES_CH2 = [
         id: "sm-10",
         prompt:
           "Zone Léon Blum : lampe flash à côté du SA quand le SM suivant est rouge. Consigne ?",
-        choices: [
-          "Arrêt immédiat FU",
-          "Ralentir avant de s'arrêter au SM",
-          "Passer sans s'arrêter",
-          "Couper la traction",
-        ],
-        correct: 1,
+        choices: ["Ralentir avant de s'arrêter au SM", "Passer sans s'arrêter"],
+        correct: 0,
         explanation:
           "Cas particulier p.25 : ralentir avant l'arrêt au SM (pas FU immédiat comme en VU classique).",
       },
@@ -644,45 +522,33 @@ export const MODULES_CH2 = [
       {
         id: "sa-02",
         prompt: "Le SA comporte combien de feux superposés ?",
-        choices: ["1", "2", "3", "4"],
-        correct: 1,
+        choices: ["2", "1"],
+        correct: 0,
         explanation: "Deux feux : T orange en haut, T vert en bas (p.24).",
       },
       {
         id: "sa-03",
         prompt: "SA : T orange (haut) allumé. Signification ?",
         choices: [
-          "Arrêt absolu",
           "Prochain feu de manœuvre au rouge — franchissement autorisé en Marche À Vue",
           "Franchissement interdit",
-          "Rame à quai sur le canton",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "T orange = prochain FM au rouge, passage autorisé en Marche À Vue (p.24).",
       },
       {
         id: "sa-04",
         prompt: "SA : T vert (bas) allumé. Consigne ?",
-        choices: [
-          "Arrêt absolu",
-          "Franchissement autorisé",
-          "30 km/h obligatoire",
-          "Appel PCC obligatoire avant de passer",
-        ],
-        correct: 1,
+        choices: ["Franchissement autorisé", "Appel PCC obligatoire avant de passer"],
+        correct: 0,
         explanation: "T vert = franchissement autorisé (p.24).",
       },
       {
         id: "sa-05",
         prompt: "SA en panne. Que faites-vous ?",
-        choices: [
-          "Franchir prudemment",
-          "Prévenir le PCC",
-          "Arrêt absolu sans appel",
-          "Marche À Vue à 10 km/h",
-        ],
-        correct: 1,
+        choices: ["Prévenir le PCC", "Franchir prudemment"],
+        correct: 0,
         explanation: "Feu en panne → prévenir le PCC (p.24, texte en rouge).",
       },
       {
@@ -690,12 +556,10 @@ export const MODULES_CH2 = [
         prompt:
           "T orange allumé sur SA ou SMA : vitesses maximum indiquées (encadré jaune p.24) ?",
         choices: [
-          "50 km/h puis 40 km/h",
           "30 km/h — et 15 km/h en entrée de station si une autre rame est présente",
-          "10 km/h partout",
           "40 km/h en permanence",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "30 km/h, ou 15 km/h en entrée de station si autre rame (p.24).",
       },
@@ -704,12 +568,10 @@ export const MODULES_CH2 = [
         prompt:
           "Quelle est la principale différence de structure entre le SA et le SMA ?",
         choices: [
-          "Le SA a 3 feux, le SMA 2",
           "Le SA a 2 feux, le SMA 3 (avec T orange fixe ou clignotant au milieu)",
-          "Le SA utilise des barres, le SMA des T",
-          "Aucune différence",
+          "Le SA a 3 feux, le SMA 2",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "SA = 2 feux ; SMA = 3 feux dont T orange fixe/clignotant (p.24).",
       },
@@ -717,13 +579,8 @@ export const MODULES_CH2 = [
         id: "sa-08",
         prompt:
           "Sur un SA, le T orange allumé indique quel état pour le prochain feu de manœuvre ?",
-        choices: [
-          "Au vert",
-          "De manœuvre au rouge (FM au rouge)",
-          "Éteint",
-          "De tension clignotant",
-        ],
-        correct: 1,
+        choices: ["De manœuvre au rouge (FM au rouge)", "De tension clignotant"],
+        correct: 0,
         explanation: "Prochain feu de manœuvre au rouge (p.24).",
       },
       {
@@ -731,12 +588,10 @@ export const MODULES_CH2 = [
         prompt:
           "Le SM au rouge et le SA au T orange imposent tous deux un arrêt immédiat sans MAV ?",
         choices: [
-          "Oui pour les deux",
           "Non — le SM rouge impose l'arrêt ; le SA orange autorise le passage en Marche À Vue",
           "Non — les deux autorisent le passage",
-          "Oui — Marche À Vue pour les deux",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "SM rouge = arrêt obligatoire ; SA orange = passage autorisé en MAV (p.23–24).",
       },
@@ -753,58 +608,44 @@ export const MODULES_CH2 = [
       {
         id: "sma-02",
         prompt: "Le SMA comporte combien de feux superposés ?",
-        choices: ["2", "3", "4", "5"],
-        correct: 1,
+        choices: ["3", "2"],
+        correct: 0,
         explanation:
           "Trois feux : T rouge, T orange (milieu), T vert (bas) — p.24.",
       },
       {
         id: "sma-03",
         prompt: "SMA : T rouge (haut) allumé. Consigne ?",
-        choices: [
-          "Franchissement autorisé en MAV",
-          "Arrêt absolu",
-          "30 km/h",
-          "Marche À Vue — rame à quai",
-        ],
-        correct: 1,
+        choices: ["Arrêt absolu", "30 km/h"],
+        correct: 0,
         explanation: "T rouge = arrêt absolu (p.24).",
       },
       {
         id: "sma-04",
         prompt: "SMA : T orange fixe (milieu) allumé. Que indique-t-il ?",
         choices: [
-          "Rame à quai obligatoirement",
           "Franchissement autorisé en MAV — prochain signal de manœuvre au rouge",
-          "Arrêt absolu",
-          "Feu en panne",
+          "Rame à quai obligatoirement",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "T orange fixe = MAV, prochain SM au rouge (p.24).",
       },
       {
         id: "sma-05",
         prompt: "SMA : T orange clignotant (milieu). Que indique-t-il ?",
         choices: [
-          "Prochain SM au rouge seulement",
           "Rame à quai ou occupation du canton / interface — franchissement autorisé en MAV",
-          "Arrêt absolu",
-          "Priorité routière perdue",
+          "Prochain SM au rouge seulement",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "T orange clignotant = présence rame à quai ou occupation interface JP/Cemh (p.24).",
       },
       {
         id: "sma-06",
         prompt: "SMA : T vert (bas) allumé. Consigne ?",
-        choices: [
-          "Arrêt absolu",
-          "Franchissement autorisé",
-          "FU immédiat",
-          "10 km/h au carrefour",
-        ],
-        correct: 1,
+        choices: ["Franchissement autorisé", "10 km/h au carrefour"],
+        correct: 0,
         explanation: "T vert = franchissement autorisé (p.24).",
       },
       {
@@ -812,12 +653,10 @@ export const MODULES_CH2 = [
         prompt:
           "T orange fixe vs T orange clignotant sur SMA : quelle différence ?",
         choices: [
-          "Aucune — même vitesse et même sens",
           "Fixe = prochain SM rouge ; clignotant = rame à quai ou canton occupé",
           "Fixe = arrêt ; clignotant = passage libre",
-          "Fixe = 10 km/h ; clignotant = 40 km/h",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Distinction explicite p.24 entre les deux aspects orange.",
       },
@@ -825,24 +664,20 @@ export const MODULES_CH2 = [
         id: "sma-08",
         prompt: "T orange (fixe ou clignotant) sur SMA : vitesses max ?",
         choices: [
-          "40 km/h puis 20 km/h",
           "30 km/h — 15 km/h en entrée de station si autre rame",
-          "10 km/h partout",
-          "Vitesse libre en MAV",
+          "40 km/h puis 20 km/h",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Encadré jaune p.24 (identique logique SA/SMA).",
       },
       {
         id: "sma-09",
         prompt: "Le SMA combine les fonctions de quel(s) autre(s) signal(s) ?",
         choices: [
-          "INDIR uniquement",
           "SM (manœuvre) et SA (avertissement) — 3 feux type tricolore avec T",
           "Feu R17 uniquement",
-          "TIV et INDIR",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "3 feux empilés : arrêt (rouge), avertissement (orange), passage (vert) — p.24.",
       },
@@ -850,12 +685,10 @@ export const MODULES_CH2 = [
         id: "sma-10",
         prompt: "SMA au T rouge : même consigne qu'un SM au T rouge ?",
         choices: [
-          "Non — le SMA autorise toujours le passage",
           "Oui — arrêt (absolu pour SMA, obligatoire pour SM) — franchissement interdit",
-          "Non — le SM impose 30 km/h",
           "Oui — Marche À Vue pour les deux",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Les deux imposent l'arrêt et l'interdiction de franchir ; SMA = « arrêt absolu » (p.23–24).",
       },
@@ -864,12 +697,10 @@ export const MODULES_CH2 = [
         prompt:
           "Au carrefour, un clignotement lent du losange (p.27) peut vous conduire à attendre le SM au vert : avec quel ensemble restez-vous cohérent ?",
         choices: [
-          "Le feu de tension",
           "La signalisation de manœuvre (SM) en cohérence avec le SIG",
           "Le TIV uniquement",
-          "L'INDES en position AT",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Losange lent = attente SM au vert pour cohérence avec le signal carrefour (p.27).",
       },
@@ -886,50 +717,33 @@ export const MODULES_CH2 = [
       {
         id: "fb-01",
         prompt: "Feu blanc de sortie de remisage allumé : consigne ?",
-        choices: [
-          "Arrêt absolu",
-          "Franchissement autorisé",
-          "Marche À Vue 30 km/h",
-          "Appel PCC",
-        ],
-        correct: 1,
+        choices: ["Franchissement autorisé", "Marche À Vue 30 km/h"],
+        correct: 0,
         explanation: "Feu blanc allumé = franchissement autorisé (p.24-F).",
       },
       {
         id: "fb-02",
         prompt:
           "Lorsque le feu blanc de sortie de remisage est éteint, que vaut le franchissement ?",
-        choices: [
-          "Franchissement autorisé prudemment",
-          "Franchissement interdit",
-          "10 km/h",
-          "FU puis appel PCC",
-        ],
-        correct: 1,
+        choices: ["Franchissement interdit", "Franchissement autorisé prudemment"],
+        correct: 0,
         explanation: "Feu éteint = franchissement interdit (p.24-F).",
       },
       {
         id: "fb-03",
         prompt: "Où se trouve en général le feu blanc de sortie de remisage ?",
-        choices: [
-          "En entrée de station voyageurs",
-          "À la sortie du faisceau de remisage",
-          "Sur chaque carrefour R17",
-          "Sur les TIV",
-        ],
-        correct: 1,
+        choices: ["À la sortie du faisceau de remisage", "En entrée de station voyageurs"],
+        correct: 0,
         explanation: "Généralement en sortie de faisceau de remisage (p.24-F).",
       },
       {
         id: "fb-04",
         prompt: "À quoi sert le feu blanc d'anticipation ?",
         choices: [
-          "Signaler l'absence de tension",
           "Autoriser le départ lorsque le SM ou l'INDIR n'est pas visible du quai",
-          "Remplacer le SA",
-          "Indiquer la fin de ligne",
+          "Signaler l'absence de tension",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Autorise le départ si SM/INDIR non visible depuis le quai (ex. Place de l'Europe) — p.24-G.",
       },
@@ -937,25 +751,18 @@ export const MODULES_CH2 = [
         id: "fb-05",
         prompt: "Où le feu blanc d'anticipation est-il implanté en général ?",
         choices: [
-          "Sur toute la ligne",
           "Uniquement en station, quand le signal principal n'est pas visible du quai de départ",
-          "Au dépôt uniquement",
           "En tunnel uniquement",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Uniquement en station dans ce cas (p.24-G).",
       },
       {
         id: "fb-06",
         prompt:
           "Vous distinguez le feu blanc de remisage du feu d'anticipation : que couvre le dispositif de remisage ?",
-        choices: [
-          "Le départ quand le SM n'est pas visible",
-          "La sortie du faisceau de remisage",
-          "La traversée routière",
-          "La zone gare AT",
-        ],
-        correct: 1,
+        choices: ["La sortie du faisceau de remisage", "Le départ quand le SM n'est pas visible"],
+        correct: 0,
         explanation:
           "Remisage = sortie faisceau ; anticipation = départ en station (p.24).",
       },
@@ -974,12 +781,10 @@ export const MODULES_CH2 = [
         prompt:
           "En voie unique, dans quelle situation la lampe flash et l'avertisseur sonore se déclenchent-ils ensemble ?",
         choices: [
-          "Le TIV est à 10",
           "Franchissement du SM d'entrée de VU non autorisé ou rame sens inverse",
-          "L'INDIR est au vert",
           "Le feu R17 est vertical",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Détection franchissement SM ou rame adverse en VU (p.25-H).",
       },
@@ -988,25 +793,18 @@ export const MODULES_CH2 = [
         prompt:
           "Lampe flash qui s'allume en VU (hors cas Léon Blum) : conduite à tenir ?",
         choices: [
-          "Ralentir à 30 km/h",
           "Arrêt immédiat (FU), feux de détresse, appel PCC et attendre consignes",
           "Passer si voie visible",
-          "Sonner et passer",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Arrêt immédiat FU, détresse, appel PCC (encadré p.25).",
       },
       {
         id: "lt-03",
         prompt:
           "En galerie Mistral en voie unique, lorsque la sirène et la lampe flash se déclenchent, quelle conduite devez-vous tenir ?",
-        choices: [
-          "Ralentir au SM",
-          "Arrêt immédiat (FU) — comme L2/L3",
-          "40 km/h",
-          "Pas d'action",
-        ],
-        correct: 1,
+        choices: ["Arrêt immédiat (FU) — comme L2/L3", "Ralentir au SM"],
+        correct: 0,
         explanation:
           "Même sens que voies uniques classiques : FU immédiat (p.25).",
       },
@@ -1014,51 +812,34 @@ export const MODULES_CH2 = [
         id: "lt-04",
         prompt:
           "Feu de présence tension : que signifie un feu jaune fixe allumé ?",
-        choices: [
-          "Absence de tension — arrêt absolu",
-          "Tension présente — circulation autorisée",
-          "Feu en panne",
-          "Marche À Vue",
-        ],
-        correct: 1,
+        choices: ["Tension présente — circulation autorisée", "Absence de tension — arrêt absolu"],
+        correct: 0,
         explanation:
           "Feu allumé = tension présente, circulation autorisée (p.25-I).",
       },
       {
         id: "lt-05",
         prompt: "Feu de présence tension : que signifie un feu clignotant ?",
-        choices: [
-          "Tension présente",
-          "Absence de tension — arrêt absolu",
-          "Passage à 30 km/h",
-          "Prévenir le PCC sans arrêt",
-        ],
-        correct: 1,
+        choices: ["Absence de tension — arrêt absolu", "Prévenir le PCC sans arrêt"],
+        correct: 0,
         explanation:
           "Feu clignotant = absence de tension, arrêt absolu (p.25-I).",
       },
       {
         id: "lt-06",
         prompt: "Feu de présence tension : que signifie un feu éteint ?",
-        choices: [
-          "Circulation autorisée",
-          "Feu en panne — arrêt absolu et appel PCC",
-          "Voie déviée",
-          "10 km/h",
-        ],
-        correct: 1,
+        choices: ["Feu en panne — arrêt absolu et appel PCC", "Circulation autorisée"],
+        correct: 0,
         explanation: "Feu éteint = panne, arrêt absolu + PCC (p.25-I).",
       },
       {
         id: "lt-07",
         prompt: "Où est placé le feu de présence tension ?",
         choices: [
-          "Au sol dans la cabine",
           "À hauteur de la ligne aérienne avant les points de sectionnement",
-          "Sur le pare-brise",
           "Au centre du carrefour",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Suspendu à hauteur LAC avant sectionnement (p.25-I).",
       },
       {
@@ -1066,12 +847,10 @@ export const MODULES_CH2 = [
         prompt:
           "En voie unique, une lampe flash peut renforcer un INDIR à barre horizontale rouge : quel sens donnez-vous à ce renfort ?",
         choices: [
-          "Passage autorisé",
           "Renforcement du signal fermé — même vigilance qu'INDIR fermé",
           "Priorité routière",
-          "Tension coupée",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Renfort si INDIR barre rouge (p.25, cas VU).",
       },
     ],
@@ -1087,12 +866,7 @@ export const MODULES_CH2 = [
       {
         id: "tr-00",
         prompt: "Dans le CET, le signal type R17 est :",
-        choices: [
-          "Le signal de traversée routière du tramway",
-          "Un indicateur de direction d'aiguillage",
-          "Un feu de manœuvre à trois aspects",
-          "Un panneau de limitation de vitesse",
-        ],
+        choices: ["Le signal de traversée routière du tramway", "Un indicateur de direction d'aiguillage"],
         correct: 0,
         explanation: "R17 = signal de traversée routière (p.26–27).",
       },
@@ -1100,38 +874,26 @@ export const MODULES_CH2 = [
         id: "tr-01",
         prompt:
           "Sur un signal de traversée routière type R17, que signifie une barre verticale blanche allumée ?",
-        choices: [
-          "Franchissement interdit",
-          "Franchissement autorisé",
-          "Avertissement avant barre horizontale",
-          "Panne — appeler PCC",
-        ],
-        correct: 1,
+        choices: ["Franchissement autorisé", "Franchissement interdit"],
+        correct: 0,
         explanation: "Barre verticale = franchissement autorisé (p.27).",
       },
       {
         id: "tr-02",
         prompt:
           "Sur un signal R17, que signifie une barre horizontale blanche allumée ?",
-        choices: [
-          "Franchissement autorisé",
-          "Franchissement interdit",
-          "30 km/h",
-          "Marche À Vue illimitée",
-        ],
-        correct: 1,
+        choices: ["Franchissement interdit", "Franchissement autorisé"],
+        correct: 0,
         explanation: "Barre horizontale = franchissement interdit (p.27).",
       },
       {
         id: "tr-03",
         prompt: "Sur un R17, que signifie un disque central allumé ?",
         choices: [
-          "Passage autorisé",
           "Avertissement avant passage à la barre horizontale",
-          "Arrêt définitif",
-          "Priorité absolue",
+          "Passage autorisé",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Disque = avertissement avant barre horizontale (p.27).",
       },
       {
@@ -1139,12 +901,10 @@ export const MODULES_CH2 = [
         prompt:
           "Pour la pré-signalisation (losange orange sous le R17), que signifie un losange éteint ?",
         choices: [
-          "Détection active",
           "Système de détection hors service ou ampoule grillée",
-          "Passage dans 3 secondes",
-          "Priorité garantie",
+          "Détection active",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Losange éteint = détection HS ou ampoule grillée (p.26).",
       },
       {
@@ -1152,12 +912,10 @@ export const MODULES_CH2 = [
         prompt:
           "Losange fixe allumé et point d'exclamation clignotant : que signifie cette combinaison ?",
         choices: [
-          "Arrêt définitif",
           "Tram détecté — changement de phase du carrefour dans 3 s ou plus",
-          "Feu en panne",
           "Passage à 40 km/h",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Point d'exclamation clignotant = détection, phase dans ≥3 s (p.26).",
       },
@@ -1165,13 +923,8 @@ export const MODULES_CH2 = [
         id: "tr-06",
         prompt:
           "Pourquoi place-t-on le manipulateur en neutre ou assure-t-on un pré-freinage avant le carrefour ?",
-        choices: [
-          "Économiser l'énergie",
-          "Pouvoir traiter une urgence",
-          "Désactiver le SA",
-          "Éviter l'appel PCC",
-        ],
-        correct: 1,
+        choices: ["Pouvoir traiter une urgence", "Éviter l'appel PCC"],
+        correct: 0,
         explanation:
           "Neutre ou pré-freinage pour urgence (p.27, b signalisation carrefour).",
       },
@@ -1180,12 +933,10 @@ export const MODULES_CH2 = [
         prompt:
           "Sans indication de détection (losange), quelle conduite devez-vous adopter à l'approche ?",
         choices: [
-          "Passer sans ralentir",
           "Approcher à vitesse permettant un arrêt normal si barre reste horizontale",
           "Appeler le PCC systématiquement",
-          "FU à l'approche",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Approche modérée pour pouvoir s'arrêter si barre horizonte (p.26).",
       },
@@ -1193,20 +944,15 @@ export const MODULES_CH2 = [
         id: "tr-08",
         prompt:
           "En dérangement, comment peut se comporter le disque central du R17 ?",
-        choices: [
-          "Rester éteint uniquement",
-          "Clignoter (voir aussi chapitre panne p.28)",
-          "Devenir vert",
-          "Afficher un T orange",
-        ],
-        correct: 1,
+        choices: ["Clignoter (voir aussi chapitre panne p.28)", "Rester éteint uniquement"],
+        correct: 0,
         explanation: "Disque peut clignoter en dérangement (p.27).",
       },
       {
         id: "tr-09",
         prompt: "De quelle couleur sont les feux du signal R17 ?",
-        choices: ["Rouge orange vert", "Blancs", "Jaunes", "Bleus"],
-        correct: 1,
+        choices: ["Blancs", "Jaunes"],
+        correct: 0,
         explanation: "Trois feux blancs (p.27).",
       },
     ],
@@ -1224,21 +970,16 @@ export const MODULES_CH2 = [
         id: "pr-01",
         prompt:
           "Panne du feu type R17 (signalisation routière) : première action ?",
-        choices: [
-          "Franchir à 40 km/h",
-          "Appeler le PCC",
-          "Couper la traction",
-          "Priorité à droite sans appel",
-        ],
-        correct: 1,
+        choices: ["Appeler le PCC", "Franchir à 40 km/h"],
+        correct: 0,
         explanation: "Panne R17 → appeler le PCC (p.28).",
       },
       {
         id: "pr-02",
         prompt:
           "Si le PCC autorise à franchir avec les 3 feux éteints ou disque central clignotant : vitesse au carrefour ?",
-        choices: ["30 km/h", "20 km/h", "10 km/h", "40 km/h"],
-        correct: 2,
+        choices: ["10 km/h", "30 km/h"],
+        correct: 0,
         explanation: "Franchir à 10 km/h max (p.28).",
       },
       {
@@ -1246,12 +987,10 @@ export const MODULES_CH2 = [
         prompt:
           "Franchissement autorisé par PCC en panne R17 : actions obligatoires ?",
         choices: [
-          "Accélérer pour libérer",
           "Code de la route (priorité à droite), gong + feux de détresse, 10 km/h",
-          "FU immédiat",
           "Feux de détresse seuls",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Priorité à droite, gong, détresse, 10 km/h (p.28).",
       },
       {
@@ -1259,12 +998,10 @@ export const MODULES_CH2 = [
         prompt:
           "Sans agents TaM ni Police sur place, que vaut le franchissement d'un signal fermé (barre horizontale) ?",
         choices: [
-          "Autorisé si PCC dit oui",
           "En principe non — sauf configurations simples sans risque, à appréciation conducteur après accord PCC",
-          "Toujours autorisé à 10 km/h",
-          "Interdit sans exception",
+          "Autorisé si PCC dit oui",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Barre horizontale fermée : pas d'autorisation PCC sauf agents sur place, sauf cas simples (p.28).",
       },
@@ -1273,12 +1010,10 @@ export const MODULES_CH2 = [
         prompt:
           "Quel exemple de configuration « simple » la page 28 cite-t-elle pour une dérogation éventuelle ?",
         choices: [
-          "Carrefour complexe en centre-ville",
           "Voies uniques ne croisant rien après le quai",
-          "Zone gare",
-          "Tunnel Mistral",
+          "Carrefour complexe en centre-ville",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Ex. voies uniques sans croisement après le quai (p.28).",
       },
     ],
@@ -1296,12 +1031,10 @@ export const MODULES_CH2 = [
         prompt:
           "Quelles zones du réseau Montpellier sont qualifiées de zones spécifiques dans le document ?",
         choices: [
-          "Le dépôt et le poste de retournement uniquement",
           "Zone Gare Saint-Roch, place Albert 1er et Corum",
-          "Uniquement les terminus de ligne",
-          "Tout le centre-ville au-delà de la ligne 1",
+          "Le dépôt et le poste de retournement uniquement",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Le CET distingue ces trois zones spécifiques ; les règles y sont détaillées pour la cohabitation des rames (voir p.21 et zones dédiées).",
       },
@@ -1310,12 +1043,10 @@ export const MODULES_CH2 = [
         prompt:
           "Comparé au reste du réseau, en quoi reconnaître les zones spécifiques est-il surtout utile pour un conducteur ?",
         choices: [
-          "Qu'il n'y ait plus aucun feu à respecter",
           "D'appliquer les consignes locales (priorités, procédures) propres à ces secteurs et de ne pas généraliser bêtement une règle « hors zone »",
-          "De rouler toujours à 40 km/h",
-          "D'éteindre toute signalisation embarquée",
+          "Qu'il n'y ait plus aucun feu à respecter",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Chaque zone spécifique a des règles à suivre (Gare détaillée en 2.4.1, etc.) ; les mélanger avec le régime général serait une erreur.",
       },
@@ -1333,27 +1064,25 @@ export const MODULES_CH2 = [
       {
         id: "zg-01",
         prompt: "En zone Gare Saint-Roch : vitesse maximum ?",
-        choices: ["15 km/h", "10 km/h", "30 km/h", "40 km/h"],
-        correct: 1,
+        choices: ["10 km/h", "15 km/h"],
+        correct: 0,
         explanation: "Zone gare : 10 km/h (p.29).",
       },
       {
         id: "zg-02",
         prompt: "En zone Gare : principe de priorité entre rames ?",
         choices: [
-          "Priorité à gauche",
           "Priorité systématique à la rame venant de droite",
           "Priorité au PCC",
-          "Premier arrivé",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Priorité à la rame venant de droite (p.29).",
       },
       {
         id: "zg-03",
         prompt: "Étape 1 zone gare : où s'arrêter en position d'attente ?",
-        choices: ["Au SM", "À l'INDES en position AT", "Au TIV", "Au feu R17"],
-        correct: 1,
+        choices: ["À l'INDES en position AT", "Au feu R17"],
+        correct: 0,
         explanation: "Arrêt à l'INDES position attente = AT (p.29).",
       },
       {
@@ -1361,25 +1090,18 @@ export const MODULES_CH2 = [
         prompt:
           "Après programmation de la destination, à quoi devez-vous vérifier que le voyant vert correspond ?",
         choices: [
-          "Au prochain arrêt client",
           "À l'itinéraire commandé (ex. PL si direction Pont de Lattes)",
-          "Au numéro de parc",
           "Au feu blanc uniquement",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Cohérence voyant vert / itinéraire commandé (p.29).",
       },
       {
         id: "zg-05",
         prompt:
           "Une rame arrive par la droite en zone gare : quelle conduite devez-vous tenir ?",
-        choices: [
-          "Passer en priorité",
-          "Vous arrêter au PLP",
-          "Accélérer",
-          "Appeler le PCC systématiquement",
-        ],
-        correct: 1,
+        choices: ["Vous arrêter au PLP", "Appeler le PCC systématiquement"],
+        correct: 0,
         explanation: "Rame de droite → arrêt au PLP (p.29, étape 5a).",
       },
       {
@@ -1387,38 +1109,26 @@ export const MODULES_CH2 = [
         prompt:
           "Lorsque la destination programmée diffère de la destination habituelle de la ligne, que faites-vous ?",
         choices: [
-          "Rien de particulier",
           "Activer les feux de détresse pour alerter les autres conducteurs",
-          "Couper le SA",
-          "Passer à 40 km/h",
+          "Rien de particulier",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Feux de détresse si destination atypique (encadré p.29).",
       },
       {
         id: "zg-07",
         prompt:
           "Zone gare : les consignes s'appliquent-elles s'il n'y a pas d'autre rame ?",
-        choices: [
-          "Non — seulement si trafic dense",
-          "Oui — point par point même sans autre rame",
-          "Non — Marche À Vue libre",
-          "Uniquement la nuit",
-        ],
-        correct: 1,
+        choices: ["Oui — point par point même sans autre rame", "Non — seulement si trafic dense"],
+        correct: 0,
         explanation: "Consignes à suivre même sans autre rame (p.29).",
       },
       {
         id: "zg-08",
         prompt:
           "Organigramme Gare / Albert 1er : la zone est vide — après engagement destination ?",
-        choices: [
-          "Appeler le PCC avant toute reprise",
-          "Reprise destination sans autre formalité",
-          "Attendre 2 minutes",
-          "Passer à 40 km/h",
-        ],
-        correct: 1,
+        choices: ["Reprise destination sans autre formalité", "Appeler le PCC avant toute reprise"],
+        correct: 0,
         explanation:
           "Si la zone est vide : enchaînement vers reprise destination (schéma p.30).",
       },
@@ -1427,12 +1137,10 @@ export const MODULES_CH2 = [
         prompt:
           "Présence d'une rame à droite et vous n'avez pas engagé le PLP : conduite à tenir ?",
         choices: [
-          "Forcer le passage à 10 km/h",
           "Arrêt absolu, laisser le passage, puis reprise destination",
-          "Klaxonner et passer",
-          "Priorité à gauche",
+          "Forcer le passage à 10 km/h",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Sans engagement PLP avec présence à droite : arrêt absolu, laisser passer (p.30).",
       },
@@ -1441,12 +1149,10 @@ export const MODULES_CH2 = [
         prompt:
           "Vous avez engagé le PLP ; l'autre rame est engagée (PLG) : conduite à tenir ?",
         choices: [
-          "Continuer en Marche À Vue",
           "Arrêt absolu, appel PCC, puis reprise selon consignes",
-          "Reculer sans avis",
           "Passer en priorité à droite systématiquement",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Conflit d'engagement : arrêt absolu et appel PCC (chemins p.30).",
       },
@@ -1463,21 +1169,16 @@ export const MODULES_CH2 = [
       {
         id: "za-01",
         prompt: "Zone Albert 1er : vitesse maximale à partir du TIV « 10 » ?",
-        choices: ["15 km/h", "10 km/h", "30 km/h", "40 km/h"],
-        correct: 1,
+        choices: ["10 km/h", "15 km/h"],
+        correct: 0,
         explanation: "Limitation à 10 km/h dès le TIV 10 (p.31).",
       },
       {
         id: "za-02",
         prompt:
           "En zone place Albert 1er, à quelle rame la priorité entre rames revient-elle en principe ?",
-        choices: [
-          "La rame venant de gauche",
-          "La rame venant de droite",
-          "Le PCC exclusivement",
-          "La rame la plus longue",
-        ],
-        correct: 1,
+        choices: ["La rame venant de droite", "La rame venant de gauche"],
+        correct: 0,
         explanation: "Priorité systématique à la rame venant de droite (p.31).",
       },
       {
@@ -1485,12 +1186,10 @@ export const MODULES_CH2 = [
         prompt:
           "En zone place Albert 1er, comment se comportent pour vous les prescriptions des points 1 à 5b de l'article 2.4.1 (zone Gare Saint-Roch) ?",
         choices: [
-          "Ne s'appliquent pas",
           "S'appliquent également (Marche À Vue, procédures)",
-          "Remplacent entièrement la signalisation lumineuse",
-          "Valent uniquement la nuit",
+          "Ne s'appliquent pas",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Renvoi explicite aux procédures 2.4.1 points 1-2-3-4-5a-5b (p.31).",
       },
@@ -1498,24 +1197,17 @@ export const MODULES_CH2 = [
         id: "za-04",
         prompt: "Code destination SC en zone Albert 1er signifie ?",
         choices: [
-          "Direction Sablassou",
           "Direction Albert 1er — Saint-Éloi (Saint-Charles)",
-          "Direction Comédie",
-          "Arrêt absolu",
+          "Direction Sablassou",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "SC = direction Albert 1er — Saint-Éloi (p.31, tableau des codes).",
       },
       {
         id: "za-05",
         prompt: "Code LB à Albert 1er : direction ?",
-        choices: [
-          "Louis Blanc — Corum",
-          "Les Aubes",
-          "Observatoire",
-          "Pont de Lattes",
-        ],
+        choices: ["Louis Blanc — Corum", "Pont de Lattes"],
         correct: 0,
         explanation: "LB = direction Louis Blanc — Corum (p.31).",
       },
@@ -1524,12 +1216,10 @@ export const MODULES_CH2 = [
         prompt:
           "Pour les repères PLP et PLG en zone place Albert 1er, quelle règle s'applique ?",
         choices: [
-          "Règles différentes de la gare (priorité inversée)",
           "Idem zone Gare Saint-Roch",
-          "Pas de PLP / PLG",
-          "Uniquement en manœuvre de remisage",
+          "Règles différentes de la gare (priorité inversée)",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "« Idem Gare » pour PLP et PLG au tableau p.31.",
       },
     ],
@@ -1548,19 +1238,17 @@ export const MODULES_CH2 = [
         prompt:
           "Zone Corum : vitesse à partir du TIV « 10 » et principe de priorité ?",
         choices: [
-          "40 km/h, priorité à gauche",
           "10 km/h, priorité à la rame venant de droite",
-          "30 km/h, premier arrivé",
           "15 km/h, priorité PCC",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Comme les autres zones spécifiques : 10 km/h et priorité à droite (p.32).",
       },
       {
         id: "zc-02",
         prompt: "Code CO en zone Corum : direction ?",
-        choices: ["Comédie", "Louis Blanc", "Les Aubes", "Sablassou"],
+        choices: ["Comédie", "Les Aubes"],
         correct: 0,
         explanation: "CO = direction Comédie (p.32).",
       },
@@ -1569,12 +1257,10 @@ export const MODULES_CH2 = [
         prompt:
           "En zone Corum, à quoi sert la position d'attente avant le quai L1V2 ?",
         choices: [
-          "Effectuer l'échange voyageurs sur tout le long de la rame",
           "Dégager au plus vite le croisement L1 / L2 / L4 — sans échange voyageurs (quai courbe)",
-          "Stationner pour la pause conducteur",
-          "Remplacer l'INDES",
+          "Effectuer l'échange voyageurs sur tout le long de la rame",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Fluidifier le carrefour ; interdit pour montée/descente (géométrie du quai, p.32).",
       },
@@ -1583,12 +1269,10 @@ export const MODULES_CH2 = [
         prompt:
           "Depuis Les Aubes vers Corum L1V2, pour une rame d'au moins 40 m, pourquoi la signalisation peut-elle retarder l'accès au quai ?",
         choices: [
-          "Augmenter la cadence commerciale",
           "Garantir l'accès quai sans s'arrêter au milieu et bloquer le croisement avenue de Nîmes",
           "Forcer un croisement à vue sur le PN",
-          "Désactiver le TIV",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Temporisation pour les rames longues : sécuriser l'itinéraire complet (p.32).",
       },
@@ -1597,25 +1281,18 @@ export const MODULES_CH2 = [
         prompt:
           "Deux rames arrivent simultanément : rôle du panneau d'espacement (Corum) ?",
         choices: [
-          "Indiquer la destination Comédie",
           "Le second conducteur s'arrête en amont pour respecter la détection / l'intervalle avec la première",
-          "Autoriser 40 km/h",
           "Remplacer l'appel PCC",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Espacement pour détection correcte des longueurs (p.32).",
       },
       {
         id: "zc-06",
         prompt:
           "En zone Corum, les prescriptions détaillées aux points 1, 2, 3, 4, 5a et 5b de l'article 2.4.1 s'appliquent-elles même sans autre rame présente ?",
-        choices: [
-          "Sont suspendus si le quai est vide",
-          "S'appliquent même sans autre rame",
-          "Ne valent que pour la ligne 4",
-          "Remplacent les TIV",
-        ],
-        correct: 1,
+        choices: ["S'appliquent même sans autre rame", "Sont suspendus si le quai est vide"],
+        correct: 0,
         explanation:
           "Même obligation qu'en gare : respect point par point (p.32).",
       },
@@ -1633,70 +1310,58 @@ export const MODULES_CH2 = [
         id: "tiv-02",
         prompt: "Qu'indique un panneau TIV pour la conduite à venir ?",
         choices: [
-          "La vitesse minimale obligatoire",
           "La vitesse maximale à ne pas dépasser sur la section suivante",
-          "L'arrêt prochain",
-          "La destination",
+          "La vitesse minimale obligatoire",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Vitesse max sur section suivante (p.33).",
       },
       {
         id: "tiv-03",
         prompt:
           "Franchissement d'un carrefour routier : vitesse max par défaut (sans TIV plus bas) ?",
-        choices: ["10 km/h", "30 km/h", "40 km/h", "60 km/h"],
-        correct: 2,
+        choices: ["40 km/h", "10 km/h"],
+        correct: 0,
         explanation: "40 km/h max au carrefour sauf TIV inférieur (p.33).",
       },
       {
         id: "tiv-04",
         prompt:
           "Zones Gare Saint-Roch, Albert 1er et Corum : vitesse spécifique ?",
-        choices: ["30 km/h", "15 km/h", "10 km/h", "40 km/h"],
-        correct: 2,
+        choices: ["10 km/h", "30 km/h"],
+        correct: 0,
         explanation: "Rappel : 10 km/h en zones spécifiques (p.33).",
       },
       {
         id: "tiv-05",
         prompt:
           "Une consigne de vitesse donnée par le PCC, la Police ou un agent TaM se situe à quel niveau par rapport aux limitations préétablies ?",
-        choices: [
-          "Peut être ignorée si TIV plus élevé",
-          "Prime sur les limitations préétablies",
-          "S'applique seulement au dépôt",
-          "Ne concerne que la nuit",
-        ],
-        correct: 1,
+        choices: ["Prime sur les limitations préétablies", "S'applique seulement au dépôt"],
+        correct: 0,
         explanation:
           "Consignes PCC/Police/agents TaM priment sur limites préétablies (p.33).",
       },
       {
         id: "tiv-06",
         prompt: "Où sont en général posés les TIV ?",
-        choices: [
-          "Au sol entre les rails",
-          "À hauteur de la ligne aérienne",
-          "Dans la cabine",
-          "Sur le pare-brise",
-        ],
-        correct: 1,
+        choices: ["À hauteur de la ligne aérienne", "Au sol entre les rails"],
+        correct: 0,
         explanation: "À hauteur LAC (p.33).",
       },
       {
         id: "tiv-07",
         prompt:
           "Tableau des limitations (CET) : croisement d'une rame arrêtée — vitesse max ?",
-        choices: ["5 km/h", "10 km/h", "15 km/h", "30 km/h"],
-        correct: 1,
+        choices: ["10 km/h", "15 km/h"],
+        correct: 0,
         explanation: "10 km/h (tableau p.34).",
       },
       {
         id: "tiv-08",
         prompt:
           "Entrée en station : autre rame déjà présente sur place — vitesse max indiquée au tableau ?",
-        choices: ["30 km/h", "15 km/h", "40 km/h", "10 km/h"],
-        correct: 1,
+        choices: ["15 km/h", "30 km/h"],
+        correct: 0,
         explanation:
           "15 km/h si présence d'autre rame ; 30 km/h si absence (p.34).",
       },
@@ -1716,12 +1381,10 @@ export const MODULES_CH2 = [
         prompt:
           "Hors zone à itinéraire automatique et hors zone gare, dans quel segment utilise-t-on la télécommande d'aiguilles ?",
         choices: [
-          "À tout moment sur la ligne",
           "Uniquement entre le panneau jaune « début » et le panneau jaune « fin » de zone",
-          "Seulement au dépôt",
           "Uniquement la nuit",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "La zone est délimitée par les panneaux jaunes début / fin (p.35).",
       },
@@ -1730,12 +1393,10 @@ export const MODULES_CH2 = [
         prompt:
           "À partir de quel moment la commande télécommandée est-elle réputée effective ?",
         choices: [
-          "Le PCC a validé au téléphone",
           "Les trois voyants (gauche, centre, droite) sont allumés simultanément sur passage de la boucle",
-          "Le SA est au vert",
-          "La rame est à l'arrêt complet",
+          "Le PCC a validé au téléphone",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Prise en compte sur la boucle : trois feux allumés en même temps (p.35).",
       },
@@ -1745,8 +1406,6 @@ export const MODULES_CH2 = [
         choices: [
           "Une seule impulsion pour l'itinéraire voulu",
           "Trois impulsions successives obligatoires",
-          "Autant que nécessaire jusqu'au vert",
-          "Deux : une gauche, une droite",
         ],
         correct: 0,
         explanation: "Une seule action pour l'itinéraire (p.35).",
@@ -1755,13 +1414,8 @@ export const MODULES_CH2 = [
         id: "tc-04",
         prompt:
           "Boîtier de secours au sol : voyant jaune fixe — signification ?",
-        choices: [
-          "Télécommande impossible",
-          "Itinéraire enclenché / télécommande active",
-          "Appeler la Police",
-          "Panne secteur",
-        ],
-        correct: 1,
+        choices: ["Itinéraire enclenché / télécommande active", "Télécommande impossible"],
+        correct: 0,
         explanation:
           "Jaune clignotant = prise en compte retardée ; jaune fixe = enclenché (p.35).",
       },
@@ -1772,8 +1426,6 @@ export const MODULES_CH2 = [
         choices: [
           "Sans l'accord du PCC sauf si intégré à une manœuvre prévue, et jamais si une rame est déjà engagée dessus",
           "Jamais, même avec le PCC",
-          "Uniquement le week-end",
-          "Sauf si le voyant rouge est allumé",
         ],
         correct: 0,
         explanation:
@@ -1785,8 +1437,6 @@ export const MODULES_CH2 = [
           "En mode dégradé manuel avec le sabre d'aiguillage sur un appareil motorisé, que faire avant d'insérer le sabre ?",
         choices: [
           "Couper l'alimentation (condamnation) du moteur après ouverture de la trappe",
-          "Appuyer deux fois sur le bouton droit",
-          "Rien de particulier",
           "Demander uniquement aux voyageurs de descendre",
         ],
         correct: 0,
@@ -1800,8 +1450,6 @@ export const MODULES_CH2 = [
         choices: [
           "Caler la lame contre le rail pour éviter tout mouvement accidentel",
           "Rouler à 5 km/h pour éjecter l'objet",
-          "Laisser le PCC commander à distance sans cale",
-          "Ouvrir les portes voyageurs",
         ],
         correct: 0,
         explanation:
@@ -1823,9 +1471,7 @@ export const MODULES_CH2 = [
           "À quoi sert principalement le clou de positionnement sur le quai ?",
         choices: [
           "Indiquer l'arrêt commercial : alignement conducteur / repère à hauteur d'épaule",
-          "Remplacer le TIV",
           "Marquer uniquement la fin de ligne",
-          "Signaler un chantier",
         ],
         correct: 0,
         explanation:
@@ -1836,12 +1482,10 @@ export const MODULES_CH2 = [
         prompt:
           "Quai double : consigne sur le respect du clou de positionnement ?",
         choices: [
-          "Indicatif si peu de monde",
           "Impératif — toutes les rames doivent respecter ce repère",
           "Sauf pour les rames courtes",
-          "Uniquement ligne 1",
         ],
-        correct: 1,
+        correct: 0,
         explanation:
           "Mention impérative pour quai double (p.36, texte en rouge).",
       },
@@ -1849,13 +1493,8 @@ export const MODULES_CH2 = [
         id: "cp-03",
         prompt:
           "Rame type 302 (plus courte) sur quai réglé au gabarit 402 : où s'arrêter ?",
-        choices: [
-          "Au même clou, quelle que soit la longueur",
-          "En tête de quai",
-          "Après le clou",
-          "Où le PCC indique par radio uniquement",
-        ],
-        correct: 1,
+        choices: ["En tête de quai", "Où le PCC indique par radio uniquement"],
+        correct: 0,
         explanation: "Les 302 s'arrêtent en tête de quai (p.36).",
       },
     ],
@@ -1875,8 +1514,6 @@ export const MODULES_CH2 = [
         choices: [
           "Carré noir : ne pas s'arrêter avant pour que le dernier bogie dégage l'aiguillage",
           "Disque jaune : vitesse 30 km/h",
-          "Triangle blanc : priorité",
-          "Panneau R : reprise de marche",
         ],
         correct: 0,
         explanation:
@@ -1888,8 +1525,6 @@ export const MODULES_CH2 = [
           "Pourquoi ne pas s'arrêter avant le panneau limite de manœuvre ?",
         choices: [
           "Pour garantir que le dernier bogie a franchi l'appareil de voie",
-          "Pour faciliter la montée des voyageurs",
-          "Parce que le panneau est décoratif",
           "Pour éviter d'utiliser le gong",
         ],
         correct: 0,
@@ -1909,13 +1544,8 @@ export const MODULES_CH2 = [
         id: "ch-01",
         prompt:
           "À quelle distance type les éclairages flash de chantier sont-ils placés par rapport à la zone de travaux ?",
-        choices: [
-          "50 m avant seulement",
-          "100 m avant et 100 m après la zone",
-          "200 m d'un seul côté",
-          "Uniquement en gare",
-        ],
-        correct: 1,
+        choices: ["100 m avant et 100 m après la zone", "50 m avant seulement"],
+        correct: 0,
         explanation: "Flashs à 100 m avant et après (p.37).",
       },
       {
@@ -1923,12 +1553,10 @@ export const MODULES_CH2 = [
         prompt:
           "Sur un panneau de chantier temporaire, que signifie la lettre R ?",
         choices: [
-          "Rappel d'arrêt d'urgence",
           "Point à partir duquel la reprise de vitesse normale est autorisée",
-          "Radio obligatoire",
-          "Voie réservée",
+          "Rappel d'arrêt d'urgence",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "R = reprise de vitesse (p.37).",
       },
       {
@@ -1936,25 +1564,18 @@ export const MODULES_CH2 = [
         prompt:
           "Sur un panneau de chantier temporaire, que représente le chiffre rouge ?",
         choices: [
-          "Numéro de ligne",
           "Vitesse limite à respecter dans le secteur balisé",
           "Distance en mètres entre deux arrêts",
-          "Code PCC",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Limite de vitesse imposée (p.37).",
       },
       {
         id: "ch-04",
         prompt:
           "Lorsque la lampe flash du balisage chantier est éteinte, la limitation de vitesse affichée reste-t-elle applicable ?",
-        choices: [
-          "Ne vaut plus",
-          "Reste obligatoire",
-          "Ne vaut que de jour",
-          "Est doublée automatiquement",
-        ],
-        correct: 1,
+        choices: ["Reste obligatoire", "Ne vaut que de jour"],
+        correct: 0,
         explanation:
           "Lampe allumée ou éteinte : respecter l'indication de vitesse (p.37).",
       },
@@ -1973,12 +1594,10 @@ export const MODULES_CH2 = [
         prompt:
           "Quels dispositifs relèvent notamment des panneaux « arrêt absolu » au sens du CET ?",
         choices: [
-          "Uniquement un feu rouge clignotant",
           "« ARRÊT OBLIGATOIRE » et le panneau rouge uni sans mention",
-          "Un TIV à 10",
-          "Un panneau jaune R",
+          "Uniquement un feu rouge clignotant",
         ],
-        correct: 1,
+        correct: 0,
         explanation: "Deux types illustrés p.37.",
       },
       {
@@ -1986,9 +1605,7 @@ export const MODULES_CH2 = [
         prompt: "Face à un panneau d'arrêt absolu : conduite à tenir ?",
         choices: [
           "Franchissement interdit tant que le signal n'est pas levé / levée l'interdiction",
-          "Passage à 10 km/h sans avis",
           "Passage si le feu de route est vert",
-          "Demander aux piétons uniquement",
         ],
         correct: 0,
         explanation:

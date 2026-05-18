@@ -150,7 +150,7 @@ function shuffle(arr) {
   return a;
 }
 
-/** Mélange les 4 propositions d'une question QCM (index `correct` mis à jour). */
+/** Mélange les propositions d'une question QCM (index `correct` mis à jour). */
 function shuffleQuestionChoices(q) {
   const tagged = q.choices.map((text, originalIndex) => ({
     text,

@@ -14,8 +14,6 @@ export const MODULES_CH4 = [
         choices: [
           "Arrêt, détresse, appel flash PCC, information clients",
           "Évacuation immédiate sans appel",
-          "Reprise à 40 km/h",
-          "Dé-préparation seule",
         ],
         correct: 0,
         explanation: "Quatre gestes communs à tout arrêt d'urgence (p.60).",
@@ -24,12 +22,7 @@ export const MODULES_CH4 = [
         id: "ch4-41-02",
         prompt:
           "Lorsque l'immobilisation de la rame se prolonge : dans quelles conditions l'évacuation est-elle possible ?",
-        choices: [
-          "Sur accord PCC",
-          "Par décision conducteur seul",
-          "Interdite",
-          "Automatique après 5 min",
-        ],
+        choices: ["Sur accord PCC", "Interdite"],
         correct: 0,
         explanation: "Évacuation si arrêt prolongé, d'accord PCC (p.60).",
       },
@@ -39,9 +32,7 @@ export const MODULES_CH4 = [
           "Vous devez quitter sans délai une zone où vous êtes exposé au danger — flammes à proximité, jets de projectiles ou autre agression analogue — : quelle conduite le CET préconise-t-il ?",
         choices: [
           "Autorisé ; prévenir PCC après ; respecter signalisation",
-          "Interdit",
           "Uniquement au dépôt",
-          "Sans feux",
         ],
         correct: 0,
         explanation: "Quitter la zone puis informer PCC (p.60).",
@@ -52,9 +43,7 @@ export const MODULES_CH4 = [
           "Après un incident grave, tant que vous attendez les secours extérieurs : quel rôle opérationnel le conducteur conserve-t-il toujours sur place ?",
         choices: [
           "Coordinateur : témoignages, compte-rendu PCC",
-          "Quitter les lieux",
           "Reprendre le service",
-          "Réparer la rame",
         ],
         correct: 0,
         explanation: "Coordinateur jusqu'à prise en charge maîtrise (p.60).",
@@ -63,12 +52,7 @@ export const MODULES_CH4 = [
         id: "ch4-41-05",
         prompt:
           "Lorsque la maîtrise sur place passe aux services de sécurité (pompiers, police présents sur zone), qui prend la fonction de coordinateur aux relations avec ces services à la place du conducteur ?",
-        choices: [
-          "Le supérieur hiérarchique présent",
-          "Le conducteur toujours",
-          "Le premier voyageur",
-          "Le PCC à distance",
-        ],
+        choices: ["Le supérieur hiérarchique présent", "Le PCC à distance"],
         correct: 0,
         explanation: "Relais coordinateur au supérieur (p.60).",
       },
@@ -89,8 +73,6 @@ export const MODULES_CH4 = [
         choices: [
           "Rester joignable par le PCC pendant le pré-constat",
           "Partir chercher le tiers",
-          "Évacuer sans formulaire",
-          "Ignorer le tiers",
         ],
         correct: 0,
         explanation: "Pré-constat dans la rame, joignabilité PCC (p.61).",
@@ -99,12 +81,7 @@ export const MODULES_CH4 = [
         id: "ch4-42a-02",
         prompt:
           "Choc latéral violent sur le train avant : quelle manœuvre électrique de sécurité devez-vous déclencher en priorité, compte tenu du risque de toucher une zone Haute Tension ?",
-        choices: [
-          "Mettre le FS (risque électrique HT)",
-          "FU en marche",
-          "Repartir",
-          "Couper batterie sans appel",
-        ],
+        choices: ["Mettre le FS (risque électrique HT)", "Couper batterie sans appel"],
         correct: 0,
         explanation: "FS si choc violent avant (encadré p.61).",
       },
@@ -115,8 +92,6 @@ export const MODULES_CH4 = [
         choices: [
           "Uniquement sur ordre PCC ; reprise service idem",
           "Libre si dégâts légers",
-          "Par le tiers",
-          "Immédiat",
         ],
         correct: 0,
         explanation: "Déplacement et reprise sur ordre PCC (p.61).",
@@ -127,9 +102,7 @@ export const MODULES_CH4 = [
           "Après constitution du dossier d'accident matériel, où dépose-t-on sans tarder la partie A du constat (« CONSTAT ACCIDENT ») comme le prévoit le CET ?",
         choices: [
           "CONSTAT ACCIDENT partie A au PCC ou boîte rouge JP le jour même",
-          "Dans un mois",
           "Au dépôt seulement",
-          "Par le tiers",
         ],
         correct: 0,
         explanation: "Partie A signée, remise jour même (p.61).",
@@ -151,8 +124,6 @@ export const MODULES_CH4 = [
         choices: [
           "Sortir de cabine pour signalement précis même si blessé dans la rame",
           "Rester en cabine",
-          "Repartir vite",
-          "Ne pas appeler le PCC",
         ],
         correct: 0,
         explanation: "Sortie cabine pour évaluation (texte violet p.62).",
@@ -161,12 +132,7 @@ export const MODULES_CH4 = [
         id: "ch4-42b-02",
         prompt:
           "Après prise en charge initiale sur une victime d'accident corporel : à quelle condition la reprise du service régulier est-elle possible ?",
-        choices: [
-          "Autorisation PCC après appel",
-          "Dès que la rame roule",
-          "Sans constat",
-          "Si blessé refuse secours",
-        ],
+        choices: ["Autorisation PCC après appel", "Si blessé refuse secours"],
         correct: 0,
         explanation: "Appel PCC pour autorisation reprise (p.62).",
       },
@@ -176,8 +142,6 @@ export const MODULES_CH4 = [
           "Il s'agit d'une blessure légère mais la victime refuse l'intervention des secours : que faites-vous avant de poursuivre la course avec la rame ?",
         choices: [
           "Pas de reprise sans accord PCC ; relever ses coordonnées",
-          "Repartir immédiatement",
-          "FU",
           "Pas de constat",
         ],
         correct: 0,
@@ -189,9 +153,7 @@ export const MODULES_CH4 = [
           "À l'issue de la prise en charge d'un accident corporel : quel couple de formulaires remettez-vous systématiquement au PCC ?",
         choices: [
           "CONSTAT CORPOREL + CONSTAT ACCIDENT partie B",
-          "Feuille de route seule",
           "SAT uniquement",
-          "Rien",
         ],
         correct: 0,
         explanation: "Deux constats partie B (p.62).",
@@ -210,12 +172,7 @@ export const MODULES_CH4 = [
         id: "ch4-42c-01",
         prompt:
           "Personne encore engagée sous la rame : que devez-vous accomplir avant toute manœuvre consistant à couper la batterie tracteur ou de service ?",
-        choices: [
-          "Appel d'urgence (avant coupure batterie)",
-          "Coupure batterie d'abord",
-          "Repartir",
-          "Évacuation sans appel",
-        ],
+        choices: ["Appel d'urgence (avant coupure batterie)", "Coupure batterie d'abord"],
         correct: 0,
         explanation: "Appel urgence avant coupure (texte rouge p.63).",
       },
@@ -223,12 +180,7 @@ export const MODULES_CH4 = [
         id: "ch4-42c-02",
         prompt:
           "Une victime est coincée sous le tramway : qui est habilité, selon ces consignes, à faire déplacer la rame pour la dégagement ?",
-        choices: [
-          "Réservé aux pompiers",
-          "Par le conducteur avec FS",
-          "Par le PCC à distance",
-          "En poussant à 5 km/h",
-        ],
+        choices: ["Réservé aux pompiers", "Par le PCC à distance"],
         correct: 0,
         explanation: "Seuls les pompiers déplacent la rame (encadré p.63).",
       },
@@ -238,8 +190,6 @@ export const MODULES_CH4 = [
           "Dans la séquence d'urgence consacrée aux personnes prises sous rame : à quel effet essentiel sert avant tout l'activation du FS ?",
         choices: [
           "Couper l'alimentation électrique (ouverture disjoncteur)",
-          "Accélérer",
-          "Ouvrir les portes voyageurs",
           "Baisser le pantographe seul",
         ],
         correct: 0,
@@ -251,8 +201,6 @@ export const MODULES_CH4 = [
           "Personne encore engagée sous le tram après action du FS et appel téléphonique d'urgence : quelles autres actions de sécurité et de préparation générale suivez-vous ensuite ?",
         choices: [
           "Pantographe bas, dé-préparation, protection blessé",
-          "Reprise commerciale",
-          "40 km/h",
           "Sans dé-préparation",
         ],
         correct: 0,
@@ -274,9 +222,7 @@ export const MODULES_CH4 = [
           "Malaise du conducteur ou agression dans la cabine : quelles actions enchaîne-t-on tout de suite pour protéger le train et faire appeler les secours ?",
         choices: [
           "Arrêt, détresse, FS, appel détresse, informer clients si possible",
-          "Poursuite terminus",
           "Couper SIE",
-          "Ouvrir toutes les portes",
         ],
         correct: 0,
         explanation: "Quatre gestes p.64 (section D).",
@@ -285,12 +231,7 @@ export const MODULES_CH4 = [
         id: "ch4-42d-02",
         prompt:
           "En cabine, lors d'un malaise ou d'agression du conducteur : quel effet poursuit-on en premier lieu en actionnant le FS ?",
-        choices: [
-          "Sécuriser l'immobilisation",
-          "Accélérer",
-          "Ouvrir portes quai",
-          "Baisser pantographe",
-        ],
+        choices: ["Sécuriser l'immobilisation", "Baisser pantographe"],
         correct: 0,
         explanation: "FS + détresse (p.64).",
       },
@@ -308,12 +249,7 @@ export const MODULES_CH4 = [
         id: "ch4-43-01",
         prompt:
           "En cas de déraillement : le conducteur peut-il lui-même tenter un ré-enraillement depuis la plate-forme de conduite ?",
-        choices: [
-          "Non — interdit",
-          "Oui à 5 km/h",
-          "Oui avec FS",
-          "Oui si PCC occupé",
-        ],
+        choices: ["Non — interdit", "Oui si PCC occupé"],
         correct: 0,
         explanation: "Ré-enraillement interdit au conducteur (encadré p.64).",
       },
@@ -321,12 +257,7 @@ export const MODULES_CH4 = [
         id: "ch4-43-02",
         prompt:
           "Déraillement : avant dé-préparation et abaissement du pantographe, quel contrôle visuel vous impose cet encadré compte tenu du risque d'arrachement sur la partie alimentée aérienne ?",
-        choices: [
-          "Contrôle visuel LAC (risque arrachement)",
-          "Montée sur toit",
-          "Reprise traction",
-          "Évacuation sans PCC",
-        ],
+        choices: ["Contrôle visuel LAC (risque arrachement)", "Évacuation sans PCC"],
         correct: 0,
         explanation: "Contrôle LAC avant descente pantographe (p.64).",
       },
@@ -334,12 +265,7 @@ export const MODULES_CH4 = [
         id: "ch4-43-03",
         prompt:
           "Une rame est immobilisée après déraillement : quel accord téléphonique de l'exploitation et quelles consignes d'évacuation (références 4.7 B ou D au même tableau) doivent encadrer toute mise à pied des voyageurs ?",
-        choices: [
-          "Après accord PCC (voir 4.7 B/D)",
-          "Immédiate sans avis",
-          "Interdite",
-          "Par le conducteur seul en tunnel",
-        ],
+        choices: ["Après accord PCC (voir 4.7 B/D)", "Par le conducteur seul en tunnel"],
         correct: 0,
         explanation: "Évacuation selon 4.7 après accord PCC (p.64).",
       },
@@ -347,12 +273,7 @@ export const MODULES_CH4 = [
         id: "ch4-43-04",
         prompt:
           "Déraillement : après immobilisation de la composition, quel équipement de pré-signalisation complète la signalisation de votre convoi ?",
-        choices: [
-          "Triangle de pré-signalisation",
-          "Uniquement klaxon",
-          "Rien si détresse OK",
-          "Feux route",
-        ],
+        choices: ["Triangle de pré-signalisation", "Uniquement klaxon"],
         correct: 0,
         explanation: "Triangle après immobilisation (p.64).",
       },
@@ -372,9 +293,7 @@ export const MODULES_CH4 = [
           "Un voyageur est pris en malaise alors que vous roulez : où arrêtez-vous la rame en priorité et quelles mesures prenez-vous sur le poste de conduite juste après l'arrêt (détresse, clé KC, cabine) ?",
         choices: [
           "À la station la plus proche, détresse, clé KC retirée, cabine fermée",
-          "En pleine voie sans arrêt",
           "Au terminus uniquement",
-          "À 40 km/h",
         ],
         correct: 0,
         explanation: "Station proche + sécurisation cabine (p.65).",
@@ -383,12 +302,7 @@ export const MODULES_CH4 = [
         id: "ch4-44a-02",
         prompt:
           "Après avoir porté secours à un voyageur blessé à bord : quelle conduite tenez-vous ensuite sur la ligne radio jusqu'à contre-ordre du PCC ?",
-        choices: [
-          "Rappeler PCC et suivre ses consignes",
-          "Repartir sans avis",
-          "Évacuation systématique",
-          "FU",
-        ],
+        choices: ["Rappeler PCC et suivre ses consignes", "Évacuation systématique"],
         correct: 0,
         explanation: "Évaluation puis instructions PCC (p.65).",
       },
@@ -397,12 +311,7 @@ export const MODULES_CH4 = [
         prompt:
           "Des voyageurs ont assisté à l'incident : quelle information devez-vous recueillir sur eux ?",
 
-        choices: [
-          "Noter leurs coordonnées",
-          "Inutiles",
-          "Uniquement police",
-          "PCC les appelle",
-        ],
+        choices: ["Noter leurs coordonnées", "PCC les appelle"],
         correct: 0,
         explanation: "Coordonnées témoins (p.65).",
       },
@@ -422,8 +331,6 @@ export const MODULES_CH4 = [
           "Bris d'une vitre latérale côté voyageurs : après l'appel téléphonique d'urgence, comment protégez-vous les clients et quelle est la suite immédiate sur le plan des consignes PCC ?",
         choices: [
           "Éloigner clients de la vitre, attendre ordres PCC",
-          "Repartir à 70 km/h",
-          "Ouvrir toutes les portes",
           "Sans information PCC",
         ],
         correct: 0,
@@ -435,9 +342,7 @@ export const MODULES_CH4 = [
           "Lorsque le bris de vitre ne présente pas de danger pour les personnes après sécurisation : quelle suite de trajet le PCC peut-il vous autoriser ?",
         choices: [
           "Fin de course commerciale jusqu'au terminus",
-          "FU",
           "Évacuation obligatoire",
-          "Remorquage immédiat",
         ],
         correct: 0,
         explanation: "Terminus possible si zone sécurisée (p.66).",
@@ -460,8 +365,6 @@ export const MODULES_CH4 = [
 
         choices: [
           "Arrêt station si possible, urgence, info clients, évacuation, ordres PCC",
-          "Poursuite à 30 km/h",
-          "Dégivrage seul",
           "Sans évacuation",
         ],
         correct: 0,
@@ -475,9 +378,7 @@ export const MODULES_CH4 = [
 
         choices: [
           "Informer PCC fin d'évacuation et attendre ordres",
-          "Reprendre le service",
           "Dé-préparer sans avis",
-          "Quitter les lieux",
         ],
         correct: 0,
         explanation: "Compte-rendu fin évacuation au PCC (p.66).",
@@ -501,8 +402,6 @@ export const MODULES_CH4 = [
         choices: [
           "Évacuation voyageurs (4.7), appel urgence, évaluation, pantographe bas",
           "Lutter seul longtemps avant évacuation",
-          "Repartir",
-          "Ouvrir fenêtres en marche",
         ],
         correct: 0,
         explanation: "Séquence 8 étapes p.67.",
@@ -513,12 +412,7 @@ export const MODULES_CH4 = [
           "Après tout incendie à bord, même de faible ampleur : peut-on remonter le pantographe sans ordre explicite du PCC ?",
 
 
-        choices: [
-          "Interdit de remonter sans autorisation PCC",
-          "Remonter pour repartir",
-          "Toujours baissé définitivement",
-          "Manivelle conducteur libre",
-        ],
+        choices: ["Interdit de remonter sans autorisation PCC", "Remonter pour repartir"],
         correct: 0,
         explanation: "Encadré p.67.",
       },
@@ -528,12 +422,7 @@ export const MODULES_CH4 = [
           "Incendie sur site de remisage : dans quelle relation se trouvent ces consignes par rapport à celles applicables à bord en ligne ?",
 
 
-        choices: [
-          "Mêmes consignes qu'à bord",
-          "Ignorer",
-          "Quitter le site sans appel",
-          "Uniquement extincteur",
-        ],
+        choices: ["Mêmes consignes qu'à bord", "Uniquement extincteur"],
         correct: 0,
         explanation: "Consignes identiques remisage (p.67).",
       },
@@ -558,8 +447,6 @@ export const MODULES_CH4 = [
         choices: [
           "Ne pas toucher ni déplacer ; prudence et discernement",
           "Ouvrir pour identifier",
-          "Jeter sur le quai",
-          "Emporter en cabine",
         ],
         correct: 0,
         explanation: "Interdiction toucher/déplacer (encadré p.68).",
@@ -572,9 +459,7 @@ export const MODULES_CH4 = [
 
         choices: [
           "Évacuer et rejoindre à pied terminus le plus proche",
-          "Continuer le service",
           "Laisser le colis à bord sans avis",
-          "FU",
         ],
         correct: 0,
         explanation: "Évacuation + terminus à pied si radio HS (p.68).",
@@ -591,8 +476,6 @@ export const MODULES_CH4 = [
 
         choices: [
           "S'éloigner, périmètre de sécurité, attendre police/TaM",
-          "Rester à bord",
-          "Repartir",
           "Ouvrir le colis avec agents",
         ],
         correct: 0,
@@ -618,12 +501,7 @@ export const MODULES_CH4 = [
 
 
 
-        choices: [
-          "Arrêt, détresse, suivre instructions",
-          "Passer à 40 km/h",
-          "Klaxonner seulement",
-          "Évacuation sans consigne",
-        ],
+        choices: ["Arrêt, détresse, suivre instructions", "Klaxonner seulement"],
         correct: 0,
         explanation: "Arrêt, détresse, puis application des instructions (p.69).",
       },
@@ -638,8 +516,6 @@ export const MODULES_CH4 = [
         choices: [
           "Prévenir clients, évacuation selon règles sécurité (4.6 B)",
           "Descente côté entrevoie sans avis",
-          "Repartir",
-          "Portes ouvertes en marche",
         ],
         correct: 0,
         explanation: "Renvoi règles évacuation (p.69).",
@@ -662,9 +538,7 @@ export const MODULES_CH4 = [
 
         choices: [
           "Uniquement quand PCC confirme LAC non alimentée",
-          "Immédiatement",
           "Côté entrevoie toujours",
-          "Par le toit",
         ],
         correct: 0,
         explanation: "Attente coupure confirmée PCC (p.70).",
@@ -678,8 +552,6 @@ export const MODULES_CH4 = [
         choices: [
           "Ne monte pas sur la toiture (risque électrique)",
           "Répare en toiture",
-          "Remonte pantographe seul",
-          "Pousse la LAC",
         ],
         correct: 0,
         explanation: "Interdiction montée toiture (p.70).",
@@ -693,8 +565,6 @@ export const MODULES_CH4 = [
         choices: [
           "Ne doivent pas descendre tant que LAC alimentée",
           "Peuvent descendre librement",
-          "Montent sur le toit",
-          "Courent sur la voie",
         ],
         correct: 0,
         explanation: "Interdiction descente avant coupure (p.70).",
@@ -705,12 +575,7 @@ export const MODULES_CH4 = [
           "Chute d'arbre ou de végétal lourd touchant la voie ou la rame : à quel autre scénario CET rapproche-t-on les consignes applicables ?",
 
 
-        choices: [
-          "Mêmes consignes que chute de LAC",
-          "Ignorer",
-          "40 km/h",
-          "Remorquage seul",
-        ],
+        choices: ["Mêmes consignes que chute de LAC", "Remorquage seul"],
         correct: 0,
         explanation: "Note bas de page p.70.",
       },
@@ -732,9 +597,7 @@ export const MODULES_CH4 = [
 
         choices: [
           "Franchir en conduite manœuvre 5 km/h et informer PCC",
-          "40 km/h",
           "Arrêt systématique",
-          "Évacuation",
         ],
         correct: 0,
         explanation: "CM 5 km/h + PCC (p.71).",
@@ -747,8 +610,6 @@ export const MODULES_CH4 = [
 
         choices: [
           "Arrêt, détresse, urgence, ordres PCC, info voyageurs",
-          "5 km/h",
-          "30 km/h",
           "Poursuite",
         ],
         correct: 0,
@@ -764,9 +625,7 @@ export const MODULES_CH4 = [
 
         choices: [
           "Peuvent rester à bord en attendant assistance s'ils le souhaitent",
-          "Doivent descendre immédiatement",
           "Interdit de rester",
-          "Descente toit",
         ],
         correct: 0,
         explanation: "Précision évacuation p.71.",
@@ -794,8 +653,6 @@ export const MODULES_CH4 = [
         choices: [
           "Arrêt, détresse, urgence, secours, éviter second accident, PCC",
           "Poursuite sans arrêt",
-          "Klaxon et repartir",
-          "Évacuation de votre rame seule",
         ],
         correct: 0,
         explanation: "Six étapes témoin conducteur (p.72).",
@@ -806,12 +663,7 @@ export const MODULES_CH4 = [
           "Après accident sur plate-forme où vous avez dû immobiliser la rame : dès lors qu'une reprise commerciale devient techniquement envisageable, qui informez-vous en premier lieu ?",
 
 
-        choices: [
-          "Informer PCC dès que reprise envisageable",
-          "Repartir sans avis",
-          "Attendre la police uniquement",
-          "Fin de service automatique",
-        ],
+        choices: ["Informer PCC dès que reprise envisageable", "Attendre la police uniquement"],
         correct: 0,
         explanation: "Information PCC pour reprise (p.72).",
       },
@@ -829,12 +681,7 @@ export const MODULES_CH4 = [
         id: "ch4-46a-01",
         prompt:
           "Une LAC présente une avarie importante ou vous constatez un tendeur cassé : quel est le comportement obligatoire du conducteur ?",
-        choices: [
-          "Arrêt impératif et appel PCC",
-          "5 km/h",
-          "Informer en fin de service",
-          "Poursuite",
-        ],
+        choices: ["Arrêt impératif et appel PCC", "Informer en fin de service"],
         correct: 0,
         explanation: "Liste arrêt obligatoire p.73.",
       },
@@ -844,12 +691,7 @@ export const MODULES_CH4 = [
           "Il y a corps étranger dans la gorge de rail ou dans l'aiguillage sur votre trajectoire : quel réflexe obligatoire impose la liste CET des situations d'arrêt immédiat ?",
 
 
-        choices: [
-          "Arrêt et PCC",
-          "Dégager seul",
-          "Klaxon",
-          "40 km/h",
-        ],
+        choices: ["Arrêt et PCC", "Dégager seul"],
         correct: 0,
         explanation: "Arrêt obligatoire (p.73).",
       },
@@ -857,12 +699,7 @@ export const MODULES_CH4 = [
         id: "ch4-46a-03",
         prompt:
           "Une rame est arrêtée en croisement et vous constatez l'absence du conducteur en cabine : quel réflexe impose le tableau CET sur les situations d'arrêt immédiat ?",
-        choices: [
-          "Arrêt et PCC",
-          "Passer à 10 km/h",
-          "Klaxonner",
-          "Ignorer",
-        ],
+        choices: ["Arrêt et PCC", "Passer à 10 km/h"],
         correct: 0,
         explanation: "Cas listé p.73.",
       },
@@ -870,12 +707,7 @@ export const MODULES_CH4 = [
         id: "ch4-46a-04",
         prompt:
           "Un individu est accroché à votre rame ou à une composition voisine : quel réflexe impose la liste CET des arrêts obligatoires ?",
-        choices: [
-          "Arrêt et PCC",
-          "Accélérer",
-          "FU sans appel",
-          "Continuer",
-        ],
+        choices: ["Arrêt et PCC", "FU sans appel"],
         correct: 0,
         explanation: "Arrêt obligatoire (p.73).",
       },
@@ -896,8 +728,6 @@ export const MODULES_CH4 = [
         choices: [
           "Prévenir le PCC (sans arrêt immédiat imposé)",
           "Arrêt FU",
-          "Ignorer",
-          "Couper sa LAC",
         ],
         correct: 0,
         explanation: "Colonne B p.73.",
@@ -910,12 +740,7 @@ export const MODULES_CH4 = [
 
 
 
-        choices: [
-          "Prévenir le PCC",
-          "Arrêt systématique",
-          "Descendre poursuivre",
-          "Klaxon continu",
-        ],
+        choices: ["Prévenir le PCC", "Klaxon continu"],
         correct: 0,
         explanation: "Signalement PCC (p.73).",
       },
@@ -925,12 +750,7 @@ export const MODULES_CH4 = [
           "Arbre ou poteau menaçant la voie sur votre approche : quel signalement le CET prescrit-il dans la colonne des anomalies à signaler au PCC sans arrêt immédiat imposé par la même ligne du tableau ?",
 
 
-        choices: [
-          "Prévenir le PCC",
-          "Passer vite",
-          "Couper les branches seul",
-          "Évacuation",
-        ],
+        choices: ["Prévenir le PCC", "Passer vite"],
         correct: 0,
         explanation: "Prévenir PCC (p.73).",
       },
@@ -954,8 +774,6 @@ export const MODULES_CH4 = [
 
         choices: [
           "Détresse ou triangle, appel urgence, informer clients",
-          "Repartir",
-          "Sans signalisation",
           "Évacuation immédiate sans appel",
         ],
         correct: 0,
@@ -979,12 +797,7 @@ export const MODULES_CH4 = [
 
 
 
-        choices: [
-          "Après accord confirmé PCC",
-          "Dès l'arrêt",
-          "Par le PCC seul sans conducteur",
-          "Côté entrevoie sans condition",
-        ],
+        choices: ["Après accord confirmé PCC", "Par le PCC seul sans conducteur"],
         correct: 0,
         explanation: "Accord PCC préalable (p.74).",
       },
@@ -996,9 +809,7 @@ export const MODULES_CH4 = [
 
         choices: [
           "Côté droit sens de marche ; conducteur descend en premier",
-          "Les deux côtés",
           "Côté entrevoie systématique",
-          "Arrière seulement",
         ],
         correct: 0,
         explanation: "Porte droite, contrôle danger (p.74).",
@@ -1009,12 +820,7 @@ export const MODULES_CH4 = [
           "Incendie ou force majeure au sens de l'encadré : peut-on évacuer sans autorisation préalable du PCC, contrairement au cas général en pleine voie ?",
 
 
-        choices: [
-          "Possible sans autorisation PCC",
-          "Interdite",
-          "Uniquement la nuit",
-          "Par le toit",
-        ],
+        choices: ["Possible sans autorisation PCC", "Uniquement la nuit"],
         correct: 0,
         explanation: "Exception incendie/force majeure (encadré p.74).",
       },
@@ -1030,9 +836,7 @@ export const MODULES_CH4 = [
 
         choices: [
           "Uniquement après autorisation PCC (trafic antagoniste arrêté)",
-          "Libre",
           "Interdit toujours",
-          "Sans contrôle",
         ],
         correct: 0,
         explanation: "PCC garantit arrêt circulation opposée (p.74).",
@@ -1046,8 +850,6 @@ export const MODULES_CH4 = [
         choices: [
           "Chemin piéton le long de la voie vers arrêt bus de substitution",
           "Rester sur voie",
-          "Tunnel obligatoire",
-          "40 km/h",
         ],
         correct: 0,
         explanation: "Particularité voie unique p.74.",
@@ -1068,9 +870,7 @@ export const MODULES_CH4 = [
           "Rame immobilisée dans un tunnel après signalisation (« détresse ou triangle ») et appel téléphonique d'urgence : quel est l'enchaînement radio si vous n'obtenez pas de réponse du PCC ?",
         choices: [
           "Détresse ou triangle, urgence, détresse si pas de réponse, informer clients",
-          "Repartir",
           "Sans appel",
-          "Évacuation immédiate",
         ],
         correct: 0,
         explanation: "Appel détresse si pas de réponse (p.75).",
@@ -1094,8 +894,6 @@ export const MODULES_CH4 = [
         choices: [
           "Informer clients, porte droite, diriger vers sortie la plus proche",
           "Côté entrevoie direct",
-          "Marche arrière",
-          "Sans accompagnement",
         ],
         correct: 0,
         explanation: "Évacuation vers sortie proche (p.75).",
@@ -1104,12 +902,7 @@ export const MODULES_CH4 = [
         id: "ch4-47d-02",
         prompt:
           "Lorsque la situation relève des cas traités sous 4.7 A à D et que la séquence CET est terminée : quelle mention portez-vous sur votre feuille de route ?",
-        choices: [
-          "Noter l'incident sur la feuille de route",
-          "Rien",
-          "SAT seul",
-          "Quitter le service",
-        ],
+        choices: ["Noter l'incident sur la feuille de route", "SAT seul"],
         correct: 0,
         explanation: "Note commune bas de page p.75.",
       },
