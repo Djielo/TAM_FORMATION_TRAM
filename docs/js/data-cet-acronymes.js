@@ -229,6 +229,24 @@ export const MODULES_ACRONYMES = [
         correct: 0,
         explanation: "LAC = Ligne Aérienne de Contact (CET p. 70, § 4.5-B).",
       },
+      {
+        id: "abbr-cdv",
+        prompt: "Que signifie l'acronyme CDV ?",
+        choices: ["Circuit de voie", "Canton de voie"],
+        correct: 0,
+        explanation: "CDV = Circuit de voie (CET, liste des sigles).",
+      },
+      {
+        id: "abbr-ibt",
+        prompt: "Que signifie l'acronyme IBT ?",
+        choices: [
+          "Itinéraire par boucle de télécommande",
+          "Itinéraire par balise de télécommande",
+        ],
+        correct: 0,
+        explanation:
+          "IBT = Itinéraire par boucle de télécommande (CET, liste des sigles).",
+      },
     ],
   },
   {

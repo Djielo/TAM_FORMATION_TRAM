@@ -9,7 +9,7 @@ import {
 } from "./pool.js";
 
 /** Incrémenter si la structure localStorage ou les règles de comptage changent. */
-export const STORAGE_SCHEMA_VERSION = 3;
+export const STORAGE_SCHEMA_VERSION = 4;
 
 /** Part minimale des questions du chapitre marquées « Je maîtrise » en pré-examen (examen final). */
 export const PRETEST_FINAL_UNLOCK_RATE = 0.8;
@@ -159,6 +159,18 @@ export function migrateStorage() {
   }
   if (orphanQuestionsRemoved) saveMastery(m);
 
+  if (stored < 4) {
+    const srs = loadSrs();
+    let srsUpdated = false;
+    for (const row of Object.values(srs)) {
+      if ((row.intervalIndex ?? 0) >= 1 && !row.everMastered) {
+        row.everMastered = true;
+        srsUpdated = true;
+      }
+    }
+    if (srsUpdated) saveSrs(srs);
+  }
+
   localStorage.setItem(KEYS.schema, String(STORAGE_SCHEMA_VERSION));
   return { action: "migrated", orphanQuestionsRemoved };
 }
@@ -288,13 +300,17 @@ export function recordPretestSessionResult(axisId, mastered, total) {
   writeJson(KEYS.pretestStats, all);
 }
 
-/** Cartes du chapitre ayant reçu « Je maîtrise » au moins une fois (SRS). */
+/** Carte pré-examen déjà validée au moins une fois (« Je maîtrise »). */
+export function isPretestCardEverMastered(questionId) {
+  return !!getSrsRow(questionId).everMastered;
+}
+
+/** Cartes du chapitre ayant reçu « Je maîtrise » au moins une fois (cumul entre sessions). */
 export function getPretestChapterMastery(axisId) {
   const questions = getQuestionsForAxis(axisId);
-  const srs = loadSrs();
   let mastered = 0;
   for (const q of questions) {
-    if ((srs[q.questionId]?.intervalIndex ?? 0) >= 1) mastered++;
+    if (isPretestCardEverMastered(q.questionId)) mastered++;
   }
   const total = questions.length;
   const rate = total > 0 ? mastered / total : 0;
@@ -345,6 +361,7 @@ function defaultSrsRow() {
     nextReviewAt: 0,
     sessionsUntilEligible: 0,
     pendingReview: false,
+    everMastered: false,
   };
 }
 
@@ -367,6 +384,7 @@ export function applySrsMaster(questionId) {
   row.nextReviewAt = Date.now() + delay;
   row.sessionsUntilEligible = sessionsSkipAfterMaster(nextIndex);
   row.pendingReview = false;
+  row.everMastered = true;
   all[questionId] = row;
   saveSrs(all);
 }

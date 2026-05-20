@@ -78,7 +78,7 @@ let cetTitleTapTimer = null;
 
 /** Formulation unique — déverrouillage de l'onglet Examen final. */
 const EXAM_FINAL_GOAL_TEXT =
-  "L'<strong>Examen final</strong> reste verrouillé tant que la <strong>Révision</strong> (QCM) n'est pas complète sur tout le <strong>CET</strong> (100 % de bonnes réponses) et que chaque chapitre n'a pas atteint <strong>80 %</strong> en mode <strong>Pré-examen</strong> (acronymes inclus).";
+  "L'<strong>Examen final</strong> reste verrouillé tant que la <strong>Révision</strong> (QCM) n'est pas complète sur tout le <strong>CET</strong> (100 % de bonnes réponses) et que chaque chapitre n'a pas atteint <strong>80 %</strong> de ses cartes marquées <strong>Je maîtrise</strong> au moins une fois en <strong>Pré-examen</strong>.";
 
 function axisChapterLabel(axis) {
   if (axis.id === "acronymes") return "Acronymes";
@@ -110,7 +110,6 @@ const HELP_TEXT = {
     body: `<p>Chaque chapitre (<strong>Acronymes</strong>, ch. 1 à 4) s'ouvre en Pré-examen dès que vous avez validé <strong>100 %</strong> de ses questions en <strong>Révision</strong> (QCM).</p>
       <p>Cartes <strong>recto-verso</strong> par chapitre débloqué : réfléchissez, retournez la carte, puis indiquez <strong>Je maîtrise</strong> ou <strong>À revoir</strong> (répétition espacée).</p>
       <p>Choisissez un quota par session (25 à 150). Une session interrompue reprend où vous l'avez laissée.</p>
-      <p>Les erreurs sont reprises sur les sessions suivantes, mélangées avec de nouvelles cartes.</p>
       <p><strong>Conseil :</strong> laissez au moins <strong>5 minutes</strong> entre deux sessions de pré-examen (quel que soit le chapitre) pour mieux mémoriser.</p>
       <p>${EXAM_FINAL_GOAL_TEXT}</p>`,
   },
@@ -861,7 +860,7 @@ function renderPretestChapters() {
             const lockBadge = `<span class="badge badge--soon">Révision : ${rev.validated} / ${rev.total} · Pré-examen après 100 %</span>`;
             const okBadge = ch?.ok
               ? `<span class="badge badge--ok">Examen final : OK (${pct} %)</span>`
-              : `<span class="badge">Maîtrise cartes : ${mastered} / ${total} (${pct} %) · ${pre.thresholdPct} % requis</span>`;
+              : `<span class="badge">Cartes maîtrisées : ${mastered} / ${total} (${pct} %) · ${pre.thresholdPct} % requis</span>`;
             const badge = !unlocked
               ? lockBadge
               : active
