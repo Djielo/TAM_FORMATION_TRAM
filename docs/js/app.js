@@ -78,7 +78,7 @@ let cetTitleTapTimer = null;
 
 /** Formulation unique — déverrouillage de l'onglet Examen final. */
 const EXAM_FINAL_GOAL_TEXT =
-  "L'<strong>Examen final</strong> reste verrouillé tant que la <strong>Révision</strong> (QCM) n'est pas complète sur tout le <strong>CET</strong> (100 % de bonnes réponses) et que chaque chapitre n'a pas atteint <strong>80 %</strong> de ses cartes marquées <strong>Je maîtrise</strong> au moins une fois en <strong>Pré-examen</strong>.";
+  "L'<strong>Examen final</strong> reste verrouillé tant que la <strong>Révision</strong> (QCM) n'est pas complète sur tout le <strong>RCT</strong> (100 % de bonnes réponses) et que chaque chapitre n'a pas atteint <strong>80 %</strong> de ses cartes marquées <strong>Je maîtrise</strong> au moins une fois en <strong>Pré-examen</strong>.";
 
 function axisChapterLabel(axis) {
   if (axis.id === "acronymes") return "Acronymes";
@@ -87,7 +87,7 @@ function axisChapterLabel(axis) {
 
 function axisCetMeta(axis) {
   if (axis.id === "acronymes") return escapeHtml(axis.desc);
-  return `CET p. ${axis.cetPages} — ${escapeHtml(axis.desc)}`;
+  return `RCT p. ${axis.cetPages} — ${escapeHtml(axis.desc)}`;
 }
 
 function revisionHelpBody() {
@@ -307,8 +307,8 @@ function renderTabsShell(mainHtml) {
   return `
     <div class="app-top-bar">
       <header class="header header--app">
-        <h1>CET</h1>
-        <p>Consignes d'exploitation TaM</p>
+        <h1>RCT</h1>
+        <p>Règlement de circulation tramway TaM</p>
         ${renderUnlockBanner()}
       </header>
       <nav class="tabs" aria-label="Modes">
@@ -566,7 +566,7 @@ function renderAxis() {
     <main class="main">
       <button type="button" class="link-back" data-back="home">← Chapitres</button>
       <h2 class="screen-title">${escapeHtml(axis.title)}</h2>
-      <p class="screen-sub">${axis.id === "acronymes" ? axisCetMeta(axis) : `${axisChapterLabel(axis)} — CET p. ${axis.cetPages}`}</p>
+      <p class="screen-sub">${axis.id === "acronymes" ? axisCetMeta(axis) : `${axisChapterLabel(axis)} — RCT p. ${axis.cetPages}`}</p>
       <div class="modules">
         ${modules
           .map((m) => {
@@ -839,13 +839,9 @@ function renderPretest() {
 
 function renderPretestChapters() {
   const pre = getPretestUnlockProgress();
-  const statsLine = pre.complete
-    ? `<p class="footer-note">Examen final déverrouillé.</p>`
-    : `<p class="footer-note">${EXAM_FINAL_GOAL_TEXT}</p>`;
 
   return `
     <main class="main">
-      <p class="intro-note">Choisissez un chapitre débloqué pour une session de cartes. Un chapitre s'ouvre après <strong>100 %</strong> de bonnes réponses en Révision (QCM) sur ce chapitre.</p>
       <div class="axes">
         ${AXES.filter((a) => a.available)
           .map((axis) => {
@@ -881,7 +877,6 @@ function renderPretestChapters() {
           })
           .join("")}
       </div>
-      ${statsLine}
     </main>`;
 }
 
@@ -908,9 +903,8 @@ function renderPretestSetup() {
       <h2 class="screen-title">${escapeHtml(axis.title)}</h2>
       <p class="screen-sub">${chapterCount} questions dans ce chapitre</p>
       <div class="setup-box">
-        <p class="setup-box__lead">Choisissez votre objectif potentiel de cartes à maîtriser pour cette session.</p>
+        <p class="setup-box__lead">Nombre de cartes pour cette session :</p>
         <div class="radio-group">${radios}</div>
-        <p class="footer-note">Une session interrompue reprend à la carte suivante. Les erreurs (« À revoir ») reviennent progressivement sur les sessions suivantes.</p>
         ${
           active
             ? `<button type="button" class="btn btn--primary" data-pretest-resume>Reprendre (${active.index} / ${active.targetCount})</button>
@@ -1007,7 +1001,7 @@ function renderFinalSetup() {
 
   return `
     <main class="main">
-      <p class="intro-note">Session sur l'ensemble du CET (${total} questions).</p>
+      <p class="intro-note">Session sur l'ensemble du RCT (${total} questions).</p>
       ${finalResume}
       <div class="setup-box">
         <p class="setup-box__lead">Nombre de cartes :</p>
@@ -1312,7 +1306,7 @@ async function requestFullProgressReset() {
   const ok = await showConfirm({
     title: "Réinitialiser la progression",
     message:
-      "Effacer toute votre progression CET sur cet appareil ?\n\nScores, questions validées, pré-examen et examens en cours seront supprimés. Cette action est irréversible.",
+      "Effacer toute votre progression RCT sur cet appareil ?\n\nScores, questions validées, pré-examen et examens en cours seront supprimés. Cette action est irréversible.",
     confirmLabel: "Tout effacer",
     cancelLabel: "Annuler",
     danger: true,
@@ -1328,7 +1322,7 @@ async function requestFullProgressReset() {
   render();
 }
 
-/** Réinitialisation cachée : 5 appuis rapides sur le titre « CET » dans l'en-tête. */
+/** Réinitialisation cachée : 5 appuis rapides sur le titre « RCT » dans l'en-tête. */
 function bindHiddenResetGesture() {
   const title = app.querySelector(".header--app h1");
   if (!title) return;

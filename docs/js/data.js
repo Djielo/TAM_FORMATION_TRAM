@@ -1,5 +1,5 @@
 /**
- * CET (consignes d'exploitation tramway) TaM — EXP-CSG-01-17
+ * RCT — Règlement de circulation tramway TaM (EXP-CSG-01-17)
  * Point d'agrégation : axes + modules par chapitre (data-cet-ch1 … ch4).
  */
 
@@ -14,7 +14,7 @@ export const AXES = [
     id: "acronymes",
     num: null,
     title: "Acronymes",
-    desc: "Sigles du CET — à connaître avant les chapitres 1 à 4",
+    desc: "Sigles du RCT — à connaître avant les chapitres 1 à 4",
     cetPages: "liste",
     available: true,
   },
