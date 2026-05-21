@@ -237,6 +237,13 @@ export const MODULES_ACRONYMES = [
         explanation: "FS = Freinage de Secours (RCT p. 14, § 1.4-B).",
       },
       {
+        id: "abbr-rp",
+        prompt: "Que signifie l'acronyme RP ?",
+        choices: ["Remorquage-Poussage", "Remorquage Partiel"],
+        correct: 0,
+        explanation: "RP = Remorquage-Poussage (RCT p. 19, § 1.9).",
+      },
+      {
         id: "ch3-32a-00",
         prompt: "Que signifie l'acronyme GLO ?",
         choices: ["Gabarit Limite d'Obstacle", "Gare Limite d'Ouverture"],
