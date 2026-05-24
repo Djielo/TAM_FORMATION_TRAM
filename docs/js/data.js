@@ -1,5 +1,5 @@
 /**
- * RCT — Règlement de circulation tramway TaM (EXP-CSG-01-17)
+ * RCT — Règlement de Circulation Tramway TaM (EXP-CSG-01-17)
  * Point d'agrégation : axes + modules par chapitre (data-rct-ch1 … ch4).
  */
 

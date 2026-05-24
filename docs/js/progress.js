@@ -30,6 +30,8 @@ export const KEYS = {
   finalActive: "tam-rct-final-exam-active-v1",
   finalHistory: "tam-rct-final-exam-history-v1",
   schema: "tam-rct-storage-schema-v2",
+  /** Conservé après reset volontaire (5 × RCT) pour ne pas proposer une reprise. */
+  voluntaryReset: "tam-rct-voluntary-reset-v1",
 };
 
 /** Anciennes clés localStorage (renommage CET → RCT, v2025). */
@@ -248,7 +250,7 @@ function backfillSrsEverMastered() {
   if (srsUpdated) saveSrs(srs);
 }
 
-/** Efface toute la progression RCT sur cet appareil. */
+/** Efface toute la progression RCT dans le navigateur (pas le flag voluntaryReset). */
 export function resetAllUserProgress() {
   for (const key of ALL_STORAGE_KEYS) {
     localStorage.removeItem(key);

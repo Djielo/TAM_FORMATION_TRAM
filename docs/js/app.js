@@ -1,5 +1,11 @@
 import { AXES, MODULES } from "./data.js";
-import { showConfirm } from "./dialog.js";
+import {
+  pickAndRestoreBackupFile,
+  shouldOfferBackupRestore,
+  writeIntentionalResetBackup,
+  writeProgressBackupFile,
+} from "./backup.js";
+import { showAlert, showConfirm } from "./dialog.js";
 import {
   SESSION_SIZE_OPTIONS,
   getAxisById,
@@ -70,6 +76,8 @@ let cardSession = null;
 
 /** @type {null | "revision"|"pretest"|"final"} */
 let pendingHelp = null;
+/** Proposition de reprise depuis fichier après popup « Compris » (cache vide). */
+let pendingBackupRestore = false;
 let showPauseWarn = false;
 let pauseWarnContinue = null;
 /** @type {string} */
@@ -309,7 +317,7 @@ function renderTabsShell(mainHtml) {
     <div class="app-top-bar">
       <header class="header header--app">
         <h1>RCT</h1>
-        <p>Règlement de circulation tramway TaM</p>
+        <p>Règlement de Circulation Tramway TaM</p>
         ${renderUnlockBanner()}
       </header>
       <nav class="tabs" aria-label="Modes">
@@ -345,7 +353,43 @@ function renderHelpModal(mode) {
     if (app.querySelector("[data-help-dismiss]").checked) dismissHelp(mode);
     pendingHelp = null;
     render();
+    if (mode === "revision" && pendingBackupRestore) {
+      pendingBackupRestore = false;
+      queueBackupRestoreOffer();
+    }
   });
+}
+
+function queueBackupRestoreOffer() {
+  window.setTimeout(() => {
+    offerBackupRestore().catch(() => {});
+  }, 0);
+}
+
+async function offerBackupRestore() {
+  const ok = await showConfirm({
+    title: "Reprendre votre progression ?",
+    message:
+      "Les données de l'application semblent vides, mais une sauvegarde (fichier tam-rct-progression.json) a peut‑être été enregistrée sur cet appareil.\n\nVoulez-vous la récupérer ?",
+    confirmLabel: "Choisir le fichier",
+    cancelLabel: "Non merci",
+  });
+  if (!ok) return;
+
+  const result = await pickAndRestoreBackupFile();
+  if (result.cancelled) return;
+  if (!result.ok) {
+    await showAlert({
+      title: "Reprise impossible",
+      message: result.reason || "Sauvegarde non utilisable.",
+    });
+    return;
+  }
+  await showAlert({
+    title: "Progression restaurée",
+    message: "Votre sauvegarde a été rechargée. Vous pouvez continuer la révision.",
+  });
+  render();
 }
 
 function renderPauseWarnModal() {
@@ -760,6 +804,7 @@ function bindQuizHandlers() {
     } else {
       saveModuleScore(route.axisId, route.moduleId, quiz.score, total);
       saveActiveQuizSession(null);
+      writeProgressBackupFile();
       navigate("results");
     }
   }
@@ -1119,6 +1164,7 @@ function advanceCard() {
       saveActivePretestSession(axisId, null);
       cardSession = null;
       screen = "pretest-chapters";
+      writeProgressBackupFile();
     } else {
       const total = cardSession.queue.length;
       appendFinalExamResult({
@@ -1128,6 +1174,7 @@ function advanceCard() {
       });
       saveActiveFinalSession(null);
       screen = "final-results";
+      writeProgressBackupFile();
     }
     render();
     return;
@@ -1314,6 +1361,7 @@ async function requestFullProgressReset() {
   });
   if (!ok) return;
 
+  writeIntentionalResetBackup();
   resetAllUserProgress();
   activeTab = "revision";
   screen = "home";
@@ -1375,7 +1423,13 @@ function tryRestoreOnLoad() {
 function init() {
   migrateStorage();
   const restored = tryRestoreOnLoad();
-  if (!restored && !isHelpDismissed("revision")) pendingHelp = "revision";
+  pendingBackupRestore = !restored && shouldOfferBackupRestore();
+  if (!restored && !isHelpDismissed("revision")) {
+    pendingHelp = "revision";
+  } else if (pendingBackupRestore) {
+    queueBackupRestoreOffer();
+    pendingBackupRestore = false;
+  }
   render();
 }
 
