@@ -37,9 +37,13 @@ export const MODULES_CH2 = [
         id: "sg-rec-01",
         prompt:
           "À l'INDIR, comment reconnaître qu'un franchissement est autorisé en voie directe ?",
-        choices: ["Barre verticale allumée en vert", "Barre oblique allumée en jaune"],
+        choices: [
+          "Barre verticale allumée en vert",
+          "Barre oblique allumée en jaune",
+        ],
         correct: 0,
-        explanation: "Barre verticale verte = passage autorisé, voie directe (p.22).",
+        explanation:
+          "Barre verticale verte = passage autorisé, voie directe (p.22).",
       },
       {
         id: "sg-rec-02",
@@ -224,7 +228,10 @@ export const MODULES_CH2 = [
       {
         id: "indir-03",
         prompt: "INDIR : barre horizontale allumée en rouge. Votre conduite ?",
-        choices: ["Arrêt absolu — franchissement interdit", "Passage autorisé en voie directe"],
+        choices: [
+          "Arrêt absolu — franchissement interdit",
+          "Passage autorisé en voie directe",
+        ],
         correct: 0,
         explanation:
           "Barre horizontale rouge = arrêt absolu, franchissement interdit.",
@@ -253,7 +260,10 @@ export const MODULES_CH2 = [
       {
         id: "indir-06",
         prompt: "INDIR éteint (feu éteint). Consigne ?",
-        choices: ["Arrêt absolu — franchissement interdit", "Passage autorisé si voie libre"],
+        choices: [
+          "Arrêt absolu — franchissement interdit",
+          "Passage autorisé si voie libre",
+        ],
         correct: 0,
         explanation:
           "Feu éteint = arrêt absolu, franchissement interdit (comme barre rouge, p.22).",
@@ -261,14 +271,14 @@ export const MODULES_CH2 = [
       {
         id: "indir-07",
         prompt:
-          "Barre horizontale rouge et feu éteint sur un INDIR : même consigne ?",
+          "Sur un INDIR, quelle affirmation est exacte pour la barre horizontale rouge et pour le feu éteint ?",
         choices: [
-          "Oui — arrêt absolu, franchissement interdit dans les deux cas",
-          "Oui — Marche À Vue dans les deux cas",
+          "Dans les deux cas : arrêt absolu et franchissement de l'aiguillage interdit",
+          "Barre rouge : arrêt absolu ; feu éteint : passage autorisé en marche à vue si la voie est libre",
         ],
         correct: 0,
         explanation:
-          "Même signification : arrêt absolu, franchissement interdit.",
+          "RCT p. 22, § 2.2-A : barre horizontale rouge et feu éteint imposent la même consigne — arrêt absolu, franchissement interdit.",
       },
       {
         id: "indir-08",
@@ -281,7 +291,10 @@ export const MODULES_CH2 = [
       {
         id: "indir-09",
         prompt: "INDIR ou INDES éteint ou bloqué au rouge : action immédiate ?",
-        choices: ["Arrêt immédiat de la rame et appel au PCC", "Couper la traction seulement"],
+        choices: [
+          "Arrêt immédiat de la rame et appel au PCC",
+          "Couper la traction seulement",
+        ],
         correct: 0,
         explanation:
           "Encadré p.21 : tout feu éteint ou bloqué au rouge (y compris INDIR et INDES) → arrêt immédiat + appel PCC.",
@@ -384,7 +397,10 @@ export const MODULES_CH2 = [
         id: "indes-08",
         prompt:
           "En zone Gare Saint-Roch, que signifie l'affichage INDES « XX » ?",
-        choices: ["Aiguille dé-contrôlée — appeler le PCC", "Voie interdite temporaire"],
+        choices: [
+          "Aiguille dé-contrôlée — appeler le PCC",
+          "Voie interdite temporaire",
+        ],
         correct: 0,
         explanation:
           "XX = aiguille dé-contrôlée, appel PCC (p.29, rappel p.23 zones).",
@@ -540,7 +556,10 @@ export const MODULES_CH2 = [
       {
         id: "sa-04",
         prompt: "SA : T vert (bas) allumé. Consigne ?",
-        choices: ["Franchissement autorisé", "Appel PCC obligatoire avant de passer"],
+        choices: [
+          "Franchissement autorisé",
+          "Appel PCC obligatoire avant de passer",
+        ],
         correct: 0,
         explanation: "T vert = franchissement autorisé (p.24).",
       },
@@ -579,7 +598,10 @@ export const MODULES_CH2 = [
         id: "sa-08",
         prompt:
           "Sur un SA, le T orange allumé indique quel état pour le prochain feu de manœuvre ?",
-        choices: ["De manœuvre au rouge (FM au rouge)", "De tension clignotant"],
+        choices: [
+          "De manœuvre au rouge (FM au rouge)",
+          "De tension clignotant",
+        ],
         correct: 0,
         explanation: "Prochain feu de manœuvre au rouge (p.24).",
       },
@@ -683,14 +705,15 @@ export const MODULES_CH2 = [
       },
       {
         id: "sma-10",
-        prompt: "SMA au T rouge : même consigne qu'un SM au T rouge ?",
+        prompt:
+          "SMA et SM affichant un T rouge : quelle affirmation est exacte sur la conduite à adopter ?",
         choices: [
-          "Oui — arrêt (absolu pour SMA, obligatoire pour SM) — franchissement interdit",
-          "Oui — Marche À Vue pour les deux",
+          "Dans les deux cas : arrêt et franchissement interdit (SMA = arrêt absolu)",
+          "Dans les deux cas : marche à vue autorisée après contrôle visuel de la voie",
         ],
         correct: 0,
         explanation:
-          "Les deux imposent l'arrêt et l'interdiction de franchir ; SMA = « arrêt absolu » (p.23–24).",
+          "RCT p. 23–24, § 2.2 : T rouge sur SMA ou SM — arrêt, franchissement interdit ; SMA précise l'arrêt absolu.",
       },
       {
         id: "sma-11",
@@ -725,14 +748,20 @@ export const MODULES_CH2 = [
         id: "fb-02",
         prompt:
           "Lorsque le feu blanc de sortie de remisage est éteint, que vaut le franchissement ?",
-        choices: ["Franchissement interdit", "Franchissement autorisé prudemment"],
+        choices: [
+          "Franchissement interdit",
+          "Franchissement autorisé prudemment",
+        ],
         correct: 0,
         explanation: "Feu éteint = franchissement interdit (p.24-F).",
       },
       {
         id: "fb-03",
         prompt: "Où se trouve en général le feu blanc de sortie de remisage ?",
-        choices: ["À la sortie du faisceau de remisage", "En entrée de station voyageurs"],
+        choices: [
+          "À la sortie du faisceau de remisage",
+          "En entrée de station voyageurs",
+        ],
         correct: 0,
         explanation: "Généralement en sortie de faisceau de remisage (p.24-F).",
       },
@@ -761,7 +790,10 @@ export const MODULES_CH2 = [
         id: "fb-06",
         prompt:
           "Vous distinguez le feu blanc de remisage du feu d'anticipation : que couvre le dispositif de remisage ?",
-        choices: ["La sortie du faisceau de remisage", "Le départ quand le SM n'est pas visible"],
+        choices: [
+          "La sortie du faisceau de remisage",
+          "Le départ quand le SM n'est pas visible",
+        ],
         correct: 0,
         explanation:
           "Remisage = sortie faisceau ; anticipation = départ en station (p.24).",
@@ -812,7 +844,10 @@ export const MODULES_CH2 = [
         id: "lt-04",
         prompt:
           "Feu de présence tension : que signifie un feu jaune fixe allumé ?",
-        choices: ["Tension présente — circulation autorisée", "Absence de tension — arrêt absolu"],
+        choices: [
+          "Tension présente — circulation autorisée",
+          "Absence de tension — arrêt absolu",
+        ],
         correct: 0,
         explanation:
           "Feu allumé = tension présente, circulation autorisée (p.25-I).",
@@ -820,7 +855,10 @@ export const MODULES_CH2 = [
       {
         id: "lt-05",
         prompt: "Feu de présence tension : que signifie un feu clignotant ?",
-        choices: ["Absence de tension — arrêt absolu", "Prévenir le PCC sans arrêt"],
+        choices: [
+          "Absence de tension — arrêt absolu",
+          "Prévenir le PCC sans arrêt",
+        ],
         correct: 0,
         explanation:
           "Feu clignotant = absence de tension, arrêt absolu (p.25-I).",
@@ -828,7 +866,10 @@ export const MODULES_CH2 = [
       {
         id: "lt-06",
         prompt: "Feu de présence tension : que signifie un feu éteint ?",
-        choices: ["Feu en panne — arrêt absolu et appel PCC", "Circulation autorisée"],
+        choices: [
+          "Feu en panne — arrêt absolu et appel PCC",
+          "Circulation autorisée",
+        ],
         correct: 0,
         explanation: "Feu éteint = panne, arrêt absolu + PCC (p.25-I).",
       },
@@ -866,7 +907,10 @@ export const MODULES_CH2 = [
       {
         id: "tr-00",
         prompt: "Dans le CET, le signal type R17 est :",
-        choices: ["Le signal de traversée routière du tramway", "Un indicateur de direction d'aiguillage"],
+        choices: [
+          "Le signal de traversée routière du tramway",
+          "Un indicateur de direction d'aiguillage",
+        ],
         correct: 0,
         explanation: "R17 = signal de traversée routière (p.26–27).",
       },
@@ -944,7 +988,10 @@ export const MODULES_CH2 = [
         id: "tr-08",
         prompt:
           "En dérangement, comment peut se comporter le disque central du R17 ?",
-        choices: ["Clignoter (voir aussi chapitre panne p.28)", "Rester éteint uniquement"],
+        choices: [
+          "Clignoter (voir aussi chapitre panne p.28)",
+          "Rester éteint uniquement",
+        ],
         correct: 0,
         explanation: "Disque peut clignoter en dérangement (p.27).",
       },
@@ -1119,7 +1166,10 @@ export const MODULES_CH2 = [
         id: "zg-07",
         prompt:
           "Zone gare : les consignes s'appliquent-elles s'il n'y a pas d'autre rame ?",
-        choices: ["Oui — point par point même sans autre rame", "Non — seulement si trafic dense"],
+        choices: [
+          "Oui — point par point même sans autre rame",
+          "Non — seulement si trafic dense",
+        ],
         correct: 0,
         explanation: "Consignes à suivre même sans autre rame (p.29).",
       },
@@ -1127,7 +1177,10 @@ export const MODULES_CH2 = [
         id: "zg-08",
         prompt:
           "Organigramme Gare / Albert 1er : la zone est vide — après engagement destination ?",
-        choices: ["Reprise destination sans autre formalité", "Appeler le PCC avant toute reprise"],
+        choices: [
+          "Reprise destination sans autre formalité",
+          "Appeler le PCC avant toute reprise",
+        ],
         correct: 0,
         explanation:
           "Si la zone est vide : enchaînement vers reprise destination (schéma p.30).",
@@ -1291,7 +1344,10 @@ export const MODULES_CH2 = [
         id: "zc-06",
         prompt:
           "En zone Corum, les prescriptions détaillées aux points 1, 2, 3, 4, 5a et 5b de l'article 2.4.1 s'appliquent-elles même sans autre rame présente ?",
-        choices: ["S'appliquent même sans autre rame", "Sont suspendus si le quai est vide"],
+        choices: [
+          "S'appliquent même sans autre rame",
+          "Sont suspendus si le quai est vide",
+        ],
         correct: 0,
         explanation:
           "Même obligation qu'en gare : respect point par point (p.32).",
@@ -1336,7 +1392,10 @@ export const MODULES_CH2 = [
         id: "tiv-05",
         prompt:
           "Une consigne de vitesse donnée par le PCC, la Police ou un agent TaM se situe à quel niveau par rapport aux limitations préétablies ?",
-        choices: ["Prime sur les limitations préétablies", "S'applique seulement au dépôt"],
+        choices: [
+          "Prime sur les limitations préétablies",
+          "S'applique seulement au dépôt",
+        ],
         correct: 0,
         explanation:
           "Consignes PCC/Police/agents TaM priment sur limites préétablies (p.33).",
@@ -1414,7 +1473,10 @@ export const MODULES_CH2 = [
         id: "tc-04",
         prompt:
           "Boîtier de secours au sol : voyant jaune fixe — signification ?",
-        choices: ["Itinéraire enclenché / télécommande active", "Télécommande impossible"],
+        choices: [
+          "Itinéraire enclenché / télécommande active",
+          "Télécommande impossible",
+        ],
         correct: 0,
         explanation:
           "Jaune clignotant = prise en compte retardée ; jaune fixe = enclenché (p.35).",
