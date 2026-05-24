@@ -1,4 +1,4 @@
-/** CET ch. 3 — Consignes de circulation en ligne (pages 38–58) */
+/** RCT ch. 3 — Consignes de circulation en ligne (pages 38–58) */
 export const MODULES_CH3 = [
   // ─── 3.1-A Prise de service au dépôt ───────────────────────
   {
@@ -10,8 +10,11 @@ export const MODULES_CH3 = [
       {
         id: "ch3-31a-01",
         prompt:
-          "Quel est le taux maximal d'alcoolémie autorisé au sang pour un conducteur de transport public de voyageurs selon le CET ?",
-        choices: ["Strictement inférieur à 0,20 g/l de sang", "0,50 g/l comme tout conducteur"],
+          "Quel est le taux maximal d'alcoolémie autorisé au sang pour un conducteur de transport public de voyageurs selon le RCT ?",
+        choices: [
+          "Strictement inférieur à 0,20 g/l de sang",
+          "0,50 g/l comme tout conducteur",
+        ],
         correct: 0,
         explanation: "Obligation code de la route : < 0,20 g/l (p.39).",
       },
@@ -41,7 +44,10 @@ export const MODULES_CH3 = [
         id: "ch3-31a-04",
         prompt:
           "Pour une relève en ligne, combien de temps au minimum avant l'heure théorique le conducteur relèveur doit-il être sur place ?",
-        choices: ["Au moins 2 minutes avant l'heure théorique", "Uniquement si la rame est en retard"],
+        choices: [
+          "Au moins 2 minutes avant l'heure théorique",
+          "Uniquement si la rame est en retard",
+        ],
         correct: 0,
         explanation: "Avance minimale de 2 min au point de relève (p.39).",
       },
@@ -51,13 +57,17 @@ export const MODULES_CH3 = [
           "Si la rame à relever est toujours absente à l'heure théorique de relève, dans quel délai maximum le relèveur doit-il appeler le PCC ?",
         choices: ["5 minutes", "15 minutes"],
         correct: 0,
-        explanation: "Appel PCC sous 5 min après heure théorique de relève (p.39).",
+        explanation:
+          "Appel PCC sous 5 min après heure théorique de relève (p.39).",
       },
       {
         id: "ch3-31a-06",
         prompt:
           "Pour les déplacements entre relève ou pause, quelle consigne suit-on au sujet de la planchette et du véhicule personnel ?",
-        choices: ["Selon planchette, sans véhicule personnel", "En voiture personnelle autorisée"],
+        choices: [
+          "Selon planchette, sans véhicule personnel",
+          "En voiture personnelle autorisée",
+        ],
         correct: 0,
         explanation: "Respect planchette ; véhicule personnel interdit (p.39).",
       },
@@ -75,7 +85,10 @@ export const MODULES_CH3 = [
         id: "ch3-31b-01",
         prompt:
           "Pour la prise de rame au dépôt, comment doit être réalisée la préparation sur remisage ?",
-        choices: ["Suit la procédure du chapitre 1 (partie 1)", "Est faite uniquement par le PCC"],
+        choices: [
+          "Suit la procédure du chapitre 1 (partie 1)",
+          "Est faite uniquement par le PCC",
+        ],
         correct: 0,
         explanation: "Préparation conforme au ch. 1 (encadré p.40).",
       },
@@ -85,7 +98,8 @@ export const MODULES_CH3 = [
           "Pour la sortie du dépôt et la mise en ligne, qui délivre l'autorisation et précise notamment quoi pour le départ ?",
         choices: ["Du PCC (itinéraire de départ)", "Du régulateur voyageurs"],
         correct: 0,
-        explanation: "Demande PCC avant sortie ; changement matériel par PCC seul (p.40).",
+        explanation:
+          "Demande PCC avant sortie ; changement matériel par PCC seul (p.40).",
       },
       {
         id: "ch3-31b-03",
@@ -96,7 +110,8 @@ export const MODULES_CH3 = [
           "Uniquement le gong",
         ],
         correct: 0,
-        explanation: "INDIR en zone télécommande ; Petrarque (barrière/feu) (p.40).",
+        explanation:
+          "INDIR en zone télécommande ; Petrarque (barrière/feu) (p.40).",
       },
       {
         id: "ch3-31b-04",
@@ -107,15 +122,20 @@ export const MODULES_CH3 = [
           "N uniquement",
         ],
         correct: 0,
-        explanation: "Test veille sur CN ; à refaire au premier changement de cabine (p.40).",
+        explanation:
+          "Test veille sur CN ; à refaire au premier changement de cabine (p.40).",
       },
       {
         id: "ch3-31b-05",
         prompt:
           "Quand la balise Petrarque indique « arrière OK », quel effet attendez-vous parmi les suivants avant la barrière ?",
-        choices: ["Allumage du feu avant la barrière", "Ouverture immédiate de la barrière"],
+        choices: [
+          "Allumage du feu avant la barrière",
+          "Ouverture immédiate de la barrière",
+        ],
         correct: 0,
-        explanation: "Arrière OK → feu avant barrière ; avant OK → ouverture barrière (p.40).",
+        explanation:
+          "Arrière OK → feu avant barrière ; avant OK → ouverture barrière (p.40).",
       },
     ],
   },
@@ -136,7 +156,8 @@ export const MODULES_CH3 = [
           "Sans ceinture si rame vide",
         ],
         correct: 0,
-        explanation: "Position de vigilance pour commandes d'urgence dont FS (p.41).",
+        explanation:
+          "Position de vigilance pour commandes d'urgence dont FS (p.41).",
       },
       {
         id: "ch3-31c-02",
@@ -147,7 +168,8 @@ export const MODULES_CH3 = [
           "Utiliser le SIE",
         ],
         correct: 0,
-        explanation: "Interdictions listées ; phonie hors arrêt en mains libres (p.41).",
+        explanation:
+          "Interdictions listées ; phonie hors arrêt en mains libres (p.41).",
       },
       {
         id: "ch3-31c-03",
@@ -207,7 +229,10 @@ export const MODULES_CH3 = [
         id: "ch3-32-02",
         prompt:
           "Parmi les éléments suivants, qu'implique notamment la Marche À Vue ?",
-        choices: ["Adapter la vitesse à l'environnement", "Rouler toujours à 70 km/h"],
+        choices: [
+          "Adapter la vitesse à l'environnement",
+          "Rouler toujours à 70 km/h",
+        ],
         correct: 0,
         explanation: "Adaptation continue (texte en rouge p.42).",
       },
@@ -290,7 +315,10 @@ export const MODULES_CH3 = [
         id: "ch3-32a-05",
         prompt:
           "Au terminus, parmi ces éléments, que doit notamment signaler le conducteur au PCC au sujet de la voie ?",
-        choices: ["Zones de rail glissant constatées", "Uniquement les retards voyageurs"],
+        choices: [
+          "Zones de rail glissant constatées",
+          "Uniquement les retards voyageurs",
+        ],
         correct: 0,
         explanation: "État de la voie dont adhérence (p.43).",
       },
@@ -308,7 +336,10 @@ export const MODULES_CH3 = [
         id: "ch3-32b-01",
         prompt:
           "En voie double, sur quelle voie s'effectue la circulation nominale par rapport au sens de marche ?",
-        choices: ["Sur la voie de droite (sens de marche)", "Sur la voie de gauche"],
+        choices: [
+          "Sur la voie de droite (sens de marche)",
+          "Sur la voie de gauche",
+        ],
         correct: 0,
         explanation: "Ex. L1 V1 Mosson→Odysseum, L2 SJD→Jacou (p.44).",
       },
@@ -337,7 +368,10 @@ export const MODULES_CH3 = [
         id: "ch3-32c-01",
         prompt:
           "Voie unique : départ de station si feu de manœuvre encore au rouge ?",
-        choices: ["Interdit — attendre le vert", "Autorisé si PCC non joignable"],
+        choices: [
+          "Interdit — attendre le vert",
+          "Autorisé si PCC non joignable",
+        ],
         correct: 0,
         explanation: "Pas de départ quai tant que manœuvre pas au vert (p.44).",
       },
@@ -351,11 +385,11 @@ export const MODULES_CH3 = [
       },
       {
         id: "ch3-32c-03",
-        prompt:
-          "Sortie d'évitement, aiguille en voie déviée : vitesse max ?",
+        prompt: "Sortie d'évitement, aiguille en voie déviée : vitesse max ?",
         choices: ["15 km/h", "40 km/h"],
         correct: 0,
-        explanation: "15 km/h en sortie d'évitement aiguille déviée (encadré p.44).",
+        explanation:
+          "15 km/h en sortie d'évitement aiguille déviée (encadré p.44).",
       },
       {
         id: "ch3-32c-04",
@@ -382,7 +416,10 @@ export const MODULES_CH3 = [
         id: "ch3-32d-01",
         prompt:
           "Dans quelles conditions la circulation en voie unique temporaire (VUT) est-elle autorisée ?",
-        choices: ["Sur ordre du PCC ou consignes spécifiques", "Par décision conducteur"],
+        choices: [
+          "Sur ordre du PCC ou consignes spécifiques",
+          "Par décision conducteur",
+        ],
         correct: 0,
         explanation: "VUT uniquement sur ordre PCC (p.45).",
       },
@@ -409,7 +446,10 @@ export const MODULES_CH3 = [
         id: "ch3-32d-04",
         prompt:
           "En VUT, dans quel cas précis le conducteur doit-il obligatoirement utiliser le gong ?",
-        choices: ["En sens inverse de circulation habituel", "Uniquement au dépôt"],
+        choices: [
+          "En sens inverse de circulation habituel",
+          "Uniquement au dépôt",
+        ],
         correct: 0,
         explanation: "Gong en VUT sens contraire (rappel lié p.50 / VUT p.45).",
       },
@@ -426,7 +466,7 @@ export const MODULES_CH3 = [
       {
         id: "ch3-32e1-01",
         prompt:
-          "Selon le CET, comment définit-on un retournement parmi les descriptions suivantes ?",
+          "Selon le RCT, comment définit-on un retournement parmi les descriptions suivantes ?",
         choices: [
           "Changement de voie par communication et départ sens inverse sur l'autre voie",
           "Marche arrière sur même voie",
@@ -499,7 +539,8 @@ export const MODULES_CH3 = [
           "Autorisée en terminus",
         ],
         correct: 0,
-        explanation: "Interdit sauf remorquage court avec personnel cabine opposée (p.47).",
+        explanation:
+          "Interdit sauf remorquage court avec personnel cabine opposée (p.47).",
       },
       {
         id: "ch3-32e2-03",
@@ -550,7 +591,10 @@ export const MODULES_CH3 = [
         id: "ch3-32e3-03",
         prompt:
           "Une fois le rebroussement terminé, qui doit être informé et de quoi avant la reprise ?",
-        choices: ["Le PCC de la position avant reprise", "Les voyageurs seulement"],
+        choices: [
+          "Le PCC de la position avant reprise",
+          "Les voyageurs seulement",
+        ],
         correct: 0,
         explanation: "Compte-rendu position au PCC (p.48).",
       },
@@ -558,7 +602,10 @@ export const MODULES_CH3 = [
         id: "ch3-32e3-04",
         prompt:
           "Pour un rebroussement après une station (ex. Boirargues), qui doit donner l'autorisation et à quel moment par rapport au changement de cabine et à la reprise ?",
-        choices: ["PCC avant changement de cabine et reprise", "Conducteur seul"],
+        choices: [
+          "PCC avant changement de cabine et reprise",
+          "Conducteur seul",
+        ],
         correct: 0,
         explanation: "Autorisation PCC pour rebroussement (p.48).",
       },
@@ -584,7 +631,10 @@ export const MODULES_CH3 = [
         id: "ch3-33-02",
         prompt:
           "En HLP à l'arrêt en station, dans quelles conditions le gong est-il obligatoire ou peut-on s'en passer ?",
-        choices: ["Obligatoire sauf après 22 h sauf danger", "Uniquement le jour"],
+        choices: [
+          "Obligatoire sauf après 22 h sauf danger",
+          "Uniquement le jour",
+        ],
         correct: 0,
         explanation: "Gong en station HLP ; exception 22 h (p.49).",
       },
@@ -592,7 +642,10 @@ export const MODULES_CH3 = [
         id: "ch3-33-03",
         prompt:
           "En HLP, à quoi le conducteur doit-il encore veiller au-delà de la conduite proprement dite ?",
-        choices: ["Message girouette et feux de détresse", "Ouverture des portes"],
+        choices: [
+          "Message girouette et feux de détresse",
+          "Ouverture des portes",
+        ],
         correct: 0,
         explanation: "Girouette + détresse (p.49).",
       },
@@ -934,7 +987,10 @@ export const MODULES_CH3 = [
         id: "ch3-37d-03",
         prompt:
           "Une porte défectueuse est constatée : quelle est la première mesure à prendre à bord ?",
-        choices: ["Condamner + autocollant info voyageurs", "Rouler porte ouverte"],
+        choices: [
+          "Condamner + autocollant info voyageurs",
+          "Rouler porte ouverte",
+        ],
         correct: 0,
         explanation: "Condamnation + étiquette (p.54).",
       },
@@ -974,7 +1030,10 @@ export const MODULES_CH3 = [
         id: "ch3-38-02",
         prompt:
           "Pour une annonce au micro cabine : à quelle distance environ doit se trouver la bouche du micro et comment moduler la voix ?",
-        choices: ["5 à 6 cm, voix posée, pas trop fort", "Cri pour être entendu"],
+        choices: [
+          "5 à 6 cm, voix posée, pas trop fort",
+          "Cri pour être entendu",
+        ],
         correct: 0,
         explanation: "5–6 cm, débit calme (p.55).",
       },
@@ -993,7 +1052,10 @@ export const MODULES_CH3 = [
         id: "ch3-38-04",
         prompt:
           "Une fois la liaison microphone établie : que doit faire le conducteur avant de prononcer la première syllabe ?",
-        choices: ["Respirer (premier mot peut être coupé)", "Ouvrir les portes"],
+        choices: [
+          "Respirer (premier mot peut être coupé)",
+          "Ouvrir les portes",
+        ],
         correct: 0,
         explanation: "Respiration après connexion (p.55).",
       },
@@ -1022,10 +1084,7 @@ export const MODULES_CH3 = [
         id: "ch3-39a-02",
         prompt:
           "Sur Citadis 402, comment déclenche-t-on un appel détresse radio et comment l'annule-t-on ensuite ?",
-        choices: [
-          "Appui long ; annulation via bouton détresse",
-          "Par SAT",
-        ],
+        choices: ["Appui long ; annulation via bouton détresse", "Par SAT"],
         correct: 0,
         explanation: "402 : appui long détresse (p.56).",
       },
@@ -1144,7 +1203,10 @@ export const MODULES_CH3 = [
         id: "ch3-39d-01",
         prompt:
           "À quoi sert la feuille de route du conducteur parmi les usages suivants ?",
-        choices: ["Noter incidents du service du conducteur", "Remplacer le PCC"],
+        choices: [
+          "Noter incidents du service du conducteur",
+          "Remplacer le PCC",
+        ],
         correct: 0,
         explanation: "Feuille conducteur = service (p.58).",
       },

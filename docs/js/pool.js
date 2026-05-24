@@ -1,5 +1,5 @@
 /**
- * Index plat des questions CET (métadonnées chapitre / module).
+ * Index plat des questions RCT (métadonnées chapitre / module).
  */
 import { AXES, MODULES } from "./data.js";
 

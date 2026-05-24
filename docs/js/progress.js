@@ -15,8 +15,26 @@ export const STORAGE_SCHEMA_VERSION = 4;
 export const PRETEST_FINAL_UNLOCK_RATE = 0.8;
 
 export const KEYS = {
-  revision: "tam-cet-revision-v1",
+  revision: "tam-rct-revision-v1",
   revisionLegacy: "tam-bible-revision-v1",
+  mastery: "tam-rct-question-mastery-v1",
+  srs: "tam-rct-srs-v1",
+  pretestPrefs: "tam-rct-pretest-prefs-v1",
+  pretestActive: "tam-rct-pretest-active-v1",
+  pretestLastEnd: "tam-rct-pretest-last-end-v1",
+  finalPrefs: "tam-rct-final-exam-prefs-v1",
+  helpDismissed: "tam-rct-help-dismissed-v1",
+  pretestStats: "tam-rct-pretest-stats-v1",
+  devUnlock: "tam-rct-dev-unlock-v1",
+  quizActive: "tam-rct-quiz-active-v1",
+  finalActive: "tam-rct-final-exam-active-v1",
+  finalHistory: "tam-rct-final-exam-history-v1",
+  schema: "tam-rct-storage-schema-v2",
+};
+
+/** Anciennes clés localStorage (renommage CET → RCT, v2025). */
+const LEGACY_CET_KEYS = {
+  revision: "tam-cet-revision-v1",
   mastery: "tam-cet-question-mastery-v1",
   srs: "tam-cet-srs-v1",
   pretestPrefs: "tam-cet-pretest-prefs-v1",
@@ -124,28 +142,79 @@ export function isModulePerfect(axisId, moduleId) {
   return getModuleQuestionStats(axisId, moduleId).perfect;
 }
 
+function isEmptyStoredJson(raw) {
+  if (!raw) return true;
+  const t = raw.trim();
+  if (t === "{}" || t === "[]" || t === "null") return true;
+  try {
+    const parsed = JSON.parse(t);
+    return (
+      parsed !== null &&
+      typeof parsed === "object" &&
+      !Array.isArray(parsed) &&
+      Object.keys(parsed).length === 0
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** Reprend la progression encore stockée sous les clés tam-cet-* (même origine navigateur). */
+function migrateCetStorageToRct() {
+  let copied = 0;
+  for (const id of Object.keys(LEGACY_CET_KEYS)) {
+    if (id === "schema") continue;
+    const oldKey = LEGACY_CET_KEYS[id];
+    const newKey = KEYS[id];
+    const oldVal = localStorage.getItem(oldKey);
+    if (!oldVal) continue;
+    const newVal = localStorage.getItem(newKey);
+    if (!newVal || isEmptyStoredJson(newVal)) {
+      localStorage.setItem(newKey, oldVal);
+      copied++;
+    }
+  }
+  const oldSchema = localStorage.getItem(LEGACY_CET_KEYS.schema);
+  const newSchema = localStorage.getItem(KEYS.schema);
+  if (oldSchema && (!newSchema || newSchema === "0")) {
+    localStorage.setItem(KEYS.schema, oldSchema);
+    copied++;
+  }
+  return copied;
+}
+
 function hasLegacyStorage() {
   return !!(
     localStorage.getItem(KEYS.revision) ||
     localStorage.getItem(KEYS.revisionLegacy) ||
     localStorage.getItem(KEYS.mastery) ||
-    localStorage.getItem(KEYS.srs)
+    localStorage.getItem(KEYS.srs) ||
+    Object.values(LEGACY_CET_KEYS).some((k) => localStorage.getItem(k))
   );
 }
 
 /**
  * Montée de version : conserve les scores modules (le 🥳 disparaît si des questions
- * sont ajoutées au CET) ; retire seulement les questions supprimées du pool.
+ * sont ajoutées au RCT) ; retire seulement les questions supprimées du pool.
  */
 export function migrateStorage() {
+  const cetCopied = migrateCetStorageToRct();
+
   const stored = parseInt(localStorage.getItem(KEYS.schema) || "0", 10);
   if (stored >= STORAGE_SCHEMA_VERSION) {
-    return { action: "none", orphanQuestionsRemoved: 0 };
+    if (cetCopied > 0) {
+      backfillSrsEverMastered();
+    }
+    return {
+      action: cetCopied > 0 ? "cet-to-rct" : "none",
+      orphanQuestionsRemoved: 0,
+      cetKeysCopied: cetCopied,
+    };
   }
 
   if (!hasLegacyStorage()) {
     localStorage.setItem(KEYS.schema, String(STORAGE_SCHEMA_VERSION));
-    return { action: "init", orphanQuestionsRemoved: 0 };
+    return { action: "init", orphanQuestionsRemoved: 0, cetKeysCopied: cetCopied };
   }
 
   const poolIds = new Set(getQuestionPool().map((q) => q.questionId));
@@ -160,22 +229,26 @@ export function migrateStorage() {
   if (orphanQuestionsRemoved) saveMastery(m);
 
   if (stored < 4) {
-    const srs = loadSrs();
-    let srsUpdated = false;
-    for (const row of Object.values(srs)) {
-      if ((row.intervalIndex ?? 0) >= 1 && !row.everMastered) {
-        row.everMastered = true;
-        srsUpdated = true;
-      }
-    }
-    if (srsUpdated) saveSrs(srs);
+    backfillSrsEverMastered();
   }
 
   localStorage.setItem(KEYS.schema, String(STORAGE_SCHEMA_VERSION));
-  return { action: "migrated", orphanQuestionsRemoved };
+  return { action: "migrated", orphanQuestionsRemoved, cetKeysCopied: cetCopied };
 }
 
-/** Efface toute la progression CET sur cet appareil. */
+function backfillSrsEverMastered() {
+  const srs = loadSrs();
+  let srsUpdated = false;
+  for (const row of Object.values(srs)) {
+    if ((row.intervalIndex ?? 0) >= 1 && !row.everMastered) {
+      row.everMastered = true;
+      srsUpdated = true;
+    }
+  }
+  if (srsUpdated) saveSrs(srs);
+}
+
+/** Efface toute la progression RCT sur cet appareil. */
 export function resetAllUserProgress() {
   for (const key of ALL_STORAGE_KEYS) {
     localStorage.removeItem(key);
@@ -254,7 +327,8 @@ export function isPretestChapterUnlocked(axisId) {
 }
 
 export function countPretestUnlockedChapters() {
-  return AXES.filter((a) => a.available && isPretestChapterUnlocked(a.id)).length;
+  return AXES.filter((a) => a.available && isPretestChapterUnlocked(a.id))
+    .length;
 }
 
 /** Contournement formateur / test local (?dev=1 sur localhost ou clé localStorage). */

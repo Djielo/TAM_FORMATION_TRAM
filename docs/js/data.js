@@ -1,13 +1,13 @@
 /**
  * RCT — Règlement de circulation tramway TaM (EXP-CSG-01-17)
- * Point d'agrégation : axes + modules par chapitre (data-cet-ch1 … ch4).
+ * Point d'agrégation : axes + modules par chapitre (data-rct-ch1 … ch4).
  */
 
-import { MODULES_ACRONYMES } from "./data-cet-acronymes.js";
-import { MODULES_CH1 } from "./data-cet-ch1.js";
-import { MODULES_CH2 } from "./data-cet-ch2.js";
-import { MODULES_CH3 } from "./data-cet-ch3.js";
-import { MODULES_CH4 } from "./data-cet-ch4.js";
+import { MODULES_ACRONYMES } from "./data-rct-acronymes.js";
+import { MODULES_CH1 } from "./data-rct-ch1.js";
+import { MODULES_CH2 } from "./data-rct-ch2.js";
+import { MODULES_CH3 } from "./data-rct-ch3.js";
+import { MODULES_CH4 } from "./data-rct-ch4.js";
 
 export const AXES = [
   {

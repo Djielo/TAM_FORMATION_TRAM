@@ -5,21 +5,21 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { MODULES_ACRONYMES } from "../docs/js/data-cet-acronymes.js";
-import { MODULES_CH1 } from "../docs/js/data-cet-ch1.js";
-import { MODULES_CH2 } from "../docs/js/data-cet-ch2.js";
-import { MODULES_CH3 } from "../docs/js/data-cet-ch3.js";
-import { MODULES_CH4 } from "../docs/js/data-cet-ch4.js";
+import { MODULES_ACRONYMES } from "../docs/js/data-rct-acronymes.js";
+import { MODULES_CH1 } from "../docs/js/data-rct-ch1.js";
+import { MODULES_CH2 } from "../docs/js/data-rct-ch2.js";
+import { MODULES_CH3 } from "../docs/js/data-rct-ch3.js";
+import { MODULES_CH4 } from "../docs/js/data-rct-ch4.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
 
 const FILES = [
-  ["docs/js/data-cet-acronymes.js", MODULES_ACRONYMES],
-  ["docs/js/data-cet-ch1.js", MODULES_CH1],
-  ["docs/js/data-cet-ch2.js", MODULES_CH2],
-  ["docs/js/data-cet-ch3.js", MODULES_CH3],
-  ["docs/js/data-cet-ch4.js", MODULES_CH4],
+  ["docs/js/data-rct-acronymes.js", MODULES_ACRONYMES],
+  ["docs/js/data-rct-ch1.js", MODULES_CH1],
+  ["docs/js/data-rct-ch2.js", MODULES_CH2],
+  ["docs/js/data-rct-ch3.js", MODULES_CH3],
+  ["docs/js/data-rct-ch4.js", MODULES_CH4],
 ];
 
 const STOP = new Set([
@@ -49,7 +49,7 @@ const STOP = new Set([
   "ses",
 ]);
 
-/** Correspondance lettres sigle ↔ mots (sigles CET). */
+/** Correspondance lettres sigle ↔ mots (sigles RCT). */
 function acronymLetterScore(acronym, text) {
   const letters = acronym.replace(/[^A-Za-zÀ-ÿ0-9]/g, "").split("");
   if (!letters.length) return 0;
@@ -69,9 +69,7 @@ function acronymLetterScore(acronym, text) {
     if (caps.includes(L)) cap++;
   }
 
-  const initials = words
-    .map((w) => w[0]?.toUpperCase())
-    .filter(Boolean);
+  const initials = words.map((w) => w[0]?.toUpperCase()).filter(Boolean);
   let init = 0;
   for (const L of letters) {
     if (initials.includes(L)) init++;

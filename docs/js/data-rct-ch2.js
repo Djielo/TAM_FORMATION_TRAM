@@ -1,6 +1,6 @@
-/** CET ch. 2 — Respect de la signalisation (pages 20–37) */
+/** RCT ch. 2 — Respect de la signalisation (pages 20–37) */
 export const MODULES_CH2 = [
-  // Ordre = chapitrage CET (ch. 2) : 2.1 … 2.6-B (pages 20–37 du CET). Acronymes : chapitre dédié.
+  // Ordre = chapitrage RCT (ch. 2) : 2.1 … 2.6-B (pages 20–37 du RCT). Acronymes : chapitre dédié.
 
   // ─── 2.1 Franchissement des appareils de voie ─────────────
   {
@@ -178,7 +178,7 @@ export const MODULES_CH2 = [
         ],
         correct: 0,
         explanation:
-          "Le volet 2.2 couvre notamment INDIR, INDES, SM, SA, SMA et les feux / alarmes associés (CET, signalisation ferroviaire lumineuse).",
+          "Le volet 2.2 couvre notamment INDIR, INDES, SM, SA, SMA et les feux / alarmes associés (RCT, signalisation ferroviaire lumineuse).",
       },
       {
         id: "sfl-02",
@@ -190,7 +190,7 @@ export const MODULES_CH2 = [
         ],
         correct: 0,
         explanation:
-          "Elle renseigne itinéraires, protections et consignes aux points critiques, en complément des autres consignes (CET ch. 2).",
+          "Elle renseigne itinéraires, protections et consignes aux points critiques, en complément des autres consignes (RCT ch. 2).",
       },
       {
         id: "sfl-03",
@@ -223,7 +223,7 @@ export const MODULES_CH2 = [
         ],
         correct: 0,
         explanation:
-          "L'INDIR est un indicateur lumineux de position d'aiguille (CET p. 22).",
+          "L'INDIR est un indicateur lumineux de position d'aiguille (RCT p. 22).",
       },
       {
         id: "indir-03",
@@ -255,7 +255,7 @@ export const MODULES_CH2 = [
         ],
         correct: 0,
         explanation:
-          "Barre oblique jaune = voie déviée ; le côté dépend de l'inclinaison de la barre (CET p. 22).",
+          "Barre oblique jaune = voie déviée ; le côté dépend de l'inclinaison de la barre (RCT p. 22).",
       },
       {
         id: "indir-06",
@@ -906,7 +906,7 @@ export const MODULES_CH2 = [
     questions: [
       {
         id: "tr-00",
-        prompt: "Dans le CET, le signal type R17 est :",
+        prompt: "Dans le RCT, le signal type R17 est :",
         choices: [
           "Le signal de traversée routière du tramway",
           "Un indicateur de direction d'aiguillage",
@@ -1083,7 +1083,7 @@ export const MODULES_CH2 = [
         ],
         correct: 0,
         explanation:
-          "Le CET distingue ces trois zones spécifiques ; les règles y sont détaillées pour la cohabitation des rames (voir p.21 et zones dédiées).",
+          "Le RCT distingue ces trois zones spécifiques ; les règles y sont détaillées pour la cohabitation des rames (voir p.21 et zones dédiées).",
       },
       {
         id: "zs-02",
@@ -1410,7 +1410,7 @@ export const MODULES_CH2 = [
       {
         id: "tiv-07",
         prompt:
-          "Tableau des limitations (CET) : croisement d'une rame arrêtée — vitesse max ?",
+          "Tableau des limitations (RCT) : croisement d'une rame arrêtée — vitesse max ?",
         choices: ["10 km/h", "15 km/h"],
         correct: 0,
         explanation: "10 km/h (tableau p.34).",
@@ -1654,7 +1654,7 @@ export const MODULES_CH2 = [
       {
         id: "aa-01",
         prompt:
-          "Quels dispositifs relèvent notamment des panneaux « arrêt absolu » au sens du CET ?",
+          "Quels dispositifs relèvent notamment des panneaux « arrêt absolu » au sens du RCT ?",
         choices: [
           "« ARRÊT OBLIGATOIRE » et le panneau rouge uni sans mention",
           "Uniquement un feu rouge clignotant",

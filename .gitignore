@@ -1,7 +1,7 @@
 # Cursor — éditeur (ne jamais versionner)
 .cursor/
 
-# CET (scans) / données locales — ne jamais versionner
+# RCT (scans) / données locales — ne jamais versionner
 source/
 
 # Artefacts locaux, extraits de test
@@ -11,7 +11,7 @@ output/
 PROCEDURE_LANCEMENT.md
 
 # Guide rédaction questions (usage local / IA)
-docs/REDIGER-QUESTIONS-CET.md
+docs/REDIGER-QUESTIONS-RCT.md
 
 # OS & éditeurs
 .DS_Store
