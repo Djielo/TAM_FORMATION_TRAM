@@ -804,7 +804,7 @@ function bindQuizHandlers() {
     } else {
       saveModuleScore(route.axisId, route.moduleId, quiz.score, total);
       saveActiveQuizSession(null);
-      writeProgressBackupFile();
+      void writeProgressBackupFile();
       navigate("results");
     }
   }
@@ -1164,7 +1164,7 @@ function advanceCard() {
       saveActivePretestSession(axisId, null);
       cardSession = null;
       screen = "pretest-chapters";
-      writeProgressBackupFile();
+      void writeProgressBackupFile();
     } else {
       const total = cardSession.queue.length;
       appendFinalExamResult({
@@ -1174,7 +1174,7 @@ function advanceCard() {
       });
       saveActiveFinalSession(null);
       screen = "final-results";
-      writeProgressBackupFile();
+      void writeProgressBackupFile();
     }
     render();
     return;
@@ -1361,7 +1361,7 @@ async function requestFullProgressReset() {
   });
   if (!ok) return;
 
-  writeIntentionalResetBackup();
+  await writeIntentionalResetBackup();
   resetAllUserProgress();
   activeTab = "revision";
   screen = "home";

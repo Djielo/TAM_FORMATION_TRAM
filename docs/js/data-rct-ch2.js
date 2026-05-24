@@ -358,24 +358,157 @@ export const MODULES_CH2 = [
       {
         id: "indes-03",
         prompt: "Au dépôt, que signifie l'affichage INDES « L » ?",
-        choices: ["Destination lavage", "Limite de manœuvre"],
+        choices: ["Destination Lavage", "Ligne de dérivation"],
         correct: 0,
-        explanation: "L = destination Lavage (p.23).",
+        explanation: "L = Destination Lavage (p.23, zone dépôt).",
       },
       {
         id: "indes-04",
         prompt: "Au dépôt, que signifie l'affichage INDES « A » ?",
-        choices: ["Destination atelier", "Arrêt absolu"],
+        choices: ["Destination Atelier", "Aiguillage non télécommandé"],
         correct: 0,
-        explanation: "A = destination Atelier (p.23).",
+        explanation: "A = Destination Atelier (p.23, zone dépôt).",
       },
       {
         id: "indes-05",
-        prompt:
-          "En zone dépôt ou en galerie Mistral, que signifie l'affichage INDES « VU » ?",
-        choices: ["Voie Unique", "Voie 1"],
+        prompt: "Au dépôt, que signifie l'affichage INDES « S » (entrée) ?",
+        choices: ["Destination Station Service", "Signal de cantonnement"],
         correct: 0,
-        explanation: "VU = Voie Unique (p.23 ; sigle affiché INDES).",
+        explanation:
+          "S (entrée) = Destination Station Service (p.23, zone dépôt).",
+      },
+      {
+        id: "indes-11",
+        prompt: "Au dépôt, que signifie l'affichage INDES « S » (sortie) ?",
+        choices: ["Voie Sortie", "Sortie de service voyageurs"],
+        correct: 0,
+        explanation: "S (sortie) = Voie Sortie (p.23, zone dépôt).",
+      },
+      {
+        id: "indes-12",
+        prompt: "Au dépôt, que signifie l'affichage INDES « P » ?",
+        choices: ["Destination Passage", "Parking conducteur"],
+        correct: 0,
+        explanation: "P = Destination Passage (p.23, zone dépôt).",
+      },
+      {
+        id: "indes-13",
+        prompt: "Au dépôt, que signifie l'affichage INDES « C » ?",
+        choices: ["Voie de Contournement", "Contrôle PCC avant manœuvre"],
+        correct: 0,
+        explanation: "C = Voie de Contournement (p.23, zone dépôt).",
+      },
+      {
+        id: "indes-14",
+        prompt: "Au dépôt, que signifie l'affichage INDES « I » ?",
+        choices: ["Voie d'Interface", "Installation de maintenance"],
+        correct: 0,
+        explanation: "I = Voie d'Interface (p.23, zone dépôt).",
+      },
+      {
+        id: "indes-15",
+        prompt: "Au dépôt, que signifie l'affichage INDES « G » ?",
+        choices: ["Garage", "Gabarit réduit en dépôt"],
+        correct: 0,
+        explanation: "G = Garage (p.23, zone dépôt).",
+      },
+      {
+        id: "indes-16",
+        prompt: "Au dépôt, que signifie l'affichage INDES « E » ?",
+        choices: ["Voie Entrée", "Évitement d'aiguillage"],
+        correct: 0,
+        explanation: "E = Voie Entrée (p.23, zone dépôt).",
+      },
+      {
+        id: "indes-17",
+        prompt: "Au dépôt, que signifie l'affichage INDES « R » ?",
+        choices: ["Destination Remisage", "Roulement PCC obligatoire"],
+        correct: 0,
+        explanation: "R = Destination Remisage (p.23, zone dépôt).",
+      },
+      {
+        id: "indes-18",
+        prompt:
+          "Au dépôt, que signifie l'affichage INDES « R » (Sabines V2) ?",
+        choices: [
+          "Retournement dans le tiroir",
+          "Remisage voie 2 uniquement",
+        ],
+        correct: 0,
+        explanation: "R (Sabines V2) = retournement dans le tiroir (p.23).",
+      },
+      {
+        id: "indes-19",
+        prompt:
+          "Au dépôt, l'INDES affiche un numéro de 1 à 16 : que désigne cette indication ?",
+        choices: ["Remisage 1 à 16", "Ligne de tramway 1 à 16"],
+        correct: 0,
+        explanation: "1 à 16 = Remisage 1 à 16 (p.23, zone dépôt).",
+      },
+      {
+        id: "indes-20",
+        prompt: "Au dépôt, que signifie l'affichage INDES « VU » ?",
+        choices: ["Voie Unique", "Vitesse unique 10 km/h"],
+        correct: 0,
+        explanation: "VU = Voie Unique (p.23, zone dépôt).",
+      },
+      {
+        id: "indes-21",
+        prompt: "Au dépôt, que signifie l'affichage INDES « V1 » ?",
+        choices: ["Voie 1", "Voie Unique"],
+        correct: 0,
+        explanation: "V1 = Voie 1 (p.23, zone dépôt).",
+      },
+      {
+        id: "indes-22",
+        prompt:
+          "En zone Galerie Mistral, que signifie l'affichage INDES « N » ?",
+        choices: [
+          "Mode nominal, sans retournement",
+          "Neutralisation du canton",
+        ],
+        correct: 0,
+        explanation: "N = mode nominal, sans retournement (p.23, Galerie Mistral).",
+      },
+      {
+        id: "indes-23",
+        prompt:
+          "En zone Galerie Mistral, que signifie l'affichage INDES « VU » ?",
+        choices: [
+          "Mode retournement Corum – Galerie (ou Comédie) – Corum",
+          "Voie Unique",
+        ],
+        correct: 0,
+        explanation:
+          "VU = mode retournement Corum – Galerie (ou Comédie) – Corum (p.23, Galerie Mistral).",
+      },
+      {
+        id: "indes-24",
+        prompt:
+          "En zone Galerie Mistral, que signifie l'affichage INDES « RE » ?",
+        choices: [
+          "Mode retournement Comédie – Galerie – Comédie",
+          "Retournement d'urgence PCC",
+        ],
+        correct: 0,
+        explanation:
+          "RE = mode retournement Comédie – Galerie – Comédie (p.23, Galerie Mistral).",
+      },
+      {
+        id: "indes-25",
+        prompt:
+          "En zone Gare Saint-Roch, que signifie l'affichage INDES « MA » ?",
+        choices: ["Direction Rue Maguelone", "Manœuvre en attente"],
+        correct: 0,
+        explanation: "MA = direction Rue Maguelone (p.23, zone gare).",
+      },
+      {
+        id: "indes-26",
+        prompt:
+          "En zone Gare Saint-Roch, que signifie l'affichage INDES « RO » ?",
+        choices: ["Direction Rondelet", "Retournement obligatoire"],
+        correct: 0,
+        explanation: "RO = direction Rondelet (p.23, zone gare).",
       },
       {
         id: "indes-06",
@@ -383,27 +516,35 @@ export const MODULES_CH2 = [
           "En zone Gare Saint-Roch, que signifie l'affichage INDES « AT » ?",
         choices: ["En attente = Arrêt", "Direction Atelier"],
         correct: 0,
-        explanation: "AT = en attente = Arrêt (p.23, tableau zone gare).",
+        explanation: "AT = en attente = Arrêt (p.23, zone gare).",
       },
       {
         id: "indes-07",
         prompt:
           "En zone Gare Saint-Roch, que signifie l'affichage INDES « PL » ?",
-        choices: ["Passage libre", "Pont de Lattes"],
+        choices: ["Direction Pont de Lattes", "Passage libre"],
         correct: 0,
-        explanation: "PL = direction Pont de Lattes (p.23).",
+        explanation: "PL = direction Pont de Lattes (p.23, zone gare).",
+      },
+      {
+        id: "indes-27",
+        prompt:
+          "En zone Gare Saint-Roch, que signifie l'affichage INDES « OB » ?",
+        choices: ["Direction Observatoire", "Ordre de blocage"],
+        correct: 0,
+        explanation: "OB = direction Observatoire (p.23, zone gare).",
       },
       {
         id: "indes-08",
         prompt:
-          "En zone Gare Saint-Roch, que signifie l'affichage INDES « XX » ?",
+          "À votre arrivée sur un INDES en zone Gare Saint-Roch, que signifie l'affichage « XX » ?",
         choices: [
           "Aiguille dé-contrôlée — appeler le PCC",
           "Voie interdite temporaire",
         ],
         correct: 0,
         explanation:
-          "XX = aiguille dé-contrôlée, appel PCC (p.29, rappel p.23 zones).",
+          "À l'arrivée sur l'INDES (pas le « XX » transitoire pendant une commande en cours) : XX = aiguille dé-contrôlée — appeler le PCC (p.29, rappel p.23).",
       },
       {
         id: "indes-09",

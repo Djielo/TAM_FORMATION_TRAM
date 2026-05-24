@@ -6,6 +6,11 @@ import { KEYS, migrateStorage, STORAGE_SCHEMA_VERSION } from "./progress.js";
 export const BACKUP_FILE_NAME = "tam-rct-progression.json";
 export const BACKUP_FORMAT_VERSION = 1;
 
+const IDB_NAME = "tam-rct-backup";
+const IDB_VERSION = 1;
+const IDB_STORE = "meta";
+const IDB_HANDLE_KEY = "fileHandle";
+
 const EXPORT_KEY_IDS = [
   "revision",
   "mastery",
@@ -95,6 +100,110 @@ function hasMeaningfulProgress(storage) {
   return false;
 }
 
+function openBackupDb() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+    req.onerror = () => reject(req.error);
+    req.onsuccess = () => resolve(req.result);
+    req.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains(IDB_STORE)) {
+        db.createObjectStore(IDB_STORE);
+      }
+    };
+  });
+}
+
+async function getStoredBackupHandle() {
+  try {
+    const db = await openBackupDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, "readonly");
+      const req = tx.objectStore(IDB_STORE).get(IDB_HANDLE_KEY);
+      req.onsuccess = () => resolve(req.result ?? null);
+      req.onerror = () => reject(req.error);
+    });
+  } catch {
+    return null;
+  }
+}
+
+async function setStoredBackupHandle(handle) {
+  const db = await openBackupDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, "readwrite");
+    tx.objectStore(IDB_STORE).put(handle, IDB_HANDLE_KEY);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function clearStoredBackupHandle() {
+  try {
+    const db = await openBackupDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, "readwrite");
+      tx.objectStore(IDB_STORE).delete(IDB_HANDLE_KEY);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * @param {FileSystemFileHandle} handle
+ * @param {string} text
+ */
+async function writeTextToHandle(handle, text) {
+  let perm = await handle.queryPermission({ mode: "readwrite" });
+  if (perm !== "granted") {
+    perm = await handle.requestPermission({ mode: "readwrite" });
+    if (perm !== "granted") return false;
+  }
+  const writable = await handle.createWritable();
+  await writable.write(text);
+  await writable.close();
+  return true;
+}
+
+/** Même fichier sur l'appareil (écrasement) si autorisé ; sinon téléchargement classique. */
+async function persistBackupToDevice(jsonString) {
+  let handle = await getStoredBackupHandle();
+  if (handle) {
+    try {
+      if (await writeTextToHandle(handle, jsonString)) return;
+    } catch {
+      await clearStoredBackupHandle();
+      handle = null;
+    }
+  }
+
+  if (typeof window.showSaveFilePicker === "function") {
+    try {
+      const picked = await window.showSaveFilePicker({
+        suggestedName: BACKUP_FILE_NAME,
+        types: [
+          {
+            description: "Sauvegarde RCT",
+            accept: { "application/json": [".json"] },
+          },
+        ],
+      });
+      await setStoredBackupHandle(picked);
+      if (await writeTextToHandle(picked, jsonString)) return;
+    } catch (err) {
+      if (err?.name === "AbortError") {
+        triggerDownload(jsonString);
+        return;
+      }
+    }
+  }
+
+  triggerDownload(jsonString);
+}
+
 function triggerDownload(jsonString, fileName = BACKUP_FILE_NAME) {
   const blob = new Blob([jsonString], {
     type: "application/json;charset=utf-8",
@@ -111,18 +220,18 @@ function triggerDownload(jsonString, fileName = BACKUP_FILE_NAME) {
 }
 
 /** Sauvegarde fichier après fin de module / session (révision, pré-examen, examen final). */
-export function writeProgressBackupFile() {
+export async function writeProgressBackupFile() {
   if (isLocalProgressEmpty()) return;
   localStorage.removeItem(KEYS.voluntaryReset);
   const payload = buildBackupPayload(false);
-  triggerDownload(JSON.stringify(payload, null, 0));
+  await persistBackupToDevice(JSON.stringify(payload, null, 0));
 }
 
 /** Marqueur après reset volontaire (5 × RCT) — écrase la sauvegarde utile sur l'appareil. */
-export function writeIntentionalResetBackup() {
+export async function writeIntentionalResetBackup() {
   localStorage.setItem(KEYS.voluntaryReset, "1");
   const payload = buildBackupPayload(true);
-  triggerDownload(JSON.stringify(payload, null, 0));
+  await persistBackupToDevice(JSON.stringify(payload, null, 0));
 }
 
 /**
@@ -198,6 +307,24 @@ export function pickAndRestoreBackupFile() {
           return;
         }
         applyBackupStorage(check.storage);
+        const handle = await getStoredBackupHandle();
+        if (!handle && "showSaveFilePicker" in window) {
+          try {
+            const picked = await window.showSaveFilePicker({
+              suggestedName: file.name || BACKUP_FILE_NAME,
+              types: [
+                {
+                  description: "Sauvegarde RCT",
+                  accept: { "application/json": [".json"] },
+                },
+              ],
+            });
+            await setStoredBackupHandle(picked);
+            await writeTextToHandle(picked, text);
+          } catch {
+            /* reprise OK même sans handle */
+          }
+        }
         resolve({ ok: true });
       } catch {
         resolve({ ok: false, reason: "Impossible de lire ce fichier." });
