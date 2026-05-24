@@ -198,9 +198,10 @@ function formatQuestionCount(n) {
   return n === 1 ? "1 question" : `${n} questions`;
 }
 
-/** « 18 sur 23 validés (78 %) » — chapitres et modules. */
+/** « 14 questions validées sur 100 (14 %) » — tuiles chapitre et modules. */
 function formatValidatedCount(validated, total, includePct = true) {
-  const core = `${validated} sur ${total} validés`;
+  const qWord = validated === 1 ? "question validée" : "questions validées";
+  const core = `${validated} ${qWord} sur ${total}`;
   if (!includePct || total <= 0) return core;
   const pct = Math.round((validated / total) * 100);
   return `${core} (${pct} %)`;
