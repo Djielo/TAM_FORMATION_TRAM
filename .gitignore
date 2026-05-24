@@ -13,6 +13,10 @@ PROCEDURE_LANCEMENT.md
 # Guide rédaction questions (usage local / IA)
 docs/REDIGER-QUESTIONS-RCT.md
 
+# Suivi audit local (non versionné)
+docs/AUDIT_RCT.md
+scripts/list-rct-questions.mjs
+
 # OS & éditeurs
 .DS_Store
 Thumbs.db

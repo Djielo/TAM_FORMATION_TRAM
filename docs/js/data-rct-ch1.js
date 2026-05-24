@@ -1,5 +1,26 @@
 /** RCT ch. 1 — Utilisation du matériel roulant (pages 3–19) */
 export const MODULES_CH1 = [
+  // ─── 1.1 Vue d'ensemble préparation ───────────────────────
+  {
+    id: "prep-11-overview",
+    code: "1.1",
+    title: "Préparation de la rame — Enchaînement des étapes A à H",
+    cetPage: 4,
+    questions: [
+      {
+        id: "ch1-11-overview-01",
+        prompt:
+          "Préparation de la rame au dépôt (§ 1.1) : dans quel ordre enchaignez-vous les grandes phases de préparation ?",
+        choices: [
+          "A Entrée porte de service → B Test cabine de queue → C Pupitre gauche → D Pupitre droit → E Vérifications intérieur → F Test cabine de tête → G Vérifications extérieur → H Préparation de la sortie",
+          "Tests pupitres avant entrée, cabine de tête avant cabine de queue, sortie sans test extérieur",
+        ],
+        correct: 0,
+        explanation: "RCT § 1.1 p.4–9 : sous-parties A à H dans l'ordre du manuel.",
+      },
+    ],
+  },
+
   // ─── 1.1-A Entrée dans la rame ────────────────────────────
   {
     id: "prep-11a",
@@ -75,21 +96,23 @@ export const MODULES_CH1 = [
       {
         id: "ch1-11b-01",
         prompt:
-          "Test cabine de queue : position initiale du commutateur de conduite ?",
+          "Préparation de la rame — test cabine de queue (§ 1.1-B) : position initiale du commutateur de conduite ?",
         choices: ["P", "N"],
         correct: 0,
         explanation: "Clé sur P avant vérifications, puis passage CN (p.5).",
       },
       {
         id: "ch1-11b-02",
-        prompt: "Durée d'allumage des voyants de contrôle au test ?",
+        prompt:
+          "Préparation — test cabine de queue (§ 1.1-B) : durée d'allumage des voyants de contrôle au test ?",
         choices: ["5 secondes", "10 secondes"],
         correct: 0,
         explanation: "Voyants de contrôle allumés 5 s (p.5).",
       },
       {
         id: "ch1-11b-03",
-        prompt: "Après initialisation SIE, le voyant attendu est :",
+        prompt:
+          "Préparation — test cabine de queue (§ 1.1-B) : après initialisation SIE, quel voyant doit s'allumer ?",
         choices: ["Rame en service", "Défaut frein uniquement"],
         correct: 0,
         explanation: "Initialisation SIE : voyant « rame en service » (p.5).",
@@ -108,10 +131,11 @@ export const MODULES_CH1 = [
       },
       {
         id: "ch1-11b-05",
-        prompt: "Avant les tests voyants, on tourne la clé sur :",
+        prompt:
+          "Préparation — test cabine de queue (§ 1.1-B) : avant le test des voyants, sur quelle position placez-vous la clé KC ?",
         choices: ["CN", "FS"],
         correct: 0,
-        explanation: "Étape 6 : clé sur CN pour test des voyants (p.5).",
+        explanation: "RCT p.5 : clé sur CN pour test des voyants.",
       },
     ],
   },
@@ -126,7 +150,7 @@ export const MODULES_CH1 = [
       {
         id: "ch1-11c-01",
         prompt:
-          "Bouton à accrochage lumineux du pupitre gauche : fonction testée ?",
+          "Préparation — test pupitre gauche (§ 1.1-C) : le bouton à accrochage lumineux sert à tester quelle fonction ?",
         choices: ["Dégivrage pare-brise", "Descente pantographe"],
         correct: 0,
         explanation: "BP accrochage : dégivrage (p.6).",
@@ -165,7 +189,8 @@ export const MODULES_CH1 = [
     questions: [
       {
         id: "ch1-11d-01",
-        prompt: "Citadis 401 : ouverture générale des portes au test exige :",
+        prompt:
+          "Préparation — test pupitre droit (§ 1.1-D), Citadis 401 : pour l'ouverture générale des portes au test, que faut-il sélectionner ?",
         choices: ["Sélection côtés droit et gauche", "Côté droit seul"],
         correct: 0,
         explanation: "401 : droit et gauche pour ouverture générale (p.7).",
@@ -255,14 +280,15 @@ export const MODULES_CH1 = [
     questions: [
       {
         id: "ch1-11f-01",
-        prompt: "Tests cabine de tête par rapport à la cabine de queue :",
+        prompt:
+          "Préparation — test cabine de tête (§ 1.1-F) : par rapport à la cabine de queue, quels contrôles supplémentaires devez-vous prévoir ?",
         choices: [
-          "Identiques, plus feux détresse, antibrouillard, self droit/gauche, manipulateur FNS, sortie porte service",
+          "Identiques, plus feux de détresse, feux de brouillard, self droit/gauche, manipulateur FNS, sortie porte de service",
           "Uniquement le SIE",
         ],
         correct: 0,
         explanation:
-          "Tests queue + feux, self, FNS, sortie porte service (p.8).",
+          "Tests queue + feux de détresse, feux de brouillard, self, FNS, sortie porte service (p.8).",
       },
       {
         id: "ch1-11f-02",
@@ -300,11 +326,12 @@ export const MODULES_CH1 = [
         prompt:
           "Lors du contrôle de l'éclairage extérieur, que vérifiez-vous notamment ?",
         choices: [
-          "Codes, feu pilote, antibrouillard, détresse, feux gabarit, rouges, stops",
+          "Codes, veilleuse frontale, feux de brouillard, feux de détresse, feux de gabarit, feux rouges, stops",
           "Girouette uniquement",
         ],
         correct: 0,
-        explanation: "Liste feux et codes (p.9).",
+        explanation:
+          "Éclairage : codes, veilleuse frontale, feux de brouillard, feux de détresse, feux de gabarit, feux rouges, stops (p.9).",
       },
       {
         id: "ch1-11g-02",
@@ -444,6 +471,18 @@ export const MODULES_CH1 = [
     cetPage: 10,
     questions: [
       {
+        id: "ch1-121-seq-01",
+        prompt:
+          "Dé-préparation complète en ligne (§ 1.2.1, après autorisation PCC et évacuation voyageurs) : dans quel ordre devez-vous enchaîner les opérations ?",
+        choices: [
+          "Manipulateur neutre → clé KC sur N → FS (facultatif 302/402 ; sur 302 réarmement DJ FS à changement de cabine) → bouton mise hors service → descente pantographe → coupure batterie",
+          "Coupure batterie d'abord, puis mise hors service, pantographe relevé",
+        ],
+        correct: 0,
+        explanation:
+          "RCT § 1.2.1 p.10 : six étapes dans l'ordre. Uniquement au terminus sauf coupure LAC impérative.",
+      },
+      {
         id: "ch1-121-01",
         prompt:
           "Pour une dé-préparation complète en ligne, quelle autorisation est requise ?",
@@ -498,6 +537,17 @@ export const MODULES_CH1 = [
     title: "Dé-préparation pour remisage",
     cetPage: 11,
     questions: [
+      {
+        id: "ch1-122-seq-01",
+        prompt:
+          "Dé-préparation pour remisage au dépôt (§ 1.2.2) : quel enchaînement complet menez-vous ?",
+        choices: [
+          "Manipulateur neutre → clé sur N (KC reste en rame au dépôt) → descente pantographe → compléter feuille de route (km, horaires) → mise hors service → fermer porte de loge → couper batterie (voussoir, sauf nettoyage soir ; 402 : temporisé ~2 min depuis cabine) → cycle porte voyageur côté droit (déverrouiller, ouvrir, reverrouiller, fermer)",
+          "Mise hors service avant pantographe, clé retirée du dépôt, batterie toujours laissée sous tension",
+        ],
+        correct: 0,
+        explanation: "RCT § 1.2.2 p.11 : huit étapes numérotées.",
+      },
       {
         id: "ch1-122-01",
         prompt:
@@ -678,7 +728,7 @@ export const MODULES_CH1 = [
         ],
         correct: 0,
         explanation:
-          "Le FS est commandé par un bouton coup de poing (RCT p. 13–14).",
+          "Le FS est commandé par un bouton coup de poing (RCT p. 14).",
       },
       {
         id: "ch1-14b-02",
@@ -791,11 +841,11 @@ export const MODULES_CH1 = [
         id: "ch1-16-02",
         prompt: "Disfonctionnement veille : conduite immédiate ?",
         choices: [
-          "Arrêt station la plus proche, détresse, PCC et clientèle",
+          "Arrêt station la plus proche, feux de détresse, PCC et clientèle",
           "Isolation sans PCC",
         ],
         correct: 0,
-        explanation: "Arrêt, détresse, informations (p.15).",
+        explanation: "Arrêt, feux de détresse, informations (p.15).",
       },
       {
         id: "ch1-16-03",
@@ -889,7 +939,7 @@ export const MODULES_CH1 = [
           "Sablière vide seule",
         ],
         correct: 0,
-        explanation: "Cas listés colonne A p.17.",
+        explanation: "RCT § 1.8-A p.17 : cas autorisant remorquage/poussage (tableau pannes).",
       },
       {
         id: "ch1-18a-03",
@@ -945,7 +995,7 @@ export const MODULES_CH1 = [
         prompt: "Défaut rétrovision quai ou zone dégagement quai : mode ?",
         choices: ["Haut Le Pied", "Fin de tour"],
         correct: 0,
-        explanation: "Colonnes B p.17–18.",
+        explanation: "RCT § 1.8-B p.17–18 : cas Haut Le Pied (tableau pannes).",
       },
       {
         id: "ch1-18b-05",
@@ -1000,7 +1050,7 @@ export const MODULES_CH1 = [
         prompt: "Panne phonie totale + GSM secours HS :",
         choices: ["Fin de tour", "Remorquage"],
         correct: 0,
-        explanation: "Colonne fin de tour (p.17).",
+        explanation: "RCT § 1.8-C p.17 : mode fin de tour (tableau pannes).",
       },
     ],
   },

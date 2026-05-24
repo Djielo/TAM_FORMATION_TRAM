@@ -1,5 +1,26 @@
 /** RCT ch. 3 — Consignes de circulation en ligne (pages 38–58) */
 export const MODULES_CH3 = [
+  // ─── 3.2-E Retournement / rebroussement (vue d'ensemble) ───
+  {
+    id: "circ-32e-overview",
+    code: "3.2-E",
+    title: "Retournement et rebroussement — Principes",
+    cetPage: 46,
+    questions: [
+      {
+        id: "ch3-32e-def-01",
+        prompt:
+          "Retournement et rebroussement : désignent-ils la même manœuvre ?",
+        choices: [
+          "Retournement = communication vers l'autre voie ; rebroussement = même voie (VUT)",
+          "Les deux termes désignent la marche arrière en cabine opposée",
+        ],
+        correct: 0,
+        explanation: "RCT § 3.2-E1 p.46 : définitions en tête de section.",
+      },
+    ],
+  },
+
   // ─── 3.1-A Prise de service au dépôt ───────────────────────
   {
     id: "prise-31a",
@@ -10,7 +31,7 @@ export const MODULES_CH3 = [
       {
         id: "ch3-31a-01",
         prompt:
-          "Quel est le taux maximal d'alcoolémie autorisé au sang pour un conducteur de transport public de voyageurs selon le RCT ?",
+          "Quel est le taux maximal d'alcoolémie autorisé au sang pour un conducteur de transport public de voyageurs ?",
         choices: [
           "Strictement inférieur à 0,20 g/l de sang",
           "0,50 g/l comme tout conducteur",
@@ -460,57 +481,21 @@ export const MODULES_CH3 = [
   {
     id: "circ-32e1",
     code: "3.2-E1",
-    title: "Retournement et rebroussement — Principes et cas n° 1",
+    title:
+      "Retournement — communication manuelle après une station (RCT § 3.2-E1)",
     cetPage: 46,
     questions: [
       {
         id: "ch3-32e1-01",
         prompt:
-          "Selon le RCT, comment définit-on un retournement parmi les descriptions suivantes ?",
+          "Retournement par communication manuelle située après une station (communication après la station, § 3.2-E1) : quel enchaînement complet menez-vous ?",
         choices: [
-          "Changement de voie par communication et départ sens inverse sur l'autre voie",
-          "Marche arrière sur même voie",
+          "Déposer voyageurs informés → avancer au clou de limite de manœuvre → feux de détresse → neutre, clé KC, sortir et fermer cabine → aiguille en déviée → cabine de tête, VUT si carrefour, rebrousser vers station (PCC si visibilité faible) → rétablir aiguilles sauf ordre PCC → informer PCC fin de manœuvre",
+          "Basculer l'aiguille sans déposer les voyageurs, repartir sans informer le PCC",
         ],
         correct: 0,
-        explanation: "Retournement = communication + autre voie (p.46).",
-      },
-      {
-        id: "ch3-32e1-02",
-        prompt:
-          "Le rebroussement sur même voie correspond à quel mode de circulation parmi les suivants ?",
-        choices: ["Circulation en VUT", "Ouverture de voie"],
-        correct: 0,
-        explanation: "Rebroussement = VUT sur même voie (p.46).",
-      },
-      {
-        id: "ch3-32e1-03",
-        prompt:
-          "Pour une communication manuelle non signalisée, dans quelles conditions peut-on réaliser un retournement ?",
-        choices: ["Sur ordre ou autorisation PCC", "À 70 km/h"],
-        correct: 0,
-        explanation: "Manœuvre complète sur ordre PCC (p.46).",
-      },
-      {
-        id: "ch3-32e1-04",
-        prompt:
-          "Au cas n° 1 (communication après une station), quelles actions doit avoir réalisées le conducteur avant de manœuvrer l'aiguille ?",
-        choices: [
-          "Feux détresse, neutre, clé N, sortie cabine, porte fermée",
-          "Ouverture portes voyageurs",
-        ],
-        correct: 0,
-        explanation: "Séquence sécurité avant mise en déviée (p.46).",
-      },
-      {
-        id: "ch3-32e1-05",
-        prompt:
-          "Pour franchir un carrefour (ex. Albert 1er) pendant un retournement, comment le conducteur fait-il déclencher le feu nécessaire ?",
-        choices: [
-          "Mode VUT en armoire de loge pour déclencher le feu",
-          "Pas de feu",
-        ],
-        correct: 0,
-        explanation: "Commutateur VUT en AEL si carrefour à franchir (p.46).",
+        explanation:
+          "RCT § 3.2-E1 p.46 (communication après station) : huit étapes. Sur ordre PCC si communication non signalisée.",
       },
     ],
   },
@@ -525,38 +510,14 @@ export const MODULES_CH3 = [
       {
         id: "ch3-32e2-01",
         prompt:
-          "Lors d'une manœuvre de retournement en terminus, quelle vitesse maximale ne doit-on pas dépasser ?",
-        choices: ["15 km/h", "40 km/h"],
-        correct: 0,
-        explanation: "15 km/h en terminus (p.47).",
-      },
-      {
-        id: "ch3-32e2-02",
-        prompt:
-          "La marche arrière depuis une cabine située à l'opposé du sens de marche est-elle permise et dans quelles conditions exceptionnelles ?",
+          "Manœuvre de retournement en terminus (§ 3.2-E2) : quel enchaînement menez-vous ?",
         choices: [
-          "Strictement interdite sauf courte distance remorquage/poussage avec 2e agent",
-          "Autorisée en terminus",
+          "Neutre, retirer clé KC, fermer cabine à clé → traversée rame (objets oubliés → PCC) → cabine de tête en service, vérifier présélection portes et girouette → avancer vers quai et déverrouiller portes (max 15 km/h)",
+          "Quitter cabine sans fermer, marche arrière depuis cabine opposée autorisée",
         ],
         correct: 0,
         explanation:
-          "Interdit sauf remorquage court avec personnel cabine opposée (p.47).",
-      },
-      {
-        id: "ch3-32e2-03",
-        prompt:
-          "Lors d'un changement de cabine en terminus, que doit-on notamment vérifier parmi les éléments suivants ?",
-        choices: ["Présélection portes et girouette", "Pantographe bas"],
-        correct: 0,
-        explanation: "Étape 3 retournement terminus (p.47).",
-      },
-      {
-        id: "ch3-32e2-04",
-        prompt:
-          "Hors pause ou régulation de service, peut-on quitter la cabine et sous quelle condition ?",
-        choices: ["Uniquement avec autorisation PCC", "Interdit toujours"],
-        correct: 0,
-        explanation: "Hors pause : pas de sortie cabine sans PCC (p.47).",
+          "RCT § 3.2-E2 p.47 : quatre étapes. Marche arrière interdite sauf remorquage court avec 2e agent. Hors pause : sortie cabine seulement avec accord PCC.",
       },
     ],
   },
@@ -571,43 +532,24 @@ export const MODULES_CH3 = [
       {
         id: "ch3-32e3-01",
         prompt:
-          "Lors d'un rebroussement en conflit (deux rames, SM rouge), quelle vitesse maximale respecter après changement de cabine ?",
-        choices: ["5 km/h max après changement de cabine", "40 km/h"],
+          "Rebroussement en conflit (deux rames face à face, SM rouge — § 3.2-E3) : quel enchaînement menez-vous ?",
+        choices: [
+          "Rame la plus proche fait rebroussement (autorisation PCC, voyageurs à bord si accord) → dégager aiguille quittée en marche avant si besoin → changement cabine → rebroussement 5 km/h max → informer PCC position → reprise après accord PCC → arrêt au signal de manœuvre et repartir au vert",
+          "Reculer à 40 km/h, sans informer le PCC, sans dégager l'aiguille",
+        ],
         correct: 0,
-        explanation: "Rebroussement limité à 5 km/h (p.48).",
+        explanation: "RCT § 3.2-E3 p.48 : cas conflit (six étapes).",
       },
       {
         id: "ch3-32e3-02",
         prompt:
-          "Avant de reculer en rebroussement, que doit-on souvent faire au préalable au sujet de l'aiguille quittée ?",
+          "Rebroussement simple après une station sur voie unique (ex. Boirargues, § 3.2-E3) : quel enchaînement suivez-vous ?",
         choices: [
-          "S'engager en marche avant pour dégager complètement l'aiguille quittée",
-          "Couper la batterie",
+          "S'engager jusqu'au repère de rebroussement → après autorisation PCC : changement de cabine, contrôle de l'aiguille, puis marche vers le quai sur la voie opposée",
+          "Rebrousser sans autorisation PCC, sans contrôle d'aiguille, à 40 km/h",
         ],
         correct: 0,
-        explanation: "Dégagement appareil en marche avant si besoin (p.48).",
-      },
-      {
-        id: "ch3-32e3-03",
-        prompt:
-          "Une fois le rebroussement terminé, qui doit être informé et de quoi avant la reprise ?",
-        choices: [
-          "Le PCC de la position avant reprise",
-          "Les voyageurs seulement",
-        ],
-        correct: 0,
-        explanation: "Compte-rendu position au PCC (p.48).",
-      },
-      {
-        id: "ch3-32e3-04",
-        prompt:
-          "Pour un rebroussement après une station (ex. Boirargues), qui doit donner l'autorisation et à quel moment par rapport au changement de cabine et à la reprise ?",
-        choices: [
-          "PCC avant changement de cabine et reprise",
-          "Conducteur seul",
-        ],
-        correct: 0,
-        explanation: "Autorisation PCC pour rebroussement (p.48).",
+        explanation: "RCT § 3.2-E3 p.48 : cas standard (deux étapes), distinct du cas conflit (ch3-32e3-01).",
       },
     ],
   },
@@ -647,7 +589,7 @@ export const MODULES_CH3 = [
           "Ouverture des portes",
         ],
         correct: 0,
-        explanation: "Girouette + détresse (p.49).",
+        explanation: "Girouette + feux de détresse (p.49).",
       },
     ],
   },
@@ -789,6 +731,27 @@ export const MODULES_CH3 = [
         choices: ["V max 15 km/h", "Arrêt interdit"],
         correct: 0,
         explanation: "Risque piéton derrière rame arrêtée (p.50).",
+      },
+    ],
+  },
+
+  // ─── 3.7 Arrêt en station (vue d'ensemble) ─────────────────
+  {
+    id: "circ-37-overview",
+    code: "3.7",
+    title: "Arrêt en station — Principes généraux",
+    cetPage: 51,
+    questions: [
+      {
+        id: "ch3-37-overview-01",
+        prompt:
+          "Service voyageurs — approche et arrêt en station (§ 3.7, avant ouverture des portes) : quel enchaînement de principes respectez-vous ?",
+        choices: [
+          "Montée/descente en station côté quai désigné (sauf consigne PCC) → arrêt à chaque station → entrée max 30 km/h avec gong (15 km/h si autre rame selon § 3.6) → vigilance bord de quai → arrêt commercial au clou rouge (épaule conducteur) → portes déverrouillées seulement après arrêt complet",
+          "Entrevoie autorisée, 10 km/h à l'entrée, déverrouillage des portes en roulant",
+        ],
+        correct: 0,
+        explanation: "RCT § 3.7 p.51 : six encadrés avant la partie ouverture/fermeture.",
       },
     ],
   },
@@ -975,35 +938,37 @@ export const MODULES_CH3 = [
       {
         id: "ch3-37d-02",
         prompt:
-          "Après activation d'une poignée d'alarme : que doit faire le conducteur avant tout redépart ?",
+          "Poignée d'alarme tirée pendant le dégagement du quai (BPIL phonie + alerte SIE) : quel enchaînement suivez-vous avant tout redépart ?",
         choices: [
-          "Dialogue phonie, info voyageurs, contrôle sécurité (chutes)",
-          "Évacuation systématique",
+          "Éviter ouverture côté entrevoie (réarmement poignée ou bon côté de déverrouillage ; sur 401 = côté pré-sélectionné) → dialogue phonie avec l'auteur puis information voyageurs → contrôle sécurité passagers (chutes après FU/FMS) — portes libérées après 15 s",
+          "Rouvrir immédiatement côté entrevoie, repartir sans phonie ni contrôle des passagers",
         ],
         correct: 0,
-        explanation: "Phonie + annonce + sécurité passagers (p.54).",
+        explanation:
+          "RCT § 3.7-D p.54 : FU/FMS, déverrouillage retardé 15 s, risque entrevoie. Même logique à l'arrêt hors quai.",
+      },
+      {
+        id: "ch3-37d-02b",
+        prompt:
+          "Mode dégradé « défaut porte » (§ 3.7-D) : quel enchaînement menez-vous ?",
+        choices: [
+          "Condamner la porte + autocollant voyageurs → vérifier condamnation sur le SIE → signaler sur feuille de route et au PCC (rupture plomb « contrôle portes » seulement après évacuation complète sur ordre PCC)",
+          "Rouler porte ouverte, isoler le contrôle portes sans évacuation",
+        ],
+        correct: 0,
+        explanation: "RCT § 3.7-D p.54 : trois étapes + encadré évacuation obligatoire.",
       },
       {
         id: "ch3-37d-03",
         prompt:
-          "Une porte défectueuse est constatée : quelle est la première mesure à prendre à bord ?",
+          "Une porte défectueuse est constatée en service : quelle est la première mesure à prendre à bord ?",
         choices: [
-          "Condamner + autocollant info voyageurs",
-          "Rouler porte ouverte",
+          "Condamner la porte et apposer l'autocollant d'information voyageurs",
+          "Rouler avec la porte ouverte",
         ],
         correct: 0,
-        explanation: "Condamnation + étiquette (p.54).",
-      },
-      {
-        id: "ch3-37d-04",
-        prompt:
-          "Si une porte ne peut être condamnée et que l'on doit procéder à l'isolement « contrôle portes », sous quelles conditions la manœuvre est-elle acceptable ?",
-        choices: [
-          "Évacuation complète obligatoire avant, sur ordre PCC",
-          "Par le conducteur seul",
-        ],
-        correct: 0,
-        explanation: "Évacuation avant rupture plomb contrôle portes (p.54).",
+        explanation:
+          "RCT § 3.7-D p.54 : première étape du mode dégradé (détail aussi dans ch3-37d-02b).",
       },
     ],
   },
@@ -1120,29 +1085,13 @@ export const MODULES_CH3 = [
       {
         id: "ch3-39b-01",
         prompt:
-          "Si la phonie de secours au pupitre est inopérante : comment peut-on néanmoins joindre le PCC ?",
+          "Panne de phonie (phonie générale ou secours pupitre inopérant — § 3.9-B) : quelle conduite tenez-vous ?",
         choices: [
-          "Demander à un autre tram de prévenir le PCC, ou téléphone perso à l'arrêt",
-          "Continuer sans avis",
+          "Attendre un autre tram pour demander au conducteur de prévenir le PCC, ou appeler le PCC avec son téléphone personnel uniquement rame à l'arrêt puis suivre les consignes du régulateur — noter l'incident sur la feuille de route en fin de service",
+          "Continuer le service sans prévenir le PCC, appeler en roulant à 30 km/h",
         ],
         correct: 0,
-        explanation: "Relais autre rame ou GSM à l'arrêt (p.57).",
-      },
-      {
-        id: "ch3-39b-02",
-        prompt:
-          "Pour utiliser son téléphone personnel afin de joindre le PCC : dans quel état la rame doit-elle se trouver ?",
-        choices: ["Rame à l'arrêt complet uniquement", "En marche à 30 km/h"],
-        correct: 0,
-        explanation: "Appel perso seulement à l'arrêt (p.57).",
-      },
-      {
-        id: "ch3-39b-03",
-        prompt:
-          "Après une panne de phonie jusqu'à la fin de service : que doit-on consigner à propos de l'incident ?",
-        choices: ["Noter l'incident sur la feuille de route", "SAT seul"],
-        correct: 0,
-        explanation: "Trace feuille de route (p.57).",
+        explanation: "RCT § 3.9-B p.57.",
       },
     ],
   },
@@ -1157,37 +1106,24 @@ export const MODULES_CH3 = [
       {
         id: "ch3-39c-01",
         prompt:
-          "Pour une rentrée au dépôt : quelle est la première démarche avant d'y circuler ?",
-        choices: ["Demander autorisation PCC", "Ouvrir les portes voyageurs"],
+          "Rentrée au dépôt (§ 3.9-C) : quel enchaînement complet menez-vous ?",
+        choices: [
+          "Demander autorisation PCC → stationner où désigné (voie E, station ou remisage) → vérifier rame intérieur/extérieur → signaler dégâts sur feuille de route → noter kilométrage et heures → déposer feuille en boîte → ranger planchette en salle de prise de service",
+          "Entrer sans autorisation, conserver planchette en cabine, ne pas remplir la feuille de route",
+        ],
         correct: 0,
-        explanation: "Autorisation PCC avant entrée (p.57).",
+        explanation: "RCT § 3.9-C p.57 : sept points numérotés.",
       },
       {
         id: "ch3-39c-02",
         prompt:
-          "À la rentrée au dépôt : comment doit être exploitée et déposée la feuille de route ainsi que la planchette selon les étapes prévues ?",
+          "Circulation dans le dépôt après rentrée (§ 3.9-C) : quelles règles respectez-vous ?",
         choices: [
-          "Dégâts, km, heures ; dépôt dans boîte ; planchette en salle prise de service",
-          "Uniquement SAT",
+          "Sans voyageurs, sous contrôle PCC, respect de la signalisation de manœuvre, sous responsabilité du conducteur : 10 km/h max (3 km/h en ateliers), pas de conduite en zone ateliers",
+          "Avec voyageurs à bord, 40 km/h, conduite libre en ateliers",
         ],
         correct: 0,
-        explanation: "Étapes 4 à 7 p.57.",
-      },
-      {
-        id: "ch3-39c-03",
-        prompt:
-          "À quelle vitesse maximale circule-t-on dans le dépôt et à combien est-on limité dans les ateliers selon les valeurs prévues ?",
-        choices: ["10 km/h (3 km/h ateliers)", "40 km/h"],
-        correct: 0,
-        explanation: "10 km/h dépôt, 3 km/h ateliers (p.58).",
-      },
-      {
-        id: "ch3-39c-04",
-        prompt:
-          "En zone ateliers du dépôt : les conducteurs peuvent-ils y assurer la conduite des rames comme sur le reste du site ?",
-        choices: ["Conduite non autorisée aux conducteurs", "Remorquage libre"],
-        correct: 0,
-        explanation: "Pas de conduite en ateliers (p.58).",
+        explanation: "RCT p.58 : encadré « Pour circuler dans le dépôt ».",
       },
     ],
   },
@@ -1231,17 +1167,6 @@ export const MODULES_CH3 = [
         ],
         correct: 0,
         explanation: "Cas listés p.58.",
-      },
-      {
-        id: "ch3-39d-04",
-        prompt:
-          "Quelles sont les conditions de circulation au dépôt au regard des voyageurs, du PCC et des feux de manœuvre ?",
-        choices: [
-          "Sans voyageurs, sous contrôle PCC, feux manœuvre respectés",
-          "Sans PCC",
-        ],
-        correct: 0,
-        explanation: "Sans client, PCC, signaux manœuvre (p.58).",
       },
     ],
   },

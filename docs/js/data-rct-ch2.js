@@ -428,12 +428,8 @@ export const MODULES_CH2 = [
       },
       {
         id: "indes-18",
-        prompt:
-          "Au dépôt, que signifie l'affichage INDES « R » (Sabines V2) ?",
-        choices: [
-          "Retournement dans le tiroir",
-          "Remisage voie 2 uniquement",
-        ],
+        prompt: "Au dépôt, que signifie l'affichage INDES « R » (Sabines V2) ?",
+        choices: ["Retournement dans le tiroir", "Remisage voie 2 uniquement"],
         correct: 0,
         explanation: "R (Sabines V2) = retournement dans le tiroir (p.23).",
       },
@@ -468,7 +464,8 @@ export const MODULES_CH2 = [
           "Neutralisation du canton",
         ],
         correct: 0,
-        explanation: "N = mode nominal, sans retournement (p.23, Galerie Mistral).",
+        explanation:
+          "N = mode nominal, sans retournement (p.23, Galerie Mistral).",
       },
       {
         id: "indes-23",
@@ -553,7 +550,7 @@ export const MODULES_CH2 = [
         choices: ["AT", "PL"],
         correct: 0,
         explanation:
-          "Arrêt à l'INDES en position d'attente = AT (p.29, étape 1).",
+          "RCT p.29 : arrêt à l'INDES en position d'attente (AT).",
       },
       {
         id: "indes-10",
@@ -625,14 +622,14 @@ export const MODULES_CH2 = [
       {
         id: "sm-07",
         prompt:
-          "Par rapport au SM, que vous annonce surtout le SA concernant la manœuvre à venir ?",
+          "Concernant un SM à venir, que vous annonce le T orange d'un SA allumé ?",
         choices: [
-          "Un prochain feu de manœuvre au rouge — passage en Marche À Vue",
-          "Un arrêt absolu immédiat",
+          "Prochain feu de manœuvre au rouge — franchissement autorisé en marche à vue",
+          "Arrêt obligatoire — franchissement interdit",
         ],
         correct: 0,
         explanation:
-          "SA = avertissement (T orange) ; SM = arrêt ou passage (T rouge/vert) — p.23–24.",
+          "T orange du SA : le prochain feu de manœuvre sera au rouge — franchissement autorisé, marche à vue (p.24). Franchissement interdit : SM au T rouge (p.23).",
       },
       {
         id: "sm-08",
@@ -650,12 +647,12 @@ export const MODULES_CH2 = [
         prompt:
           "Lampe flash déclenchée au franchissement d'un SM en voie unique (p.25) : signification pour le conducteur ?",
         choices: [
-          "Franchissement non autorisé ou rame adverse — arrêt immédiat (FU), détresse, appel PCC",
-          "Passage autorisé à 40 km/h",
+          "Franchissement du SM non autorisé ou rame en sens inverse",
+          "Arrêt immédiat (FU), feux de détresse et appel PCC",
         ],
         correct: 0,
         explanation:
-          "Alarme = franchissement SM non autorisé ou rame en sens inverse — arrêt immédiat FU (p.25).",
+          "Signification (p.25-H) : franchissement du SM non autorisé ou rame arrivant à contre sens. Si le signal clignote : arrêt immédiat (FU), feux de détresse, appel PCC et attendre les consignes.",
       },
       {
         id: "sm-10",
@@ -714,7 +711,7 @@ export const MODULES_CH2 = [
       {
         id: "sa-06",
         prompt:
-          "T orange allumé sur SA ou SMA : vitesses maximum indiquées (encadré jaune p.24) ?",
+          "Signal d'avertissement (SA) ou de manœuvre et d'avertissement (SMA) : T orange fixe ou clignotant allumé — quelles vitesses maximum respecter ?",
         choices: [
           "30 km/h — et 15 km/h en entrée de station si une autre rame est présente",
           "40 km/h en permanence",
@@ -954,12 +951,12 @@ export const MODULES_CH2 = [
         prompt:
           "En voie unique, dans quelle situation la lampe flash et l'avertisseur sonore se déclenchent-ils ensemble ?",
         choices: [
-          "Franchissement du SM d'entrée de VU non autorisé ou rame sens inverse",
-          "Le feu R17 est vertical",
+          "Franchissement du SM d'entrée de voie unique non autorisé ou rame en sens inverse",
+          "Passage autorisé si la voie est visible",
         ],
         correct: 0,
         explanation:
-          "Détection franchissement SM ou rame adverse en VU (p.25-H).",
+          "Alarme au franchissement du SM en voie unique ou rame arrivant à contre sens (p.25-H).",
       },
       {
         id: "lt-02",
@@ -970,7 +967,8 @@ export const MODULES_CH2 = [
           "Passer si voie visible",
         ],
         correct: 0,
-        explanation: "Arrêt immédiat FU, détresse, appel PCC (encadré p.25).",
+        explanation:
+          "Encadré p.25 : arrêt immédiat (FU), feux de détresse, appel PCC et attendre les consignes.",
       },
       {
         id: "lt-03",
@@ -1047,7 +1045,7 @@ export const MODULES_CH2 = [
     questions: [
       {
         id: "tr-00",
-        prompt: "Dans le RCT, le signal type R17 est :",
+        prompt: "le signal type R17 est :",
         choices: [
           "Le signal de traversée routière du tramway",
           "Un indicateur de direction d'aiguillage",
@@ -1179,7 +1177,8 @@ export const MODULES_CH2 = [
           "Feux de détresse seuls",
         ],
         correct: 0,
-        explanation: "Priorité à droite, gong, détresse, 10 km/h (p.28).",
+        explanation:
+          "Priorité à droite, gong, feux de détresse, 10 km/h (p.28).",
       },
       {
         id: "pr-04",
@@ -1217,7 +1216,7 @@ export const MODULES_CH2 = [
       {
         id: "zs-01",
         prompt:
-          "Quelles zones du réseau Montpellier sont qualifiées de zones spécifiques dans le document ?",
+          "Sur le réseau Montpellier, quelles zones sont traitées comme zones spécifiques (cohabitation des rames, consignes locales) ?",
         choices: [
           "Zone Gare Saint-Roch, place Albert 1er et Corum",
           "Le dépôt et le poste de retournement uniquement",
@@ -1250,6 +1249,17 @@ export const MODULES_CH2 = [
     cetPage: 29,
     questions: [
       {
+        id: "zg-00",
+        prompt:
+          "Zone Gare Saint-Roch : pour engager sa destination lorsqu'aucune autre rame n'impose encore un conflit, quel enchaînement suivez-vous ?",
+        choices: [
+          "Arrêt à l'INDES en position d'attente (AT) → télécommande destination (gauche / tout droit / droite) → voyant vert = itinéraire commandé (anomalie feux ou « XX » → appel PCC) → engagement à 10 km/h en contrôlant les aiguilles",
+          "Passage sans arrêt INDES, 15 km/h, priorité à la rame de gauche",
+        ],
+        correct: 0,
+        explanation: "RCT § 2.4.1 p.29 : points 1 à 4 (marche à vue 10 km/h, priorité à droite).",
+      },
+      {
         id: "zg-01",
         prompt: "En zone Gare Saint-Roch : vitesse maximum ?",
         choices: ["10 km/h", "15 km/h"],
@@ -1268,7 +1278,8 @@ export const MODULES_CH2 = [
       },
       {
         id: "zg-03",
-        prompt: "Étape 1 zone gare : où s'arrêter en position d'attente ?",
+        prompt:
+          "En zone Gare Saint-Roch, vous engagez une destination : à quel signal et sous quelle indication devez-vous vous arrêter d'abord en position d'attente ?",
         choices: ["À l'INDES en position AT", "Au feu R17"],
         correct: 0,
         explanation: "Arrêt à l'INDES position attente = AT (p.29).",
@@ -1290,7 +1301,8 @@ export const MODULES_CH2 = [
           "Une rame arrive par la droite en zone gare : quelle conduite devez-vous tenir ?",
         choices: ["Vous arrêter au PLP", "Appeler le PCC systématiquement"],
         correct: 0,
-        explanation: "Rame de droite → arrêt au PLP (p.29, étape 5a).",
+        explanation:
+          "RCT p.29 : en présence d'une rame arrivant par la droite, arrêt au PLP (point limite de priorité).",
       },
       {
         id: "zg-06",
@@ -1317,7 +1329,7 @@ export const MODULES_CH2 = [
       {
         id: "zg-08",
         prompt:
-          "Organigramme Gare / Albert 1er : la zone est vide — après engagement destination ?",
+          "En zone Gare Saint-Roch ou place Albert 1er, vous avez engagé votre destination et aucune autre rame n'est présente : que faites-vous ensuite ?",
         choices: [
           "Reprise destination sans autre formalité",
           "Appeler le PCC avant toute reprise",
@@ -1350,6 +1362,18 @@ export const MODULES_CH2 = [
         explanation:
           "Conflit d'engagement : arrêt absolu et appel PCC (chemins p.30).",
       },
+      {
+        id: "zg-11",
+        prompt:
+          "En zone Gare : une rame arrive par la gauche et a déjà engagé son PLG — que faites-vous ?",
+        choices: [
+          "Vous vous arrêtez pour la laisser passer (même si elle peut aller tout droit)",
+          "Vous passez en priorité à droite",
+        ],
+        correct: 0,
+        explanation:
+          "RCT p.29 : rame par la gauche ayant dépassé son PLG — attendre le passage du premier bogie avant de repartir.",
+      },
     ],
   },
 
@@ -1360,6 +1384,18 @@ export const MODULES_CH2 = [
     title: "Zone place Albert 1er (2.4.2) — Vitesses, codes et télécommandes",
     cetPage: 31,
     questions: [
+      {
+        id: "za-00",
+        prompt:
+          "Zone place Albert 1er (marche à vue, 10 km/h à partir du TIV « 10 », priorité à droite) : pour engager sa destination lorsqu'aucune autre rame n'impose encore de conflit, quelles consignes s'appliquent ?",
+        choices: [
+          "Les mêmes qu'en zone Gare Saint-Roch : arrêt INDES en AT, télécommande destination, voyant vert = itinéraire, engagement à 10 km/h en contrôlant les aiguilles (codes SC, H4, LB…)",
+          "Règles différentes : pas d'INDES, priorité à gauche, 15 km/h",
+        ],
+        correct: 0,
+        explanation:
+          "RCT § 2.4.2 p.31 : renvoi aux consignes zone Gare (§ 2.4.1) pour l'engagement destination.",
+      },
       {
         id: "za-01",
         prompt: "Zone Albert 1er : vitesse maximale à partir du TIV « 10 » ?",
@@ -1378,14 +1414,14 @@ export const MODULES_CH2 = [
       {
         id: "za-03",
         prompt:
-          "En zone place Albert 1er, comment se comportent pour vous les prescriptions des points 1 à 5b de l'article 2.4.1 (zone Gare Saint-Roch) ?",
+          "En zone place Albert 1er (marche à vue, 10 km/h, priorité à droite) : les consignes de la zone Gare Saint-Roch (arrêt INDES « AT », voyant vert, PLP/PLG, etc.) s'appliquent-elles aussi ici ?",
         choices: [
           "S'appliquent également (Marche À Vue, procédures)",
           "Ne s'appliquent pas",
         ],
         correct: 0,
         explanation:
-          "Renvoi explicite aux procédures 2.4.1 points 1-2-3-4-5a-5b (p.31).",
+          "RCT p.31 : mêmes consignes qu'en zone Gare Saint-Roch (INDES, voyant vert, PLP/PLG, priorité à droite).",
       },
       {
         id: "za-04",
@@ -1484,7 +1520,7 @@ export const MODULES_CH2 = [
       {
         id: "zc-06",
         prompt:
-          "En zone Corum, les prescriptions détaillées aux points 1, 2, 3, 4, 5a et 5b de l'article 2.4.1 s'appliquent-elles même sans autre rame présente ?",
+          "En zone Corum (comme à la gare : marche à vue, 10 km/h, priorité à droite, franchissement avec PLP/PLG) : ces consignes s'appliquent-elles même s'il n'y a pas d'autre rame ?",
         choices: [
           "S'appliquent même sans autre rame",
           "Sont suspendus si le quai est vide",
@@ -1551,7 +1587,7 @@ export const MODULES_CH2 = [
       {
         id: "tiv-07",
         prompt:
-          "Tableau des limitations (RCT) : croisement d'une rame arrêtée — vitesse max ?",
+          "Tableau des limitations : croisement d'une rame arrêtée — vitesse max ?",
         choices: ["10 km/h", "15 km/h"],
         correct: 0,
         explanation: "10 km/h (tableau p.34).",
@@ -1795,7 +1831,7 @@ export const MODULES_CH2 = [
       {
         id: "aa-01",
         prompt:
-          "Quels dispositifs relèvent notamment des panneaux « arrêt absolu » au sens du RCT ?",
+          "Quels dispositifs relèvent notamment des panneaux « arrêt absolu » ?",
         choices: [
           "« ARRÊT OBLIGATOIRE » et le panneau rouge uni sans mention",
           "Uniquement un feu rouge clignotant",

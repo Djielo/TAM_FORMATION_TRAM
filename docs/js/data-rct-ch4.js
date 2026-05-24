@@ -10,51 +10,25 @@ export const MODULES_CH4 = [
       {
         id: "ch4-41-01",
         prompt:
-          "Face à un incident qui impose l'arrêt immédiat de la rame, quelles sont les quatre étapes de base décrites dans le RCT ?",
+          "Face à un incident qui impose l'arrêt immédiat de la rame : quelles sont les quatre étapes de base à enchaîner ?",
         choices: [
-          "Arrêt, détresse, appel flash PCC, information clients",
+          "Arrêt, feux de détresse, appel flash PCC, information clients",
           "Évacuation immédiate sans appel",
         ],
         correct: 0,
-        explanation: "Quatre gestes communs à tout arrêt d'urgence (p.60).",
+        explanation:
+          "Arrêt, feux de détresse, appel flash PCC, information clients (p.60).",
       },
       {
         id: "ch4-41-02",
         prompt:
-          "Lorsque l'immobilisation de la rame se prolonge : dans quelles conditions l'évacuation est-elle possible ?",
-        choices: ["Sur accord PCC", "Interdite"],
-        correct: 0,
-        explanation: "Évacuation si arrêt prolongé, d'accord PCC (p.60).",
-      },
-      {
-        id: "ch4-41-03",
-        prompt:
-          "Vous devez quitter sans délai une zone où vous êtes exposé au danger — flammes à proximité, jets de projectiles ou autre agression analogue — : quelle conduite le RCT préconise-t-il ?",
+          "Après les quatre gestes de base (arrêt, détresse, appel PCC, information clients) : arrêt prolongé, danger immédiat ou incident grave — quelles consignes générales s'appliquent ensuite ?",
         choices: [
-          "Autorisé ; prévenir PCC après ; respecter signalisation",
-          "Uniquement au dépôt",
+          "Arrêt prolongé : évacuation seulement d'accord PCC — danger immédiat (feu, projectiles, etc.) : quitter la zone puis prévenir PCC en respectant la signalisation — incident grave : conducteur coordinateur (témoignages, compte-rendu PCC) jusqu'au relais au supérieur hiérarchique présent (contact pompiers/police)",
+          "Évacuation systématique sans PCC, reprise de service immédiate, le PCC devient coordinateur sur place",
         ],
         correct: 0,
-        explanation: "Quitter la zone puis informer PCC (p.60).",
-      },
-      {
-        id: "ch4-41-04",
-        prompt:
-          "Après un incident grave, tant que vous attendez les secours extérieurs : quel rôle opérationnel le conducteur conserve-t-il toujours sur place ?",
-        choices: [
-          "Coordinateur : témoignages, compte-rendu PCC",
-          "Reprendre le service",
-        ],
-        correct: 0,
-        explanation: "Coordinateur jusqu'à prise en charge maîtrise (p.60).",
-      },
-      {
-        id: "ch4-41-05",
-        prompt:
-          "Lorsque la maîtrise sur place passe aux services de sécurité (pompiers, police présents sur zone), qui prend la fonction de coordinateur aux relations avec ces services à la place du conducteur ?",
-        choices: ["Le supérieur hiérarchique présent", "Le PCC à distance"],
-        correct: 0,
-        explanation: "Relais coordinateur au supérieur (p.60).",
+        explanation: "RCT § 4.1 p.60 : prolongation, départ urgent et rôle coordinateur.",
       },
     ],
   },
@@ -69,46 +43,14 @@ export const MODULES_CH4 = [
       {
         id: "ch4-42a-01",
         prompt:
-          "Après accident matériel seul avec dégâts aux biens, pourquoi le conducteur doit-il remplir le constat en restant à bord avant de quitter les lieux ?",
+          "Accident matériel (dégâts aux biens uniquement) : quel enchaînement d'actions menez-vous ?",
         choices: [
-          "Rester joignable par le PCC pendant le pré-constat",
-          "Partir chercher le tiers",
+          "Arrêt et feux de détresse → appel d'urgence et information clients → éviter un autre accident → témoins → pré-constat dans la rame (rester joignable PCC) → exemplaire au tiers → informer PCC → CONSTAT ACCIDENT partie A (PCC ou boîte rouge JP le jour même) → noter sur la feuille de route",
+          "Déplacer la rame tout de suite, constat hors rame, reprise de service sans ordre du PCC",
         ],
         correct: 0,
-        explanation: "Pré-constat dans la rame, joignabilité PCC (p.61).",
-      },
-      {
-        id: "ch4-42a-02",
-        prompt:
-          "Choc latéral violent sur le train avant : quelle manœuvre électrique de sécurité devez-vous déclencher en priorité, compte tenu du risque de toucher une zone Haute Tension ?",
-        choices: [
-          "Mettre le FS (risque électrique HT)",
-          "Couper batterie sans appel",
-        ],
-        correct: 0,
-        explanation: "FS si choc violent avant (encadré p.61).",
-      },
-      {
-        id: "ch4-42a-03",
-        prompt:
-          "Après accident matériel, qui autorise tout déplacement de la rame et la reprise du service régulier ?",
-        choices: [
-          "Uniquement sur ordre PCC ; reprise service idem",
-          "Libre si dégâts légers",
-        ],
-        correct: 0,
-        explanation: "Déplacement et reprise sur ordre PCC (p.61).",
-      },
-      {
-        id: "ch4-42a-04",
-        prompt:
-          "Après constitution du dossier d'accident matériel, où dépose-t-on sans tarder la partie A du constat (« CONSTAT ACCIDENT ») comme le prévoit le RCT ?",
-        choices: [
-          "CONSTAT ACCIDENT partie A au PCC ou boîte rouge JP le jour même",
-          "Au dépôt seulement",
-        ],
-        correct: 0,
-        explanation: "Partie A signée, remise jour même (p.61).",
+        explanation:
+          "RCT § 4.2-A p.61 : les neuf étapes dans l'ordre. Rappels : choc latéral violent sur l'avant → FS (risque HT) ; déplacement de la rame et reprise du service uniquement sur ordre du PCC.",
       },
     ],
   },
@@ -123,43 +65,14 @@ export const MODULES_CH4 = [
       {
         id: "ch4-42b-01",
         prompt:
-          "Accident corporel : pour préciser aux secours radio l'état de la victime, que doit faire le conducteur concernant son poste et le blessé même si celui-ci se trouve à l'intérieur de la rame ?",
+          "Accident corporel : quel enchaînement d'actions menez-vous ?",
         choices: [
-          "Sortir de cabine pour signalement précis même si blessé dans la rame",
-          "Rester en cabine",
+          "Arrêt et feux de détresse → appel d'urgence et prévenir les clients → éviter un autre accident et protéger les blessés → évaluer l'état du blessé (sortir de cabine pour signalement précis) → informer le PCC → suivre ses ordres → accueillir les secours → témoins → constat corporel dans la rame → appel PCC pour reprise → remettre CONSTAT CORPOREL + CONSTAT ACCIDENT partie B → feuille de route",
+          "Rester en cabine pour évaluer, reprise immédiate si blessures légères, pas de constat corporel",
         ],
         correct: 0,
-        explanation: "Sortie cabine pour évaluation (texte violet p.62).",
-      },
-      {
-        id: "ch4-42b-02",
-        prompt:
-          "Après prise en charge initiale sur une victime d'accident corporel : à quelle condition la reprise du service régulier est-elle possible ?",
-        choices: ["Autorisation PCC après appel", "Si blessé refuse secours"],
-        correct: 0,
-        explanation: "Appel PCC pour autorisation reprise (p.62).",
-      },
-      {
-        id: "ch4-42b-03",
-        prompt:
-          "Il s'agit d'une blessure légère mais la victime refuse l'intervention des secours : que faites-vous avant de poursuivre la course avec la rame ?",
-        choices: [
-          "Pas de reprise sans accord PCC ; relever ses coordonnées",
-          "Pas de constat",
-        ],
-        correct: 0,
-        explanation: "Encadré p.62.",
-      },
-      {
-        id: "ch4-42b-04",
-        prompt:
-          "À l'issue de la prise en charge d'un accident corporel : quel couple de formulaires remettez-vous systématiquement au PCC ?",
-        choices: [
-          "CONSTAT CORPOREL + CONSTAT ACCIDENT partie B",
-          "SAT uniquement",
-        ],
-        correct: 0,
-        explanation: "Deux constats partie B (p.62).",
+        explanation:
+          "RCT § 4.2-B p.62 : douze étapes dans l'ordre. Rappel : si blessures légères et refus de secours, pas de reprise sans accord PCC ; relever quand même les coordonnées de la victime.",
       },
     ],
   },
@@ -174,43 +87,14 @@ export const MODULES_CH4 = [
       {
         id: "ch4-42c-01",
         prompt:
-          "Personne encore engagée sous la rame : que devez-vous accomplir avant toute manœuvre consistant à couper la batterie tracteur ou de service ?",
+          "Chute ou accident : personne engagée sous la rame. Quel enchaînement d'actions menez-vous ?",
         choices: [
-          "Appel d'urgence (avant coupure batterie)",
-          "Coupure batterie d'abord",
+          "Arrêt et feux de détresse → FS (coupure alimentation électrique) → appel d'urgence avant coupure batterie → abaisser pantographe et dé-préparer (y compris coupure batterie) → informer clients → protéger le blessé et relever son état → accueillir les secours → CONSTAT CORPOREL + CONSTAT ACCIDENT partie B au PCC → feuille de route",
+          "Coupure batterie d'abord, le conducteur déplace la rame pour dégager la victime, pas de FS",
         ],
         correct: 0,
-        explanation: "Appel urgence avant coupure (texte rouge p.63).",
-      },
-      {
-        id: "ch4-42c-02",
-        prompt:
-          "Une victime est coincée sous le tramway : qui est habilité, selon ces consignes, à faire déplacer la rame pour la dégagement ?",
-        choices: ["Réservé aux pompiers", "Par le PCC à distance"],
-        correct: 0,
-        explanation: "Seuls les pompiers déplacent la rame (encadré p.63).",
-      },
-      {
-        id: "ch4-42c-03",
-        prompt:
-          "Dans la séquence d'urgence consacrée aux personnes prises sous rame : à quel effet essentiel sert avant tout l'activation du FS ?",
-        choices: [
-          "Couper l'alimentation électrique (ouverture disjoncteur)",
-          "Baisser le pantographe seul",
-        ],
-        correct: 0,
-        explanation: "FS = coupure alimentation (p.63).",
-      },
-      {
-        id: "ch4-42c-04",
-        prompt:
-          "Personne encore engagée sous le tram après action du FS et appel téléphonique d'urgence : quelles autres actions de sécurité et de préparation générale suivez-vous ensuite ?",
-        choices: [
-          "Pantographe bas, dé-préparation, protection blessé",
-          "Sans dé-préparation",
-        ],
-        correct: 0,
-        explanation: "Dé-préparation si engagement sous rame (p.63).",
+        explanation:
+          "RCT § 4.2-C p.63 : neuf étapes dans l'ordre. Rappel : seuls les pompiers sont autorisés à déplacer la rame si la victime est engagée dessous.",
       },
     ],
   },
@@ -225,21 +109,13 @@ export const MODULES_CH4 = [
       {
         id: "ch4-42d-01",
         prompt:
-          "Malaise du conducteur ou agression dans la cabine : quelles actions enchaîne-t-on tout de suite pour protéger le train et faire appeler les secours ?",
+          "Malaise ou agression du conducteur à l'intérieur de la cabine : quelles étapes enchaignez-vous ?",
         choices: [
-          "Arrêt, détresse, FS, appel détresse, informer clients si possible",
-          "Couper SIE",
+          "Arrêter la rame et feux de détresse → enclencher le FS (coup de poing) → appel de détresse → informer la clientèle si possible",
+          "Abaisser le pantographe, dé-préparer la rame, évacuer les voyageurs sans appel",
         ],
         correct: 0,
-        explanation: "Quatre gestes p.64 (section D).",
-      },
-      {
-        id: "ch4-42d-02",
-        prompt:
-          "En cabine, lors d'un malaise ou d'agression du conducteur : quel effet poursuit-on en premier lieu en actionnant le FS ?",
-        choices: ["Sécuriser l'immobilisation", "Baisser pantographe"],
-        correct: 0,
-        explanation: "FS + détresse (p.64).",
+        explanation: "RCT § 4.2-D p.64 : quatre étapes dans l'ordre (procédure distincte du déraillement § 4.3).",
       },
     ],
   },
@@ -254,40 +130,14 @@ export const MODULES_CH4 = [
       {
         id: "ch4-43-01",
         prompt:
-          "En cas de déraillement : le conducteur peut-il lui-même tenter un ré-enraillement depuis la plate-forme de conduite ?",
-        choices: ["Non — interdit", "Oui si PCC occupé"],
-        correct: 0,
-        explanation: "Ré-enraillement interdit au conducteur (encadré p.64).",
-      },
-      {
-        id: "ch4-43-02",
-        prompt:
-          "Déraillement : avant dé-préparation et abaissement du pantographe, quel contrôle visuel vous impose cet encadré compte tenu du risque d'arrachement sur la partie alimentée aérienne ?",
+          "Déraillement de la rame : quel enchaînement d'actions menez-vous ?",
         choices: [
-          "Contrôle visuel LAC (risque arrachement)",
-          "Évacuation sans PCC",
+          "Arrêt et feux de détresse → appel d'urgence → informer les clients → abaisser le pantographe après contrôle visuel de la LAC → évacuer après accord du PCC (§ 4.7) → dé-préparer → triangle de pré-signalisation → accueillir les secours",
+          "Tenter un ré-enraillement soi-même, abaisser le pantographe sans contrôle LAC, évacuer sans accord PCC",
         ],
         correct: 0,
-        explanation: "Contrôle LAC avant descente pantographe (p.64).",
-      },
-      {
-        id: "ch4-43-03",
-        prompt:
-          "Une rame est immobilisée après déraillement : quel accord téléphonique de l'exploitation et quelles consignes d'évacuation (références 4.7 B ou D au même tableau) doivent encadrer toute mise à pied des voyageurs ?",
-        choices: [
-          "Après accord PCC (voir 4.7 B/D)",
-          "Par le conducteur seul en tunnel",
-        ],
-        correct: 0,
-        explanation: "Évacuation selon 4.7 après accord PCC (p.64).",
-      },
-      {
-        id: "ch4-43-04",
-        prompt:
-          "Déraillement : après immobilisation de la composition, quel équipement de pré-signalisation complète la signalisation de votre convoi ?",
-        choices: ["Triangle de pré-signalisation", "Uniquement klaxon"],
-        correct: 0,
-        explanation: "Triangle après immobilisation (p.64).",
+        explanation:
+          "RCT § 4.3 p.64 : huit étapes dans l'ordre. Rappel : le conducteur ne doit pas entamer lui-même une tentative de ré-enraillement.",
       },
     ],
   },
@@ -302,33 +152,13 @@ export const MODULES_CH4 = [
       {
         id: "ch4-44a-01",
         prompt:
-          "Un voyageur est pris en malaise alors que vous roulez : où arrêtez-vous la rame en priorité et quelles mesures prenez-vous sur le poste de conduite juste après l'arrêt (détresse, clé KC, cabine) ?",
+          "À bord de la rame : malaise, agression, chute ou décès d'un voyageur. Quel enchaînement d'actions menez-vous ?",
         choices: [
-          "À la station la plus proche, détresse, clé KC retirée, cabine fermée",
-          "Au terminus uniquement",
+          "Appel d'urgence → arrêter la rame (de préférence station la plus proche) et feux de détresse → retirer clé KC et fermer la cabine → porter assistance au blessé → rappeler le PCC et suivre ses consignes → coordonnées des témoins → accueillir les secours si gravité → noter sur la feuille de route",
+          "Arrêter au terminus, quitter la cabine sans sécuriser, évacuation systématique sans appel PCC",
         ],
         correct: 0,
-        explanation: "Station proche + sécurisation cabine (p.65).",
-      },
-      {
-        id: "ch4-44a-02",
-        prompt:
-          "Après avoir porté secours à un voyageur blessé à bord : quelle conduite tenez-vous ensuite sur la ligne radio jusqu'à contre-ordre du PCC ?",
-        choices: [
-          "Rappeler PCC et suivre ses consignes",
-          "Évacuation systématique",
-        ],
-        correct: 0,
-        explanation: "Évaluation puis instructions PCC (p.65).",
-      },
-      {
-        id: "ch4-44a-03",
-        prompt:
-          "Des voyageurs ont assisté à l'incident : quelle information devez-vous recueillir sur eux ?",
-
-        choices: ["Noter leurs coordonnées", "PCC les appelle"],
-        correct: 0,
-        explanation: "Coordonnées témoins (p.65).",
+        explanation: "RCT § 4.4-A p.65 : huit étapes dans l'ordre (l'appel d'urgence précède l'arrêt).",
       },
     ],
   },
@@ -343,24 +173,13 @@ export const MODULES_CH4 = [
       {
         id: "ch4-44b-01",
         prompt:
-          "Bris d'une vitre latérale côté voyageurs : après l'appel téléphonique d'urgence, comment protégez-vous les clients et quelle est la suite immédiate sur le plan des consignes PCC ?",
+          "Bris de vitre latérale voyageurs ou de vitre de cabine à bord : quel enchaînement d'actions menez-vous ?",
         choices: [
-          "Éloigner clients de la vitre, attendre ordres PCC",
-          "Sans information PCC",
+          "Arrêt en station si possible et feux de détresse → appel d'urgence → vérifier l'absence de blessé → éloigner les clients de la vitre → informer le PCC et attendre ses ordres (évacuation ou fin de course jusqu'au terminus si pas de danger) → feuille de route",
+          "Évacuation immédiate sans appel, fin de course sans avis PCC, laisser les clients près de la vitre",
         ],
         correct: 0,
-        explanation: "Protection zone + ordres PCC (p.66).",
-      },
-      {
-        id: "ch4-44b-02",
-        prompt:
-          "Lorsque le bris de vitre ne présente pas de danger pour les personnes après sécurisation : quelle suite de trajet le PCC peut-il vous autoriser ?",
-        choices: [
-          "Fin de course commerciale jusqu'au terminus",
-          "Évacuation obligatoire",
-        ],
-        correct: 0,
-        explanation: "Terminus possible si zone sécurisée (p.66).",
+        explanation: "RCT § 4.4-B p.66 : six étapes dans l'ordre.",
       },
     ],
   },
@@ -375,26 +194,14 @@ export const MODULES_CH4 = [
       {
         id: "ch4-44c-01",
         prompt:
-          "Pare-brise endommagé ou visibilité avant devenue trop dangereuse pour conduire : quelles actions interconnectées le RCT impose-t-il (arrêt où possible station, alerte téléphonique d'urgence, information voyageurs, évacuation, ordres PCC) ?",
-
+          "Casse du pare-brise de cabine ou visibilité dangereuse pour la sécurité : quel enchaînement d'actions menez-vous ?",
         choices: [
-          "Arrêt station si possible, urgence, info clients, évacuation, ordres PCC",
-          "Sans évacuation",
+          "Arrêt en station si possible et feux de détresse → appel d'urgence → informer la clientèle → évacuer la rame → informer le PCC de la fin d'évacuation et attendre ses ordres → feuille de route",
+          "Poursuivre la course, pas d'évacuation, remonter le pantographe sans PCC",
         ],
         correct: 0,
-        explanation: "Évacuation systématique (p.66).",
-      },
-      {
-        id: "ch4-44c-02",
-        prompt:
-          "Après évacuation des voyageurs pour cause de pare-brise : quel est le compte rendu attendu au PCC et quelle attitude devez-vous avoir ensuite ?",
-
-        choices: [
-          "Informer PCC fin d'évacuation et attendre ordres",
-          "Dé-préparer sans avis",
-        ],
-        correct: 0,
-        explanation: "Compte-rendu fin évacuation au PCC (p.66).",
+        explanation:
+          "RCT § 4.4-C p.66 : six étapes dans l'ordre. Évacuation systématique (contrairement au bris de vitre latérale).",
       },
     ],
   },
@@ -409,35 +216,14 @@ export const MODULES_CH4 = [
       {
         id: "ch4-44d-01",
         prompt:
-          "Incendie à bord : après arrêt de la rame et mise en détresse, quelles priorités le RCT rattache à cette situation — y compris sortie des voyageurs renvoyée au 4.7, appel d'urgence, évaluation situation et pantographe ?",
-
+          "Incendie à bord de la rame : quel enchaînement d'actions menez-vous ?",
         choices: [
-          "Évacuation voyageurs (4.7), appel urgence, évaluation, pantographe bas",
-          "Lutter seul longtemps avant évacuation",
+          "Arrêt et feux de détresse → évacuation des voyageurs (§ 4.7) → appel d'urgence → évaluer le sinistre → abaisser pantographe et dé-préparer → vérifier qu'il ne reste personne à bord → combattre le feu aux extincteurs → accueillir les secours",
+          "Appel d'urgence avant évacuation, lutter au extincteur d'abord, remonter le pantographe sans PCC",
         ],
         correct: 0,
-        explanation: "Séquence 8 étapes p.67.",
-      },
-      {
-        id: "ch4-44d-02",
-        prompt:
-          "Après tout incendie à bord, même de faible ampleur : peut-on remonter le pantographe sans ordre explicite du PCC ?",
-
-        choices: [
-          "Interdit de remonter sans autorisation PCC",
-          "Remonter pour repartir",
-        ],
-        correct: 0,
-        explanation: "Encadré p.67.",
-      },
-      {
-        id: "ch4-44d-03",
-        prompt:
-          "Incendie sur site de remisage : dans quelle relation se trouvent ces consignes par rapport à celles applicables à bord en ligne ?",
-
-        choices: ["Mêmes consignes qu'à bord", "Uniquement extincteur"],
-        correct: 0,
-        explanation: "Consignes identiques remisage (p.67).",
+        explanation:
+          "RCT § 4.4-D p.67 : huit étapes dans l'ordre (évacuation avant l'appel d'urgence). Mêmes consignes en remisage. Rappel : interdit de remonter le pantographe sans autorisation PCC après incendie, même léger.",
       },
     ],
   },
@@ -452,38 +238,14 @@ export const MODULES_CH4 = [
       {
         id: "ch4-44e-01",
         prompt:
-          "Colis suspect repéré parmi les voyageurs : quel comportement le RCT impose-t-il tout de suite vis-à-vis de l'objet et de son déplacement ?",
-
+          "Colis suspect signalé en ligne à bord (plan Vigipirate) : quel enchaînement menez-vous ? (Ne jamais toucher ni déplacer l'objet.)",
         choices: [
-          "Ne pas toucher ni déplacer ; prudence et discernement",
-          "Ouvrir pour identifier",
+          "Identifier l'objet et chercher son propriétaire → appeler le PCC et suivre ses consignes → si radio HS : évacuer et rejoindre à pied le terminus le plus proche → rame en tiroir : s'éloigner et périmètre de sécurité en attendant Police et TaM",
+          "Ouvrir le colis, le déplacer pour sécuriser, repartir sans prévenir le PCC",
         ],
         correct: 0,
-        explanation: "Interdiction toucher/déplacer (encadré p.68).",
-      },
-      {
-        id: "ch4-44e-02",
-        prompt:
-          "Colis suspect en ligne lorsque vos essais radiotéléphoniques vers le PCC sont infructueux : quelle conduite de repli cet encadré précise ?",
-
-        choices: [
-          "Évacuer et rejoindre à pied terminus le plus proche",
-          "Laisser le colis à bord sans avis",
-        ],
-        correct: 0,
-        explanation: "Évacuation + terminus à pied si radio HS (p.68).",
-      },
-      {
-        id: "ch4-44e-03",
-        prompt:
-          "La rame est parquée en cul-de-sac (« tiroir ») après alerte bombe à bord : comment vous positionnez-vous ainsi que les voyageurs en attendant police / TaM ?",
-
-        choices: [
-          "S'éloigner, périmètre de sécurité, attendre police/TaM",
-          "Ouvrir le colis avec agents",
-        ],
-        correct: 0,
-        explanation: "Périmètre après mise en tiroir (p.68).",
+        explanation:
+          "RCT § 4.4-E p.68 cas 2. Cas 1 (repéré au changement de loge) : appel urgence PCC puis consignes PCC.",
       },
     ],
   },
@@ -498,27 +260,13 @@ export const MODULES_CH4 = [
       {
         id: "ch4-45a-01",
         prompt:
-          "Ordre du PCC ou de la police pour bombe ou colis suspect aux abords de la voie : quelle ligne de conduite sur la rame résume l'arrêt, la mise en détresse radio et le respect des consignes suivantes ?",
-
+          "Alerte bombe ou colis suspect aux abords de la voie (appel PCC ou police sur site) : quel enchaînement menez-vous ?",
         choices: [
-          "Arrêt, détresse, suivre instructions",
-          "Klaxonner seulement",
+          "Arrêt et feux de détresse → suivre les instructions reçues → si ordre d'évacuer : prévenir la clientèle et évacuer (règles § 4.6-B) → se mettre à disposition de la Police et rendre compte au PCC",
+          "Toucher l'objet pour l'éloigner, évacuer sans prévenir les voyageurs",
         ],
         correct: 0,
-        explanation:
-          "Arrêt, détresse, puis application des instructions (p.69).",
-      },
-      {
-        id: "ch4-45a-02",
-        prompt:
-          "Le PCC vous prescrit d'évacuer la rame après colis suspect aux abords : comment informez-vous les voyageurs et quelle référence de règles d'évacuation la consigne associe-t-elle ?",
-
-        choices: [
-          "Prévenir clients, évacuation selon règles sécurité (4.6 B)",
-          "Descente côté entrevoie sans avis",
-        ],
-        correct: 0,
-        explanation: "Renvoi règles évacuation (p.69).",
+        explanation: "RCT § 4.5-A p.69 : trois étapes. Ne pas toucher ni déplacer un colis suspect.",
       },
     ],
   },
@@ -533,47 +281,14 @@ export const MODULES_CH4 = [
       {
         id: "ch4-45b-01",
         prompt:
-          "Chute de ligne aérienne de contact sur la voie : à quelle condition le PCC autorise-t-il la descente des voyageurs ?",
-
+          "Chute de la ligne aérienne de contact (LAC) sur la voie : quel enchaînement d'actions menez-vous ?",
         choices: [
-          "Uniquement quand PCC confirme LAC non alimentée",
-          "Côté entrevoie toujours",
+          "Arrêt et feux de détresse → appel d'urgence → informer clients (interdiction de descendre tant que LAC alimentée) → abaisser pantographe et dé-préparer → attendre ordre PCC pour faire descendre (LAC confirmée non alimentée) → descente côté moindre risque (accord PCC si entrevoie) → ne pas monter en toiture → feuille de route",
+          "Faire descendre les clients tout de suite, monter en toiture pour réparer le pantographe",
         ],
         correct: 0,
-        explanation: "Attente coupure confirmée PCC (p.70).",
-      },
-      {
-        id: "ch4-45b-02",
-        prompt:
-          "Avarie au pantographe après chute de LAC : quel est le comportement du conducteur concernant l'accès à la toiture du véhicule ?",
-
-        choices: [
-          "Ne monte pas sur la toiture (risque électrique)",
-          "Répare en toiture",
-        ],
-        correct: 0,
-        explanation: "Interdiction montée toiture (p.70).",
-      },
-      {
-        id: "ch4-45b-03",
-        prompt:
-          "Avant toute descente de clients lorsqu'une LAC est encore susceptible d'être sous tension : quel message de sécurité leur transmettez-vous clairement ?",
-
-        choices: [
-          "Ne doivent pas descendre tant que LAC alimentée",
-          "Peuvent descendre librement",
-        ],
-        correct: 0,
-        explanation: "Interdiction descente avant coupure (p.70).",
-      },
-      {
-        id: "ch4-45b-04",
-        prompt:
-          "Chute d'arbre ou de végétal lourd touchant la voie ou la rame : à quel autre scénario RCT rapproche-t-on les consignes applicables ?",
-
-        choices: ["Mêmes consignes que chute de LAC", "Remorquage seul"],
-        correct: 0,
-        explanation: "Note bas de page p.70.",
+        explanation:
+          "RCT § 4.5-B p.70 : huit étapes. Mêmes consignes en cas de chute d'arbre sur la voie ou sur la rame.",
       },
     ],
   },
@@ -588,38 +303,24 @@ export const MODULES_CH4 = [
       {
         id: "ch4-45c-01",
         prompt:
-          "Selon le repère RCT sur une zone inondée : si le niveau d'eau reste sous la bande rouge (cas inférieur strict à 10 cm évoqué au tableau), comment franchissez-vous la zone et quel contact avec le PCC effectuez-vous ?",
-
+          "Inondation de la voie : le niveau d'eau reste sous la bande rouge du repère (moins de 10 cm). Que faites-vous ?",
         choices: [
-          "Franchir en conduite manœuvre 5 km/h et informer PCC",
-          "Arrêt systématique",
+          "Franchir en conduite manœuvre à 5 km/h maximum et informer le PCC",
+          "Franchir à 40 km/h sans signaler",
         ],
         correct: 0,
-        explanation: "CM 5 km/h + PCC (p.71).",
+        explanation: "RCT § 4.5-C p.71 : cas inondation faible.",
       },
       {
         id: "ch4-45c-02",
         prompt:
-          "Lorsque la lame d'eau dépasse désormais la bande rouge du repère RCT (cas supérieur à 10 cm) : quelle séquence de sécurité RCT et de coordination PCC s'applique au conducteur ?",
-
+          "Inondation de la voie : le niveau dépasse la bande rouge du repère (plus de 10 cm). Quel enchaînement menez-vous ?",
         choices: [
-          "Arrêt, détresse, urgence, ordres PCC, info voyageurs",
-          "Poursuite",
+          "Arrêt et feux de détresse → appel d'urgence → se conformer aux instructions du PCC → informer les voyageurs → si évacuation prolongée : PMR et enfants peuvent rester à bord s'ils le souhaitent en attendant assistance → noter sur la feuille de route",
+          "Traverser à vitesse normale, évacuation immédiate sans appel PCC",
         ],
         correct: 0,
-        explanation: "Arrêt et procédure complète (p.71).",
-      },
-      {
-        id: "ch4-45c-03",
-        prompt:
-          "Pour une évacuation liée à une inondation où l'immobilisation se prolonge : quelle règle spécifique les consignes prévoient-elles pour les voyageurs PMR et pour les enfants ?",
-
-        choices: [
-          "Peuvent rester à bord en attendant assistance s'ils le souhaitent",
-          "Interdit de rester",
-        ],
-        correct: 0,
-        explanation: "Précision évacuation p.71.",
+        explanation: "RCT § 4.5-C p.71 : cas inondation importante (six étapes).",
       },
     ],
   },
@@ -634,26 +335,13 @@ export const MODULES_CH4 = [
       {
         id: "ch4-45d-01",
         prompt:
-          "Sur quai vous êtes témoin d'un accident corporel dont votre rame n'est pas partie prenante mécanique dans le choc initial : quelle ligne d'action le RCT prescrit-il au conducteur ?",
-
+          "Vous êtes témoin d'un accident sur la plate-forme sans implication de votre rame : quel enchaînement menez-vous ?",
         choices: [
-          "Arrêt, détresse, urgence, secours, éviter second accident, PCC",
-          "Poursuite sans arrêt",
+          "Arrêt et feux de détresse → appel d'urgence et informer les clients → secourir et protéger les blessés → éviter un autre accident → dès que reprise possible, informer le PCC → feuille de route",
+          "Poursuivre sans arrêt pour ne pas bloquer la ligne",
         ],
         correct: 0,
-        explanation: "Six étapes témoin conducteur (p.72).",
-      },
-      {
-        id: "ch4-45d-02",
-        prompt:
-          "Après accident sur plate-forme où vous avez dû immobiliser la rame : dès lors qu'une reprise commerciale devient techniquement envisageable, qui informez-vous en premier lieu ?",
-
-        choices: [
-          "Informer PCC dès que reprise envisageable",
-          "Attendre la police uniquement",
-        ],
-        correct: 0,
-        explanation: "Information PCC pour reprise (p.72).",
+        explanation: "RCT § 4.5-D p.72 : six étapes.",
       },
     ],
   },
@@ -668,35 +356,13 @@ export const MODULES_CH4 = [
       {
         id: "ch4-46a-01",
         prompt:
-          "Une LAC présente une avarie importante ou vous constatez un tendeur cassé : quel est le comportement obligatoire du conducteur ?",
-        choices: ["Arrêt impératif et appel PCC", "Informer en fin de service"],
+          "Anomalies en ligne imposant l'arrêt immédiat de la rame : que devez-vous faire dans tous ces cas (LAC endommagée, tendeur cassé, corps étranger, affaissement voie, signal illisible, conducteur absent au croisement, personne accrochée…) ?",
+        choices: [
+          "Arrêter impérativement la rame et appeler le PCC",
+          "Prévenir le PCC en fin de service seulement",
+        ],
         correct: 0,
-        explanation: "Liste arrêt obligatoire p.73.",
-      },
-      {
-        id: "ch4-46a-02",
-        prompt:
-          "Il y a corps étranger dans la gorge de rail ou dans l'aiguillage sur votre trajectoire : quel réflexe obligatoire impose la liste RCT des situations d'arrêt immédiat ?",
-
-        choices: ["Arrêt et PCC", "Dégager seul"],
-        correct: 0,
-        explanation: "Arrêt obligatoire (p.73).",
-      },
-      {
-        id: "ch4-46a-03",
-        prompt:
-          "Une rame est arrêtée en croisement et vous constatez l'absence du conducteur en cabine : quel réflexe impose le tableau RCT sur les situations d'arrêt immédiat ?",
-        choices: ["Arrêt et PCC", "Passer à 10 km/h"],
-        correct: 0,
-        explanation: "Cas listé p.73.",
-      },
-      {
-        id: "ch4-46a-04",
-        prompt:
-          "Un individu est accroché à votre rame ou à une composition voisine : quel réflexe impose la liste RCT des arrêts obligatoires ?",
-        choices: ["Arrêt et PCC", "FU sans appel"],
-        correct: 0,
-        explanation: "Arrêt obligatoire (p.73).",
+        explanation: "RCT § 4.6-A p.73 : huit situations listées, même conduite.",
       },
     ],
   },
@@ -711,28 +377,13 @@ export const MODULES_CH4 = [
       {
         id: "ch4-46b-01",
         prompt:
-          "Vous voyez une autre rame circuler avec les feux extérieurs éteints : quelle précaution téléphonique indique pour vous la colonne B du tableau RCT ?",
-        choices: ["Prévenir le PCC (sans arrêt immédiat imposé)", "Arrêt FU"],
+          "Anomalies en ligne sans arrêt immédiat imposé (feux éteints sur autre rame, objet accroché, comportement suspect, arbre menaçant, voiture sur voie…) : que devez-vous faire ?",
+        choices: [
+          "Informer impérativement le PCC (sans obligation d'arrêt immédiat pour ces cas)",
+          "Arrêt FU systématique avant tout signalement",
+        ],
         correct: 0,
-        explanation: "Colonne B p.73.",
-      },
-      {
-        id: "ch4-46b-02",
-        prompt:
-          "Objet accroché visiblement à une composition tram ou comportement suspect d'une personne sur le quai : quel est votre réflexe téléphonique selon cet extrait tableau ?",
-
-        choices: ["Prévenir le PCC", "Klaxon continu"],
-        correct: 0,
-        explanation: "Signalement PCC (p.73).",
-      },
-      {
-        id: "ch4-46b-03",
-        prompt:
-          "Arbre ou poteau menaçant la voie sur votre approche : quel signalement le RCT prescrit-il dans la colonne des anomalies à signaler au PCC sans arrêt immédiat imposé par la même ligne du tableau ?",
-
-        choices: ["Prévenir le PCC", "Passer vite"],
-        correct: 0,
-        explanation: "Prévenir PCC (p.73).",
+        explanation: "RCT § 4.6-B p.73 : sept situations — prévenir le PCC.",
       },
     ],
   },
@@ -747,15 +398,13 @@ export const MODULES_CH4 = [
       {
         id: "ch4-47a-01",
         prompt:
-          "Votre rame est immobilisée en pleine voie sans quai adjacent : quel enchaînement RCT couvre la signalisation (« détresse ou triangle »), l'appel téléphonique d'urgence et l'information aux voyageurs avant toute évocation d'évacuation ultérieure ?",
-
+          "Rame immobilisée en pleine voie (sans quai) : quelles étapes devez-vous enchaîner avant toute évacuation ?",
         choices: [
-          "Détresse ou triangle, appel urgence, informer clients",
-          "Évacuation immédiate sans appel",
+          "Feux de détresse (ou triangle si panne) → appel d'urgence → informer la clientèle",
+          "Évacuation immédiate sans signalisation ni appel",
         ],
         correct: 0,
-        explanation:
-          "Détresse ou triangle, puis appel d'urgence et information clients (p.74).",
+        explanation: "RCT § 4.7-A p.74 : immobilisation en trois étapes.",
       },
     ],
   },
@@ -770,59 +419,14 @@ export const MODULES_CH4 = [
       {
         id: "ch4-47b-01",
         prompt:
-          "Évacuation d'une rame immobilisée en pleine voie : quel accord du PCC doit précéder toute mise à pied des voyageurs ?",
-
+          "Évacuation d'une rame en pleine voie (après accord confirmé du PCC) : quel enchaînement menez-vous ?",
         choices: [
-          "Après accord confirmé PCC",
-          "Par le PCC seul sans conducteur",
+          "Informer les clients → ouvrir une porte côté droit (sens de marche) → descendre le premier et vérifier l'absence de danger → faire descendre les voyageurs en aidant les personnes en difficulté → prévenir le PCC de la fin d'évacuation",
+          "Ouvrir côté entrevoie sans accord, conducteur descend en dernier, repartir sans prévenir le PCC",
         ],
         correct: 0,
-        explanation: "Accord PCC préalable (p.74).",
-      },
-      {
-        id: "ch4-47b-02",
-        prompt:
-          "Évacuation en pleine voie : quel côté de la composition par rapport au sens de marche ouvre-t-on pour les voyageurs et quelle est la consigne pour l'ordre de descente depuis la plate-forme de conduite ?",
-
-        choices: [
-          "Côté droit sens de marche ; conducteur descend en premier",
-          "Côté entrevoie systématique",
-        ],
-        correct: 0,
-        explanation: "Porte droite, contrôle danger (p.74).",
-      },
-      {
-        id: "ch4-47b-03",
-        prompt:
-          "Incendie ou force majeure au sens de l'encadré : peut-on évacuer sans autorisation préalable du PCC, contrairement au cas général en pleine voie ?",
-
-        choices: ["Possible sans autorisation PCC", "Uniquement la nuit"],
-        correct: 0,
-        explanation: "Exception incendie/force majeure (encadré p.74).",
-      },
-      {
-        id: "ch4-47b-04",
-        prompt:
-          "Vous envisagez une évacuation par le côté entrevoie parce que le côté droit présente un danger immédiat : quelle condition liée au trafic en sens opposé le PCC doit-il avoir sécurisée avant ouverture des portes ?",
-
-        choices: [
-          "Uniquement après autorisation PCC (trafic antagoniste arrêté)",
-          "Interdit toujours",
-        ],
-        correct: 0,
-        explanation: "PCC garantit arrêt circulation opposée (p.74).",
-      },
-      {
-        id: "ch4-47b-05",
-        prompt:
-          "Sur la portion en voie unique Sabines–SJD après évacuation, lorsque le bus relais de substitution n'est pas encore disponible sur place : comment les voyageurs doivent-ils rejoindre l'arrêt de car ?",
-
-        choices: [
-          "Chemin piéton le long de la voie vers arrêt bus de substitution",
-          "Rester sur voie",
-        ],
-        correct: 0,
-        explanation: "Particularité voie unique p.74.",
+        explanation:
+          "RCT § 4.7-B p.74 : cinq étapes. Rappels : incendie/force majeure = évacuation possible sans accord PCC ; entrevoie seulement si PCC garantit l'arrêt du trafic opposé ; voie unique Sabines–SJD ou Sablassou–Jacou : chemin piéton vers arrêt bus.",
       },
     ],
   },
@@ -837,13 +441,13 @@ export const MODULES_CH4 = [
       {
         id: "ch4-47c-01",
         prompt:
-          "Rame immobilisée dans un tunnel après signalisation (« détresse ou triangle ») et appel téléphonique d'urgence : quel est l'enchaînement radio si vous n'obtenez pas de réponse du PCC ?",
+          "Rame immobilisée dans un tunnel : quel enchaînement menez-vous ?",
         choices: [
-          "Détresse ou triangle, urgence, détresse si pas de réponse, informer clients",
-          "Sans appel",
+          "Feux de détresse (ou triangle si panne) → appel d'urgence, puis appel de détresse si pas de réponse du PCC → informer la clientèle",
+          "Évacuation immédiate sans appel radio",
         ],
         correct: 0,
-        explanation: "Appel détresse si pas de réponse (p.75).",
+        explanation: "RCT § 4.7-C p.75 : trois étapes.",
       },
     ],
   },
@@ -858,22 +462,14 @@ export const MODULES_CH4 = [
       {
         id: "ch4-47d-01",
         prompt:
-          "Évacuation en tunnel après accord téléphonique explicite du PCC : quel est l'enchaînement d'informations voyageurs et d'orientation (portes utilisées et direction générale vers la sortie) ?",
-
+          "Évacuation d'une rame dans le tunnel (après accord confirmé du PCC) : quel enchaînement menez-vous ?",
         choices: [
-          "Informer clients, porte droite, diriger vers sortie la plus proche",
-          "Côté entrevoie direct",
+          "Informer les clients → ouvrir une porte côté droit (sens de marche) → descendre le premier et vérifier l'absence de danger → faire descendre les voyageurs en les dirigeant vers la sortie la plus proche → prévenir le PCC de la fin d'évacuation → noter l'incident sur la feuille de route",
+          "Évacuation par entrevoie sans accord, sans orientation vers la sortie",
         ],
         correct: 0,
-        explanation: "Évacuation vers sortie proche (p.75).",
-      },
-      {
-        id: "ch4-47d-02",
-        prompt:
-          "Lorsque la situation relève des cas traités sous 4.7 A à D et que la séquence RCT est terminée : quelle mention portez-vous sur votre feuille de route ?",
-        choices: ["Noter l'incident sur la feuille de route", "SAT seul"],
-        correct: 0,
-        explanation: "Note commune bas de page p.75.",
+        explanation:
+          "RCT § 4.7-D p.75 : cinq étapes + feuille de route (commun aux § 4.7 A à D).",
       },
     ],
   },
