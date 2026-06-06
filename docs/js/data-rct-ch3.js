@@ -1,52 +1,115 @@
 /** RCT — Consignes de circulation en ligne (p. 34, 38–58) */
 export const MODULES_CH3 = [
+  // ─── Tableau des limitations de vitesse (p. 34) — une consigne par palier ───
   {
-    id: "circ-tableau-vitesse",
+    id: "vit-05",
     code: "p. 34",
-    title: "Tableau des limitations de vitesse",
+    title: "5 km/h maximum",
     cetPage: 34,
     questions: [
       {
         id: "ch3-vit-05",
         prompt: "Dans quelles conditions conduit-on à 5 km/h maximum ?",
+        cardPrompt:
+          "Dans quelles conditions conduit-on à 5 km/h maximum ?",
         answer:
-          "Conduite de manœuvre et circulation dans l'atelier",
+          "- Conduite de manœuvre\n- Circulation dans l'atelier",
       },
+    ],
+  },
+  {
+    id: "vit-10",
+    code: "p. 34",
+    title: "10 km/h maximum",
+    cetPage: 34,
+    questions: [
       {
         id: "ch3-vit-10",
         prompt: "Dans quelles conditions conduit-on à 10 km/h maximum ?",
+        cardPrompt:
+          "Dans quelles conditions conduit-on à 10 km/h maximum ?",
         answer:
-          "Travaux sur la voie (présence du personnel) ; croisement d'une rame arrêtée ; traversée de voies sur ornières porteuses ; feu routier en dérangement ; circulation dans le dépôt",
+          "- Travaux sur la voie (présence du personnel)\n- Croisement d'une rame arrêtée\n- Traversée de voies sur ornières porteuses\n- Feu routier en dérangement\n- Circulation dans le dépôt",
       },
+    ],
+  },
+  {
+    id: "vit-15",
+    code: "p. 34",
+    title: "15 km/h maximum",
+    cetPage: 34,
+    questions: [
       {
         id: "ch3-vit-15",
         prompt: "Dans quelles conditions conduit-on à 15 km/h maximum ?",
+        cardPrompt:
+          "Dans quelles conditions conduit-on à 15 km/h maximum ?",
         answer:
-          "Circulation en terminus ; prise d'une aiguille en voie déviée ; danger pour piéton ; traversée de station en HLP ; entrée en station (présence d'autres rames)",
+          "- Circulation en terminus\n- Prise d'une aiguille en voie déviée\n- Danger pour piéton\n- Traversée de station en HLP\n- Entrée en station (présence d'autres rames)",
       },
+    ],
+  },
+  {
+    id: "vit-20",
+    code: "p. 34",
+    title: "20 km/h maximum",
+    cetPage: 34,
+    questions: [
       {
         id: "ch3-vit-20",
         prompt: "Dans quelles conditions conduit-on à 20 km/h maximum ?",
+        cardPrompt:
+          "Dans quelles conditions conduit-on à 20 km/h maximum ?",
         answer:
-          "Défaut d'avertisseur sonore (gong) ; remorquage / poussage (RP)",
+          "- Défaut d'avertisseur sonore (gong)\n- Remorquage / Poussage (RP)",
       },
+    ],
+  },
+  {
+    id: "vit-25",
+    code: "p. 34",
+    title: "25 km/h maximum",
+    cetPage: 34,
+    questions: [
       {
         id: "ch3-vit-25",
         prompt: "Dans quelles conditions conduit-on à 25 km/h maximum ?",
+        cardPrompt:
+          "Dans quelles conditions conduit-on à 25 km/h maximum ?",
         answer:
-          "Mode secours traction ou alimentation directe (limite matériel roulant)",
+          "- Mode secours traction ou alimentation directe (limite matériel roulant)",
       },
+    ],
+  },
+  {
+    id: "vit-30",
+    code: "p. 34",
+    title: "30 km/h maximum",
+    cetPage: 34,
+    questions: [
       {
         id: "ch3-vit-30",
         prompt: "Dans quelles conditions conduit-on à 30 km/h maximum ?",
+        cardPrompt:
+          "Dans quelles conditions conduit-on à 30 km/h maximum ?",
         answer:
-          "Voie unique temporaire (VUT) ; entrée en station (absence d'autre rame)",
+          "- Voie unique temporaire (VUT)\n- Entrée en station (absence d'autre rame)",
       },
+    ],
+  },
+  {
+    id: "vit-40",
+    code: "p. 34",
+    title: "40 km/h maximum",
+    cetPage: 34,
+    questions: [
       {
         id: "ch3-vit-40",
         prompt: "Dans quelles conditions conduit-on à 40 km/h maximum ?",
+        cardPrompt:
+          "Dans quelles conditions conduit-on à 40 km/h maximum ?",
         answer:
-          "Franchissement de carrefours (y compris passages à niveau) ; aiguille RFF en direct ou dévier ; ouverture de voie ; prise d'une aiguille en voie directe ; défaut veille avec accompagnant ; défaut de frein ; bogie isolé ; chasse-corps HS ou verrouillé",
+          "- Franchissement de carrefours (y compris passages à niveau)\n- Aiguille RFF en direct ou dévier\n- Ouverture de voie\n- Prise d'une aiguille en voie directe\n- Défaut veille avec accompagnant\n- Défaut de frein\n- Bogie isolé\n- Chasse-corps HS ou verrouillé",
       },
     ],
   },
@@ -541,6 +604,86 @@ export const MODULES_CH3 = [
         answer:
           "1. On distingue :\n- Feuille de route attachée au conducteur : incidents ayant affecté son service.\n- Feuille de route (de couleur) attachée à la rame : fonctionnement du matériel roulant et embarqué (valideurs, etc.).\n2. Le conducteur doit :\n- Apporter le plus grand soin à la rédaction de la feuille de route.\n- Remplir correctement les rubriques (accidents, incidents, etc.).\n- Noter les anomalies liées au matériel roulant sur la feuille de route.\n- Noter les appels importants du PCC.\n3. Rapport interne, notamment en cas :\n- D'incidents susceptibles d'entraîner plaintes ou réclamations.\n- D'accident corporel ou matériel, ou dégâts sur le matériel roulant.\n@@WARNING@@\nRapport interne : formulation engageante vis-à-vis du RCT et de l'interprétation administrative ; porter le plus grand soin à sa rédaction. Peut être établi lors d'un entretien de restitution avec un AM Exploitation.",
       },
+    ],
+  },
+];
+
+/** Regroupements affichés avant la liste des consignes (pré-examen ch. circulation). */
+export const MODULE_GROUPS_CH3 = [
+  {
+    id: "vitesses",
+    code: "p. 34",
+    title: "Tableau des Limitations de Vitesse",
+    moduleIds: [
+      "vit-05",
+      "vit-10",
+      "vit-15",
+      "vit-20",
+      "vit-25",
+      "vit-30",
+      "vit-40",
+    ],
+  },
+  {
+    id: "pds-conduite",
+    code: "3.1",
+    title: "Prise de Service, Relève et Conduite",
+    moduleIds: [
+      "pds-depot",
+      "pds-releve",
+      "sortie-depot",
+      "comportement-rame",
+    ],
+  },
+  {
+    id: "circulation-ligne",
+    code: "3.2",
+    title: "Circulation en Ligne",
+    moduleIds: [
+      "circulation-ligne",
+      "glo-gabarit",
+      "ouverture-voie",
+      "circulation-voie-double",
+      "circulation-voie-unique",
+      "circulation-vut",
+      "retournement-rebroussement",
+      "retournement-terminus",
+      "rebroussement-vu",
+    ],
+  },
+  {
+    id: "hlp-feux-gong",
+    code: "3.3–3.6",
+    title: "HLP, Feux, Gong et Distances",
+    moduleIds: [
+      "circulation-hlp",
+      "feux-detresse",
+      "utilisation-gong",
+      "distances-securite",
+    ],
+  },
+  {
+    id: "station",
+    code: "3.7",
+    title: "Station : Arrêt, Départ et Portes",
+    moduleIds: [
+      "arret-station",
+      "ouverture-portes",
+      "fermeture-portes",
+      "depart-station",
+      "defaut-porte",
+    ],
+  },
+  {
+    id: "communication-signalements",
+    code: "3.8–3.9",
+    title: "Communication, Rentrée Dépôt et Signalements",
+    moduleIds: [
+      "communication-clientele",
+      "signalements-radio",
+      "panne-phonie",
+      "rentree-depot",
+      "signalements-ecrits",
     ],
   },
 ];

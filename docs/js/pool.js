@@ -59,6 +59,26 @@ export function getModulesForAxis(axisId) {
   return rctData().getModulesForAxis(axisId);
 }
 
+export function getModuleGroupsForAxis(axisId) {
+  return rctData().getModuleGroupsForAxis(axisId);
+}
+
+export function getModuleGroupById(axisId, groupId) {
+  return rctData().getModuleGroupById(axisId, groupId);
+}
+
+export function getModulesInGroup(axisId, groupId) {
+  return rctData().getModulesInGroup(axisId, groupId);
+}
+
+export function getGroupForModule(axisId, moduleId) {
+  return rctData().getGroupForModule(axisId, moduleId);
+}
+
+export function axisHasModuleGroups(axisId) {
+  return rctData().axisHasModuleGroups(axisId);
+}
+
 export function getModuleById(axisId, moduleId) {
   return rctData().getModuleById(axisId, moduleId);
 }

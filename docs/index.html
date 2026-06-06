@@ -20,8 +20,30 @@
     <link rel="stylesheet" href="css/app.css" id="app-css" />
     <script>
       window.__RCT_BUST__ = String(Date.now());
-      document.getElementById("app-css").href =
-        "css/app.css?v=" + window.__RCT_BUST__;
+    </script>
+    <script src="js/modules-manifest.js"></script>
+    <script>
+      (function () {
+        var bust = window.__RCT_BUST__;
+        document.getElementById("app-css").href = "css/app.css?v=" + bust;
+
+        /** Import map : chaque import relatif sous /js/ reçoit ?v=bust. */
+        var jsScope = new URL("js/", location.href).href;
+        var scopeEntries = {};
+        var list = window.__RCT_JS_MODULES__ || [];
+        for (var i = 0; i < list.length; i++) {
+          var file = list[i];
+          scopeEntries["./" + file] = "./" + file + "?v=" + bust;
+        }
+
+        var im = document.createElement("script");
+        im.type = "importmap";
+        im.textContent = JSON.stringify({ scopes: {} });
+        var map = { scopes: {} };
+        map.scopes[jsScope] = scopeEntries;
+        im.textContent = JSON.stringify(map);
+        document.head.appendChild(im);
+      })();
     </script>
   </head>
   <body>

@@ -1,20 +1,27 @@
 /**
  * Point d'entrée unique — vérifie l'environnement, charge l'application, intercepte les erreurs.
+ *
+ * Cache : index.html injecte une import map (scope /js/) avec ?v=__RCT_BUST__ sur
+ * chaque module listé dans modules-manifest.js — les imports statiques type
+ * import x from "./store.js" ne contournent plus le cache navigateur.
  */
 
 const BUST = globalThis.__RCT_BUST__ || String(Date.now());
 globalThis.__RCT_BUST__ = BUST;
 
-const EXPECTED_SCRIPTS = [
-  "js/build.js",
-  "js/data.js",
-  "js/pool.js",
-  "js/store.js",
-  "js/pretest-session.js",
-  "js/backup.js",
-  "js/dialog.js",
-  "js/rct-app.js",
+const MODULE_FILES = globalThis.__RCT_JS_MODULES__ || [
+  "build.js",
+  "data.js",
+  "pool.js",
+  "store.js",
+  "pretest-session.js",
+  "backup.js",
+  "dialog.js",
+  "cloze.js",
+  "rct-app.js",
 ];
+
+const EXPECTED_SCRIPTS = MODULE_FILES.map((f) => `js/${f}`);
 
 function mod(path) {
   return import(`${path}?v=${BUST}`);
@@ -48,7 +55,7 @@ function protocolError() {
     "L'application ne peut pas démarrer avec file:// (double-clic sur index.html).",
     [
       "Ouvrez un terminal dans le dossier <strong>docs/</strong> du projet.",
-      "Lancez : <code>python -m http.server 8080</code>",
+      "Lancez : <code>python serve.py</code> (ou <code>python -m http.server 8080</code>).",
       "Puis ouvrez : <strong>http://localhost:8080</strong>",
     ],
   );
@@ -79,8 +86,9 @@ function installGlobalErrorHandlers() {
       "Erreur dans l'application",
       msg,
       [
-        "Vérifiez que le serveur est lancé depuis le dossier <strong>docs/</strong>.",
-        "URL attendue : <strong>http://localhost:8080</strong>",
+        "Rechargez avec <strong>Ctrl+F5</strong>.",
+        "Serveur lancé depuis <strong>docs/</strong> : <code>python serve.py</code>.",
+        "Nouveau module JS ? Ajoutez-le dans <code>js/modules-manifest.js</code>.",
       ],
     );
   });
@@ -93,7 +101,9 @@ function installGlobalErrorHandlers() {
       "Erreur asynchrone",
       msg,
       [
-        "Si le problème persiste : F12 → Application → Local Storage → supprimer les clés <code>tam-rct-*</code>, puis recharger.",
+        "Rechargez avec <strong>Ctrl+F5</strong>.",
+        "Si le problème persiste : F12 → Application → Local Storage → supprimer les clés <code>tam-rct-*</code>.",
+        "Nouveau module JS ? Vérifiez <code>js/modules-manifest.js</code>.",
       ],
     );
   });
@@ -123,12 +133,13 @@ async function start() {
       wrongFolder
         ? [
             "Le serveur HTTP n'est probablement pas lancé depuis <strong>docs/</strong>.",
-            "Terminal : <code>cd docs</code> puis <code>python -m http.server 8080</code>",
-            "Puis : <strong>http://localhost:8080</strong>",
+            "Terminal : <code>cd docs</code> puis <code>python serve.py</code>",
+            "Fichier manquant ? Ajoutez-le à <code>js/modules-manifest.js</code>.",
           ]
         : [
-            "Vérifiez la console (F12) pour le détail.",
-            "Serveur attendu : <strong>http://localhost:8080</strong> depuis <strong>docs/</strong>.",
+            "Rechargez avec <strong>Ctrl+F5</strong> (pas seulement F5).",
+            "Serveur : <code>python serve.py</code> depuis <strong>docs/</strong> (cache HTTP désactivé).",
+            "Import cassé après ajout d'un fichier ? <code>js/modules-manifest.js</code>.",
           ],
     );
   }

@@ -14,15 +14,29 @@ import {
   getTotalQuestionCount,
   getModuleById,
   getModulesForAxis,
+  getModuleGroupsForAxis,
+  getModuleGroupById,
+  getModulesInGroup,
+  getGroupForModule,
+  axisHasModuleGroups,
   sessionSizesForChapter,
 } from "./pool.js";
+import {
+  buildClozeSegments,
+  getClozeDisplayProgress,
+  isClozePretestModule,
+  renderClozeHtml,
+} from "./cloze.js";
 import { createPretestSession } from "./pretest-session.js";
 import {
   FINAL_EXAM_PASS_RATE,
   FINAL_EXAM_QUESTION_COUNT,
   appendFinalExamResult,
+  applyClozeMaster,
+  applyClozeReview,
   applySrsMaster,
   applySrsReview,
+  getClozeState,
   dismissHelp,
   getActiveFinalSession,
   getActivePretestSession,
@@ -78,9 +92,9 @@ const app = {
 let activeTab = "pretest";
 /** @type {string} */
 let screen = "pretest-chapters";
-let route = { axisId: null, moduleId: null };
+let route = { axisId: null, groupId: null, moduleId: null };
 
-/** @type {null | { mode: "pretest"|"final", axisId?: string, targetCount: number, queue: string[], index: number, flipped: boolean, errors: object[] }} */
+/** @type {null | { mode: "pretest"|"final"|"pretest-cloze", axisId?: string, moduleId?: string, questionId?: string, targetCount: number, queue: string[], index: number, flipped: boolean, revealed?: boolean, revealedBlanks?: Set<string>, errors: object[] }} */
 let cardSession = null;
 
 /** @type {null | "welcome"|"pretest"|"final"} */
@@ -370,7 +384,7 @@ function setTab(tab) {
   if (tab === "final" && !isFinalExamUnlocked()) return;
   activeTab = tab;
   cardSession = null;
-  route = { axisId: null, moduleId: null };
+  route = { axisId: null, groupId: null, moduleId: null };
   screen = tab === "pretest" ? "pretest-chapters" : "final-setup";
 
   if (tab === "pretest" && !isHelpDismissed("pretest")) pendingHelp = "pretest";
@@ -593,14 +607,135 @@ function carteCountLabel(n) {
   return n === 1 ? "1 carte" : `${n} cartes`;
 }
 
+function syncRouteGroupFromModule(axisId, moduleId) {
+  route.axisId = axisId;
+  route.moduleId = moduleId ?? null;
+  route.groupId = moduleId ? getGroupForModule(axisId, moduleId)?.id ?? null : null;
+}
+
+/** Chapitre consignes (texte à trous) — libellés « consigne », pas « carte » / « session ». */
+function usesConsigneLabels(axisId) {
+  return axisId === "circulation";
+}
+
+function isClozeModuleActive(axisId, moduleId) {
+  return (
+    cardSession?.mode === "pretest-cloze" &&
+    cardSession.axisId === axisId &&
+    cardSession.moduleId === moduleId
+  );
+}
+
+/** Progression d'une consigne (= un module) pour affichage badge. */
+function getModuleConsigneState(axisId, mod) {
+  const moduleId = mod.id;
+  if (isClozePretestModule(axisId, moduleId) && mod.questions?.length === 1) {
+    const q = mod.questions[0];
+    const prog = getClozeDisplayProgress(q.id, q.answer ?? "");
+    const inProgress =
+      prog.inProgress || isClozeModuleActive(axisId, moduleId);
+    return {
+      mastered: prog.complete ? 1 : 0,
+      inProgressCount: inProgress ? 1 : 0,
+      total: 1,
+      pct: prog.complete ? 100 : prog.pct,
+      inProgress,
+      complete: prog.complete,
+    };
+  }
+  const { rate } = getPretestModuleMastery(axisId, moduleId);
+  const session = reconcileActivePretestSession(axisId, moduleId);
+  const pct = Math.round(rate * 100);
+  const complete = rate >= 1;
+  return {
+    mastered: complete ? 1 : 0,
+    inProgressCount: session ? 1 : 0,
+    total: 1,
+    pct: complete ? 100 : pct,
+    inProgress: !!session,
+    complete,
+  };
+}
+
+/** Agrège plusieurs consignes (bloc, chapitre…). */
+function getConsignesAggregate(axisId, modules) {
+  let mastered = 0;
+  let inProgressCount = 0;
+  let pctSum = 0;
+  let inProgress = false;
+  const total = modules.length;
+  for (const mod of modules) {
+    const s = getModuleConsigneState(axisId, mod);
+    mastered += s.mastered;
+    pctSum += s.pct;
+    if (s.inProgress) {
+      inProgress = true;
+      inProgressCount += s.inProgressCount;
+    }
+  }
+  const pct = total > 0 ? Math.round(pctSum / total) : 0;
+  return {
+    mastered,
+    inProgressCount,
+    total,
+    pct,
+    inProgress,
+    complete: total > 0 && mastered >= total,
+  };
+}
+
+function progressBadgeClass({ inProgress, complete, mastered, pct }) {
+  if (inProgress) return "badge badge--active";
+  if (complete) return "badge badge--ok";
+  if (mastered === 0 && pct === 0) return "badge badge--todo";
+  return "badge badge--partial";
+}
+
+function consigneBadgeHtml({
+  mastered,
+  inProgressCount = 0,
+  total,
+  pct,
+  inProgress,
+  complete,
+}) {
+  const cls = progressBadgeClass({ inProgress, complete, mastered, pct });
+  if (inProgress) {
+    return `<span class="${cls}">Maîtrise de consigne en cours : ${inProgressCount} / ${total} (${pct} %)</span>`;
+  }
+  if (complete) {
+    return `<span class="${cls}">Consigne maîtrisée : ${mastered} / ${total} (100 %) <span class="badge__celebrate" aria-hidden="true">🥳</span></span>`;
+  }
+  return `<span class="${cls}">Consigne maîtrisée : ${mastered} / ${total} (${pct} %)</span>`;
+}
+
+function carteBadgeHtml({ mastered, total, pct, complete, sessionLabel }) {
+  if (sessionLabel) {
+    return `<span class="badge badge--active">Session en cours : carte ${sessionLabel.current} / ${sessionLabel.total}</span>`;
+  }
+  const cls = progressBadgeClass({ inProgress: false, complete, mastered, pct });
+  if (complete) {
+    return `<span class="${cls}">Cartes maîtrisées : ${mastered} / ${total} (100 %) <span class="badge__celebrate" aria-hidden="true">🥳</span></span>`;
+  }
+  return `<span class="${cls}">Cartes maîtrisées : ${mastered} / ${total} (${pct} %)</span>`;
+}
+
+function consigneCountLabel(n) {
+  if (n <= 0) return "0 consigne";
+  return n === 1 ? "1 consigne" : `${n} consignes`;
+}
+
 function moduleCardCount(axisId, moduleId) {
   return getQuestionsForModule(axisId, moduleId).length;
 }
 
 /** Une seule carte : pas d'écran « Démarrer / tout le bloc ». */
 function openPretestModule(axisId, moduleId) {
-  route.axisId = axisId;
-  route.moduleId = moduleId;
+  syncRouteGroupFromModule(axisId, moduleId);
+  if (isClozePretestModule(axisId, moduleId)) {
+    openClozePretest(axisId, moduleId);
+    return;
+  }
   const count = moduleCardCount(axisId, moduleId);
   if (count <= 1) {
     const active = reconcileActivePretestSession(axisId, moduleId);
@@ -617,13 +752,94 @@ function openPretestModule(axisId, moduleId) {
 }
 
 function pretestBackAfterModule(axisId, moduleId) {
+  const group = getGroupForModule(axisId, moduleId);
+  if (group) {
+    route.groupId = group.id;
+    route.moduleId = null;
+    return "pretest-modules";
+  }
+  if (axisHasModuleGroups(axisId)) {
+    route.groupId = null;
+    route.moduleId = null;
+    return "pretest-groups";
+  }
+  route.groupId = null;
+  route.moduleId = null;
   return pretestModuleCount(axisId) > 1 ? "pretest-modules" : "pretest-chapters";
+}
+
+function pretestBackLabel(screenName) {
+  if (screenName === "pretest-chapters") return "← Chapitres";
+  if (screenName === "pretest-groups") return "← Chapitres";
+  if (screenName === "pretest-modules" && route.groupId) {
+    const group = getModuleGroupById(route.axisId, route.groupId);
+    return group ? `← ${group.title}` : "← Groupes";
+  }
+  if (screenName === "pretest-modules") return "← Consignes";
+  return "← Retour";
 }
 
 function pretestSessionCardLabel(session) {
   const total = session.queue?.length ?? session.targetCount ?? 0;
   const current = Math.min((session.index ?? 0) + 1, Math.max(1, total));
   return { current, total };
+}
+
+function openClozePretest(axisId, moduleId) {
+  if (!isPretestChapterUnlocked(axisId)) return;
+  const questions = getQuestionsForModule(axisId, moduleId);
+  const q = questions[0];
+  if (!q) return;
+
+  const start = () => {
+    cardSession = {
+      mode: "pretest-cloze",
+      axisId,
+      moduleId,
+      questionId: q.questionId,
+      revealed: false,
+      revealedBlanks: new Set(),
+    };
+    screen = "pretest-cloze";
+    render();
+  };
+
+  if (needsPretestPauseWarning()) {
+    showPauseWarn = true;
+    pauseWarnContinue = start;
+    render();
+    return;
+  }
+  start();
+}
+
+function finishClozePretest(mastered) {
+  const { axisId, moduleId, questionId } = cardSession;
+  const q = getQuestionById(questionId);
+  const raw =
+    q?.answer ??
+    getModuleById(axisId, moduleId)?.questions?.find((item) => item.id === questionId)
+      ?.answer ??
+    "";
+  const { segments } = buildClozeSegments(raw);
+
+  if (mastered) {
+    applyClozeMaster(questionId, segments.length);
+  } else {
+    applyClozeReview(questionId);
+  }
+  onPretestSessionComplete(axisId, moduleId);
+  recordPretestSessionResult(
+    getPretestScopeKey(axisId, moduleId),
+    mastered ? 1 : 0,
+    1,
+  );
+  cardSession = null;
+  const back = pretestBackAfterModule(axisId, moduleId);
+  screen = back;
+  if (screen === "pretest-chapters") route = { axisId: null, groupId: null, moduleId: null };
+  void writeProgressBackupFile();
+  render();
 }
 
 function launchPretestSession(axisId, moduleId, count, resumeSession) {
@@ -659,33 +875,59 @@ function launchPretestSession(axisId, moduleId, count, resumeSession) {
 function renderPretest() {
   if (
     route.axisId &&
+    !route.groupId &&
+    screen === "pretest-modules" &&
+    axisHasModuleGroups(route.axisId)
+  ) {
+    screen = "pretest-groups";
+    route.moduleId = null;
+  }
+  if (
+    route.axisId &&
     screen !== "pretest-chapters" &&
     !isPretestChapterUnlocked(route.axisId)
   ) {
     screen = "pretest-chapters";
-    route = { axisId: null, moduleId: null };
+    route = { axisId: null, groupId: null, moduleId: null };
+  }
+  if (
+    route.axisId &&
+    route.groupId &&
+    (screen === "pretest-modules" || screen === "pretest-setup" || screen === "pretest-cloze") &&
+    !getModuleGroupById(route.axisId, route.groupId)
+  ) {
+    screen = axisHasModuleGroups(route.axisId) ? "pretest-groups" : "pretest-modules";
+    route.groupId = null;
+    route.moduleId = null;
   }
   if (
     route.axisId &&
     route.moduleId &&
-    (screen === "pretest-setup" || screen === "pretest-card") &&
+    (screen === "pretest-setup" || screen === "pretest-card" || screen === "pretest-cloze") &&
     !getModuleById(route.axisId, route.moduleId)
   ) {
-    screen =
-      pretestModuleCount(route.axisId) > 1
-        ? "pretest-modules"
-        : "pretest-chapters";
+    screen = route.groupId
+      ? "pretest-modules"
+      : axisHasModuleGroups(route.axisId)
+        ? "pretest-groups"
+        : pretestModuleCount(route.axisId) > 1
+          ? "pretest-modules"
+          : "pretest-chapters";
     route.moduleId = null;
   }
   switch (screen) {
     case "pretest-chapters":
       return renderPretestChapters();
+    case "pretest-groups":
+      return renderPretestGroups();
     case "pretest-modules":
       return renderPretestModules();
     case "pretest-setup":
       return renderPretestSetup();
     case "pretest-card":
       return renderFlashcard();
+    case "pretest-cloze":
+      return renderClozePretest();
     default:
       screen = "pretest-chapters";
       return renderPretestChapters();
@@ -701,22 +943,41 @@ function renderPretestChapters() {
       <div class="axes">
         ${AXES.filter((a) => a.available)
           .map((axis) => {
-            const n = getQuestionsForAxis(axis.id).length;
-            const active = findActivePretestSessionOnAxis(axis.id);
             const ch = pre.chapters.find((c) => c.axisId === axis.id);
-            const pct = ch?.masteryPct ?? 0;
-            const mastered = ch?.mastered ?? 0;
-            const total = ch?.total ?? n;
-            const okBadge = ch?.ok
-              ? `<span class="badge badge--ok">Examen final : OK (${pct} %)</span>`
-              : `<span class="badge">Cartes maîtrisées : ${mastered} / ${total} (${pct} %) · ${pre.thresholdPct} % requis</span>`;
-            const badge = active
-              ? (() => {
-                  const { current, total: stTotal } =
-                    pretestSessionCardLabel(active);
-                  return `<span class="badge badge--active">Session en cours : carte ${current} / ${stTotal}</span>`;
-                })()
-              : okBadge;
+            const chPct = ch?.masteryPct ?? 0;
+            let badge;
+            let countLabel;
+            if (usesConsigneLabels(axis.id)) {
+              const modules = getModulesForAxis(axis.id);
+              const agg = getConsignesAggregate(axis.id, modules);
+              countLabel = consigneCountLabel(modules.length);
+              if (ch?.ok) {
+                badge = `<span class="badge badge--ok">Examen final : OK (${chPct} %)</span>`;
+              } else {
+                badge = consigneBadgeHtml(agg);
+                if (!agg.inProgress) {
+                  badge += ` · ${pre.thresholdPct} % requis`;
+                }
+              }
+            } else {
+              const n = getQuestionsForAxis(axis.id).length;
+              const active = findActivePretestSessionOnAxis(axis.id);
+              const mastered = ch?.mastered ?? 0;
+              const total = ch?.total ?? n;
+              countLabel = carteCountLabel(n);
+              badge = ch?.ok
+                ? `<span class="badge badge--ok">Examen final : OK (${chPct} %)</span>`
+                : active
+                  ? carteBadgeHtml({
+                      sessionLabel: pretestSessionCardLabel(active),
+                    })
+                  : carteBadgeHtml({
+                        mastered,
+                        total,
+                        pct: chPct,
+                        complete: total > 0 && mastered >= total,
+                      }) + ` · ${pre.thresholdPct} % requis`;
+            }
             const cardClass =
               axis.id === "acronymes"
                 ? "axis-card axis-card--recommended"
@@ -726,7 +987,70 @@ function renderPretestChapters() {
                 <span class="axis-card__num">${axisChapterLabel(axis)}</span>
                 <div class="axis-card__title">${escapeHtml(axis.title)}</div>
                 <p class="axis-card__desc">${axisCetMeta(axis)}</p>
-                <div class="axis-card__meta">${badge} · ${carteCountLabel(n)}</div>
+                <div class="axis-card__meta">${badge} · ${countLabel}</div>
+              </button>`;
+          })
+          .join("")}
+      </div>
+      <p class="footer-note">Basé sur doc TaM — Outil d'entraînement personnel · build ${APP_BUILD}</p>
+    </main>`;
+}
+
+function moduleCardCountLabel(axisId, moduleId, n) {
+  if (isClozePretestModule(axisId, moduleId)) {
+    return n <= 1 ? "texte à trous" : `${n} textes à trous`;
+  }
+  return carteCountLabel(n);
+}
+
+/** Badge maîtrise / progression pour une consigne pré-examen. */
+function pretestModuleBadgeHtml(axisId, moduleId, mod, active) {
+  if (usesConsigneLabels(axisId)) {
+    const state = getModuleConsigneState(axisId, mod);
+    if (active && !state.inProgress) {
+      state.inProgress = true;
+      state.inProgressCount = 1;
+    }
+    return consigneBadgeHtml(state);
+  }
+
+  const n = mod.questions.length;
+  const { mastered, total, rate } = getPretestModuleMastery(axisId, moduleId);
+  const pct = Math.round(rate * 100);
+
+  if (active) {
+    return carteBadgeHtml({
+      sessionLabel: pretestSessionCardLabel(active),
+    });
+  }
+  if (total > 0 && rate >= 1) {
+    return carteBadgeHtml({ mastered, total, pct, complete: true });
+  }
+  return carteBadgeHtml({ mastered, total, pct, complete: false });
+}
+
+function renderPretestGroups() {
+  const axis = getAxisById(route.axisId);
+  const groups = getModuleGroupsForAxis(route.axisId);
+
+  return `
+    <main class="main">
+      <button type="button" class="link-back" data-pretest-back-chapters>← Chapitres</button>
+      <h2 class="screen-title">${escapeHtml(axis.title)}</h2>
+      <p class="screen-sub">${axisChapterLabel(axis)} — RCT p. ${escapeHtml(axis.cetPages)}</p>
+      <p class="intro-note">Choisissez un <strong>bloc</strong>, puis une consigne à travailler séparément.</p>
+      <div class="axes">
+        ${groups
+          .map((group) => {
+            const n = group.moduleIds.length;
+            const modules = getModulesInGroup(route.axisId, group.id);
+            const agg = getConsignesAggregate(route.axisId, modules);
+            const badge = consigneBadgeHtml(agg);
+            return `
+              <button type="button" class="axis-card" data-pretest-group="${group.id}">
+                <span class="axis-card__num">${escapeHtml(group.code)}</span>
+                <div class="axis-card__title">${escapeHtml(group.title)}</div>
+                <div class="axis-card__meta">${badge} · ${consigneCountLabel(n)}</div>
               </button>`;
           })
           .join("")}
@@ -737,41 +1061,41 @@ function renderPretestChapters() {
 
 function renderPretestModules() {
   const axis = getAxisById(route.axisId);
-  const modules = getModulesForAxis(route.axisId);
+  const group = route.groupId
+    ? getModuleGroupById(route.axisId, route.groupId)
+    : null;
+  const modules = group
+    ? getModulesInGroup(route.axisId, route.groupId)
+    : getModulesForAxis(route.axisId);
+  const backLabel = pretestBackLabel("pretest-modules");
+  const listTitle = group ? group.title : axis.title;
+  const listSub = group
+    ? `${axisChapterLabel(axis)} — ${escapeHtml(group.code)}`
+    : `${axisChapterLabel(axis)} — RCT p. ${escapeHtml(axis.cetPages)}`;
 
   return `
     <main class="main">
-      <button type="button" class="link-back" data-pretest-back-chapters>← Chapitres</button>
-      <h2 class="screen-title">${escapeHtml(axis.title)}</h2>
-      <p class="screen-sub">${axisChapterLabel(axis)} — RCT p. ${escapeHtml(axis.cetPages)}</p>
-      <p class="intro-note">Choisissez une consigne à travailler <strong>séparément</strong> (les cartes ne sont pas mélangées entre consignes).</p>
+      <button type="button" class="link-back" data-pretest-back>${backLabel}</button>
+      <h2 class="screen-title">${escapeHtml(listTitle)}</h2>
+      <p class="screen-sub">${listSub}</p>
+      <p class="intro-note">Choisissez une consigne à travailler <strong>séparément</strong>.</p>
       <div class="axes">
         ${modules
           .map((mod) => {
             const n = mod.questions.length;
-            const { mastered, total, rate } = getPretestModuleMastery(
+            const active = reconcileActivePretestSession(route.axisId, mod.id);
+            const badge = pretestModuleBadgeHtml(
               route.axisId,
               mod.id,
+              mod,
+              active,
             );
-            const pct = Math.round(rate * 100);
-            const active = reconcileActivePretestSession(route.axisId, mod.id);
-            const okBadge =
-              total > 0 && rate >= 1
-                ? `<span class="badge badge--ok">Maîtrisé (${pct} %)</span>`
-                : `<span class="badge">Cartes maîtrisées : ${mastered} / ${total} (${pct} %)</span>`;
-            const badge = active
-              ? (() => {
-                  const { current, total: stTotal } =
-                    pretestSessionCardLabel(active);
-                  return `<span class="badge badge--active">Session en cours : carte ${current} / ${stTotal}</span>`;
-                })()
-              : okBadge;
             return `
               <button type="button" class="axis-card" data-pretest-module="${mod.id}">
                 <span class="axis-card__num">${escapeHtml(mod.code)}</span>
                 <div class="axis-card__title">${escapeHtml(mod.title)}</div>
-                <p class="axis-card__desc">${moduleCetMeta(mod)}</p>
-                <div class="axis-card__meta">${badge} · ${carteCountLabel(n)}</div>
+                ${group ? "" : `<p class="axis-card__desc">${moduleCetMeta(mod)}</p>`}
+                <div class="axis-card__meta">${badge} · ${moduleCardCountLabel(route.axisId, mod.id, n)}</div>
               </button>`;
           })
           .join("")}
@@ -784,12 +1108,18 @@ function renderPretestSetup() {
   const axis = getAxisById(route.axisId);
   const mod = getModuleById(route.axisId, route.moduleId);
   if (!axis || !mod) {
-    screen =
-      route.axisId && pretestModuleCount(route.axisId) > 1
-        ? "pretest-modules"
-        : "pretest-chapters";
-    if (screen === "pretest-chapters") route = { axisId: null, moduleId: null };
-    else route.moduleId = null;
+    screen = route.groupId
+      ? "pretest-modules"
+      : axisHasModuleGroups(route.axisId)
+        ? "pretest-groups"
+        : pretestModuleCount(route.axisId) > 1
+          ? "pretest-modules"
+          : "pretest-chapters";
+    if (screen === "pretest-chapters") {
+      route = { axisId: null, groupId: null, moduleId: null };
+    } else {
+      route.moduleId = null;
+    }
     return renderPretest();
   }
   const chapterCount = getQuestionsForModule(route.axisId, route.moduleId).length;
@@ -799,7 +1129,11 @@ function renderPretestSetup() {
   const defaultSize = sizes.includes(pref) ? pref : sizes[0] ?? chapterCount;
   const active = reconcileActivePretestSession(route.axisId, route.moduleId);
   const backLabel =
-    pretestModuleCount(route.axisId) > 1 ? "← Consignes" : "← Chapitres";
+    route.groupId && getModuleGroupById(route.axisId, route.groupId)
+      ? `← ${getModuleGroupById(route.axisId, route.groupId).title}`
+      : pretestModuleCount(route.axisId) > 1
+        ? "← Consignes"
+        : "← Chapitres";
 
   const radios = sizes
     .map(
@@ -973,6 +1307,62 @@ function renderFinalResults() {
     </main>`;
 }
 
+/* ─── Texte à trous (pré-examen consignes) ─── */
+
+function renderClozePretest() {
+  const { axisId, moduleId, questionId, revealed } = cardSession;
+  const q = getQuestionById(questionId);
+  const mod = getModuleById(axisId, moduleId);
+  if (!q || !mod) {
+    cardSession = null;
+    screen = pretestBackAfterModule(axisId, moduleId);
+    return renderPretest();
+  }
+
+  syncRouteGroupFromModule(axisId, moduleId);
+  const backLabel = pretestBackLabel("pretest-modules");
+
+  const raw = q.answer ?? "";
+  const { blankCount, clozeSeed } = getClozeState(questionId);
+  const { html, totalSegments, blankCount: shownBlanks } = renderClozeHtml(raw, {
+    blankCount,
+    questionId,
+    clozeSeed,
+    revealedAll: revealed,
+    revealedBlanks: cardSession.revealedBlanks ?? new Set(),
+  });
+
+  const moduleRef = mod.cetPage
+    ? `RCT p. ${mod.cetPage} — ${escapeHtml(mod.code)}`
+    : escapeHtml(mod.code);
+
+  const revealLabel = revealed
+    ? "Masquer la réponse complète"
+    : "Voir la réponse complète";
+
+  return `
+    <main class="main">
+      <button type="button" class="link-back" data-cloze-abort>${escapeHtml(backLabel)}</button>
+      <p class="quiz-meta">Texte à trous · ${shownBlanks} / ${totalSegments} mots masqués</p>
+      <p class="cloze-hint">${
+        revealed
+          ? "Les mots <strong class=\"cloze-hint__mark\">en bleu</strong> étaient masqués."
+          : "Retrouvez les mots masqués, puis touchez un <strong class=\"cloze-hint__mark\">trou</strong> pour vérifier."
+      }</p>
+      <article class="cloze-card">
+        <p class="cloze-card__chapter">${escapeHtml(mod.title)}</p>
+        <h2 class="cloze-card__prompt">${escapeHtml(promptForCard(q))}</h2>
+        <p class="cloze-card__ref">(${moduleRef})</p>
+        <div class="cloze-card__body">${html}</div>
+        <button type="button" class="btn btn--ghost btn--small cloze-reveal" data-cloze-reveal>${revealLabel}</button>
+      </article>
+      <div class="cloze-actions">
+        <button type="button" class="btn btn--primary" data-cloze-master>Je maîtrise</button>
+        <button type="button" class="btn btn--ghost" data-cloze-review>À revoir</button>
+      </div>
+    </main>`;
+}
+
 /* ─── Carte flashcard (pré-examen + final) ─── */
 
 function renderFlashcard() {
@@ -1059,7 +1449,9 @@ function advanceCard() {
       saveActivePretestSession(scopeKey, null);
       cardSession = null;
       screen = pretestBackAfterModule(axisId, moduleId);
-      if (screen === "pretest-chapters") route = { axisId: null, moduleId: null };
+      if (screen === "pretest-chapters") {
+        route = { axisId: null, groupId: null, moduleId: null };
+      }
       void writeProgressBackupFile();
     } else {
       const total = cardSession.queue.length;
@@ -1093,16 +1485,26 @@ function advanceCard() {
 function openPretestAxis(axisId) {
   const modules = getModulesForAxis(axisId);
   route.axisId = axisId;
+  route.groupId = null;
   route.moduleId = null;
-  if (modules.length > 1) {
+  if (axisHasModuleGroups(axisId)) {
+    screen = "pretest-groups";
+  } else if (modules.length > 1) {
     screen = "pretest-modules";
   } else if (modules.length === 1) {
     openPretestModule(axisId, modules[0].id);
     return;
   } else {
     screen = "pretest-chapters";
-    route = { axisId: null, moduleId: null };
+    route = { axisId: null, groupId: null, moduleId: null };
   }
+  render();
+}
+
+function openPretestGroup(groupId) {
+  route.groupId = groupId;
+  route.moduleId = null;
+  screen = "pretest-modules";
   render();
 }
 
@@ -1112,6 +1514,12 @@ function bindPretest() {
       const axisId = btn.dataset.pretestAxis;
       if (!isPretestChapterUnlocked(axisId)) return;
       openPretestAxis(axisId);
+    });
+  });
+
+  app.querySelectorAll("[data-pretest-group]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      openPretestGroup(btn.dataset.pretestGroup);
     });
   });
 
@@ -1125,18 +1533,22 @@ function bindPretest() {
     "click",
     () => {
       screen = "pretest-chapters";
-      route = { axisId: null, moduleId: null };
+      route = { axisId: null, groupId: null, moduleId: null };
       render();
     },
   );
 
   app.querySelector("[data-pretest-back]")?.addEventListener("click", () => {
-    if (pretestModuleCount(route.axisId) > 1) {
+    if (route.groupId) {
+      screen = "pretest-groups";
+      route.groupId = null;
+      route.moduleId = null;
+    } else if (pretestModuleCount(route.axisId) > 1) {
       screen = "pretest-modules";
       route.moduleId = null;
     } else {
       screen = "pretest-chapters";
-      route = { axisId: null, moduleId: null };
+      route = { axisId: null, groupId: null, moduleId: null };
     }
     render();
   });
@@ -1171,6 +1583,46 @@ function bindPretest() {
   });
 
   bindFlashcard();
+  bindClozePretest();
+}
+
+function bindClozePretest() {
+  app.querySelector("[data-cloze-abort]")?.addEventListener("click", () => {
+    const axisId = cardSession?.axisId ?? route.axisId;
+    const moduleId = cardSession?.moduleId ?? route.moduleId;
+    cardSession = null;
+    screen = pretestBackAfterModule(axisId, moduleId);
+    if (screen === "pretest-chapters") {
+      route = { axisId: null, groupId: null, moduleId: null };
+    }
+    render();
+  });
+
+  app.querySelector(".cloze-card__body")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-cloze-blank]");
+    if (!btn || cardSession?.mode !== "pretest-cloze" || cardSession.revealed) return;
+    const id = btn.dataset.clozeBlank;
+    if (!id) return;
+    if (!cardSession.revealedBlanks) cardSession.revealedBlanks = new Set();
+    cardSession.revealedBlanks.add(id);
+    render();
+  });
+
+  app.querySelector("[data-cloze-reveal]")?.addEventListener("click", () => {
+    if (cardSession?.mode === "pretest-cloze") {
+      cardSession.revealed = !cardSession.revealed;
+      if (!cardSession.revealed) cardSession.revealedBlanks = new Set();
+      render();
+    }
+  });
+
+  app.querySelector("[data-cloze-master]")?.addEventListener("click", () => {
+    if (cardSession?.mode === "pretest-cloze") finishClozePretest(true);
+  });
+
+  app.querySelector("[data-cloze-review]")?.addEventListener("click", () => {
+    if (cardSession?.mode === "pretest-cloze") finishClozePretest(false);
+  });
 }
 
 function bindFinal() {
@@ -1217,10 +1669,13 @@ function bindFlashcard() {
       }
       route.axisId = cardSession.axisId;
       route.moduleId = cardSession.moduleId;
+      syncRouteGroupFromModule(route.axisId, route.moduleId);
     }
     cardSession = null;
     screen = pretestBackAfterModule(route.axisId, route.moduleId);
-    if (screen === "pretest-chapters") route = { axisId: null, moduleId: null };
+    if (screen === "pretest-chapters") {
+      route = { axisId: null, groupId: null, moduleId: null };
+    }
     render();
   });
 
@@ -1310,7 +1765,7 @@ async function requestFullProgressReset() {
   resetAllUserProgress();
   activeTab = "pretest";
   screen = "pretest-chapters";
-  route = { axisId: null, moduleId: null };
+  route = { axisId: null, groupId: null, moduleId: null };
   cardSession = null;
   pendingHelp = null;
   render();

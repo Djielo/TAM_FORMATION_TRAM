@@ -8,11 +8,15 @@
   --danger: #b42318;
   --danger-soft: #fef3f2;
   --warn: #b54708;
+  --progress: #854d0e;
+  --progress-soft: #fef9c3;
   --border: #dde3ea;
   --radius: 14px;
   --shadow: 0 2px 12px rgb(26 35 50 / 8%);
   --font: "Segoe UI", system-ui, -apple-system, sans-serif;
   --safe-bottom: env(safe-area-inset-bottom, 0);
+  --cloze: #1a5fb4;
+  --cloze-soft: #e8f1fb;
 }
 
 *,
@@ -226,8 +230,13 @@ body.app-dialog-open {
   font-weight: 600;
   padding: 0.2rem 0.5rem;
   border-radius: 6px;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: #f0f2f5;
+  color: var(--muted);
+}
+
+.badge--todo {
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .badge--soon {
@@ -755,9 +764,21 @@ body.app-dialog-open {
   color: var(--warn);
 }
 
+.badge--partial {
+  background: var(--progress-soft);
+  color: var(--progress);
+}
+
 .badge--ok {
   background: var(--accent-soft);
   color: var(--accent);
+  font-weight: 600;
+}
+
+.badge__celebrate {
+  font-size: 1.05rem;
+  line-height: 1;
+  vertical-align: middle;
 }
 
 .resume-banner {
@@ -1240,6 +1261,151 @@ body.app-dialog-open {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+/* Texte à trous (pré-examen consignes) */
+.cloze-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem 1.15rem;
+  margin-top: 0;
+}
+
+.cloze-card__chapter {
+  margin: 0 0 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+
+.cloze-card__prompt {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.cloze-card__ref {
+  margin: 0 0 1rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.cloze-card__body {
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.cloze-point {
+  margin: 0 0 0.65rem;
+}
+
+.cloze-point--a {
+  color: #1a6b4a;
+}
+
+.cloze-point--b {
+  color: #5a9a7a;
+}
+
+.cloze-point--sub {
+  color: #5a9a7a;
+  padding-left: 0.35rem;
+}
+
+.cloze-blank {
+  display: inline-block;
+  min-width: 2rem;
+  padding: 0 0.15rem;
+  border: none;
+  border-bottom: 2px solid var(--cloze);
+  background: var(--cloze-soft);
+  color: var(--cloze);
+  font: inherit;
+  font-weight: 700;
+  line-height: inherit;
+  cursor: pointer;
+  vertical-align: baseline;
+  border-radius: 3px 3px 0 0;
+  transition: background 0.15s ease;
+}
+
+.cloze-blank:hover {
+  background: #d4e4f8;
+}
+
+.cloze-blank:active {
+  background: #bdd4f0;
+}
+
+.cloze-filled {
+  color: var(--cloze);
+  font-weight: 700;
+  background: var(--cloze-soft);
+  border-radius: 4px;
+  padding: 0 0.12em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.cloze-encart {
+  margin-top: 1rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.cloze-encart--warning {
+  background: #fff4e5;
+  border-left: 4px solid var(--warn);
+}
+
+.cloze-encart--info {
+  background: #fefce8;
+  border-left: 4px solid #ca8a04;
+}
+
+.cloze-encart__label {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.cloze-reveal {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.cloze-hint {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  margin: 0.25rem 0 0.65rem;
+  text-align: center;
+}
+
+.cloze-hint__mark {
+  color: var(--cloze);
+  font-weight: 700;
+}
+
+.cloze-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.cloze-actions .btn {
+  flex: 1;
+}
+
+.btn--small {
+  font-size: 0.875rem;
+  padding: 0.45rem 0.85rem;
 }
 
 /* Résultats examen final */

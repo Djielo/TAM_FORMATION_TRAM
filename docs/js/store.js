@@ -542,7 +542,42 @@ function defaultSrsRow() {
     sessionsUntilEligible: 0,
     pendingReview: false,
     everMastered: false,
+    /** Nombre de trous cible (texte à trous). */
+    clozeBlanks: 5,
+    /** Variante aléatoire des positions de trous. */
+    clozeSeed: 0,
   };
+}
+
+/** État texte à trous pour une carte. */
+export function getClozeState(questionId) {
+  const row = getSrsRow(questionId);
+  return {
+    blankCount: row.clozeBlanks ?? 5,
+    clozeSeed: row.clozeSeed ?? 0,
+  };
+}
+
+/** « Je maîtrise » — SRS + plus de trous au prochain passage. */
+export function applyClozeMaster(questionId, maxSegments) {
+  applySrsMaster(questionId);
+  const all = loadSrs();
+  const row = all[questionId];
+  if (!row) return;
+  const current = row.clozeBlanks ?? 5;
+  row.clozeBlanks = Math.min(current + 5, Math.max(1, maxSegments));
+  row.clozeSeed = (row.clozeSeed ?? 0) + 1;
+  saveSrs(all);
+}
+
+/** « À revoir » — SRS + mêmes trous, nouvelles positions. */
+export function applyClozeReview(questionId) {
+  applySrsReview(questionId);
+  const all = loadSrs();
+  const row = all[questionId];
+  if (!row) return;
+  row.clozeSeed = (row.clozeSeed ?? 0) + 1;
+  saveSrs(all);
 }
 
 export function getSrsRow(questionId) {
