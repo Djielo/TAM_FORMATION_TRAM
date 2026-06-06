@@ -217,4 +217,23 @@ export const MODULES_CH3 = [
       },
     ],
   },
+
+  // ─── 3.2-D Circulation en VUT (p. 45) ───────────────────────
+  {
+    id: "circulation-vut",
+    code: "3.2-D",
+    title: "Circulation en voie unique temporaire (VUT)",
+    cetPage: 45,
+    questions: [
+      {
+        id: "ch3-vut-00",
+        prompt:
+          "Quelles sont les conditions de circulation en voie unique temporaire, dite VUT ?",
+        cardPrompt:
+          "Quelles sont les conditions de circulation en voie unique temporaire, dite VUT ?",
+        answer:
+          "1. La VUT correspond à la circulation d'une ou plusieurs rames sur une seule voie, dans les deux sens, sans recours à la signalisation de cantonnement.\n2. Autorisée uniquement sur ordre du PCC ou par consignes spécifiques, à 30 km/h maximum.\n3. Bâton pilote : le régulateur ordonne aux rames de stopper aux extrémités de la VUT et vérifie la bonne réception du message.\n4. Première rame : s'engager sur la VUT libre sur ordre du régulateur, numéro du bâton pilote annoncé (chaque conducteur en possède un).\n5. En sortie de VUT : appeler le PCC pour les instructions de transmission du bâton pilote à la rame en attente en sens inverse.\n6. Avant engagement en sens inverse : demander l'autorisation au PCC en annonçant le numéro du bâton pilote.\n@@INFO@@\nEn présence d'agents de maîtrise sur place, même procédure, sauf que le régulateur PCC délègue aux AMs l'autorisation d'engagement des rames sur le tronçon en VUT.",
+      },
+    ],
+  },
 ];
