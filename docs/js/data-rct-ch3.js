@@ -141,7 +141,7 @@ export const MODULES_CH3 = [
         cardPrompt:
           "Quelles sont les règles de circulation en ligne ?",
         answer:
-          "1. Conduire toujours depuis la cabine dans le sens de la marche (marche arrière interdite).\n2. Circuler en marche à vue, adapter sa vitesse à l'environnement.\n3. En ligne, appliquer les mêmes règles de prévoyance et de défiance que pour tout véhicule de transport.\n4. Être en mesure d'arrêter la rame en toute circonstance.\n5. Respecter la signalisation ferroviaire et routière, et les limitations de vitesse en ligne. Éviter le mode traction au passage des IS.\n6. Visibilité réduite (brouillard, dégagement de fumée), adapter la vitesse aux conditions.\n7. En sortie de courbe, attendre que la rame soit droite pour reprendre de la vitesse : sécurité, guidage pour éviter le déraillement, confort clientèle, préservation de l'infrastructure.\n8. Baisse anormale du niveau de vigilance ou pertes de vigilance répétées, alerter immédiatement le PCC sur son état de santé.\n@@INFO@@\nRelevés tachymétriques réguliers et aléatoires.\nMédicaments : baisse de vigilance, autorisation du médecin traitant.",
+          "1. Conduire toujours depuis la cabine dans le sens de la marche (marche arrière interdite).\n2. Circuler en marche à vue, adapter sa vitesse à l'environnement.\n3. En ligne, appliquer les mêmes règles de prévoyance et de défiance que pour tout véhicule de transport.\n4. Être en mesure d'arrêter la rame en toute circonstance.\n5. Respecter la signalisation ferroviaire et routière, et les limitations de vitesse en ligne. Éviter le mode traction au passage des IS.\n6. Visibilité réduite (brouillard, dégagement de fumée), adapter la vitesse aux conditions.\n7. En sortie de courbe, attendre que la rame soit droite pour reprendre de la vitesse : sécurité, guidage pour éviter le déraillement, confort clientèle, préservation de l'infrastructure.\n8. Baisse anormale du niveau de vigilance ou pertes de vigilance répétées, alerter immédiatement le PCC sur son état de santé.\n@@WARNING@@\nRelevés tachymétriques réguliers et aléatoires.\nMédicaments : baisse de vigilance, autorisation du médecin traitant.",
       },
     ],
   },
@@ -196,7 +196,7 @@ export const MODULES_CH3 = [
         prompt: "Quelles sont les règles de circulation sur voie double ?",
         cardPrompt: "Quelles sont les règles de circulation sur voie double ?",
         answer:
-          "1. Circulation nominale sur la voie de droite, dans le sens de marche.\n2. Respecter la signalisation (SIG) de présence tension, SIG lumineuse de carrefour, SIG de manœuvre, SIG de signalisation verticale et SIG de signalisation au sol.\n@@INFO@@\nVoie nominale V1 >>> L1 : Mosson → Odysseum ; L2 : Saint-Jean-de-Védas → Jacou.",
+          "1. Circulation nominale sur la voie de droite, dans le sens de marche.\n2. Respecter la signalisation (SIG) de présence tension, SIG lumineuse de carrefour, SIG de manœuvre, SIG de signalisation verticale et SIG de signalisation au sol.\n@@WARNING@@\nVoie nominale V1 >>> L1 : Mosson → Odysseum ; L2 : Saint-Jean-de-Védas → Jacou.",
       },
     ],
   },
@@ -213,7 +213,7 @@ export const MODULES_CH3 = [
         prompt: "Quelles sont les règles de circulation sur voie unique ?",
         cardPrompt: "Quelles sont les règles de circulation sur voie unique ?",
         answer:
-          "1. Respecter impérativement la signalisation de manœuvre sur chaque évitement, elle protège le début d'un canton.\n2. Ne démarrer de la station qu'après le passage au vert du feu de manœuvre, pour tenir compte des boucles sur VU et la continuité de l'échange voyageurs.\n3. En cas de franchissement, réagir immédiatement à la sirène et aux lampes flash par un freinage d'urgence (FU).\n4. Si les lampes flash s'allument en cours de trajet (franchissement d'un signal au rouge par une rame en sens inverse), effectuer immédiatement un FU, s'arrêter en ligne, appeler le PCC et suivre ses consignes.\n@@INFO@@\nEntrée d'évitement : contrôler l'INDIR, comme pour toute aiguille prise par la pointe.\nSortie d'évitement, aiguille en voie déviée : vitesse maxi 15 km/h.",
+          "1. Respecter impérativement la signalisation de manœuvre sur chaque évitement, elle protège le début d'un canton.\n2. Ne démarrer de la station qu'après le passage au vert du feu de manœuvre, pour tenir compte des boucles sur VU et la continuité de l'échange voyageurs.\n3. En cas de franchissement, réagir immédiatement à la sirène et aux lampes flash par un freinage d'urgence (FU).\n4. Si les lampes flash s'allument en cours de trajet (franchissement d'un signal au rouge par une rame en sens inverse), effectuer immédiatement un FU, s'arrêter en ligne, appeler le PCC et suivre ses consignes.\n@@WARNING@@\nEntrée d'évitement : contrôler l'INDIR, comme pour toute aiguille prise par la pointe.\nSortie d'évitement, aiguille en voie déviée : vitesse maxi 15 km/h.",
       },
     ],
   },
@@ -232,7 +232,26 @@ export const MODULES_CH3 = [
         cardPrompt:
           "Quelles sont les conditions de circulation en voie unique temporaire, dite VUT ?",
         answer:
-          "1. La VUT correspond à la circulation d'une ou plusieurs rames sur une seule voie, dans les deux sens, sans recours à la signalisation de cantonnement.\n2. Autorisée uniquement sur ordre du PCC ou par consignes spécifiques, à 30 km/h maximum.\n3. Bâton pilote : le régulateur ordonne aux rames de stopper aux extrémités de la VUT et vérifie la bonne réception du message.\n4. Première rame : s'engager sur la VUT libre sur ordre du régulateur, numéro du bâton pilote annoncé (chaque conducteur en possède un).\n5. En sortie de VUT : appeler le PCC pour les instructions de transmission du bâton pilote à la rame en attente en sens inverse.\n6. Avant engagement en sens inverse : demander l'autorisation au PCC en annonçant le numéro du bâton pilote.\n@@INFO@@\nEn présence d'agents de maîtrise sur place, même procédure, sauf que le régulateur PCC délègue aux AMs l'autorisation d'engagement des rames sur le tronçon en VUT.",
+          "1. La VUT correspond à la circulation d'une ou plusieurs rames sur une seule voie, dans les deux sens, sans recours à la signalisation de cantonnement.\n2. Autorisée uniquement sur ordre du PCC ou par consignes spécifiques, à 30 km/h maximum.\n3. Bâton pilote : le régulateur ordonne aux rames de stopper aux extrémités de la VUT et vérifie la bonne réception du message.\n4. Première rame : s'engager sur la VUT libre sur ordre du régulateur, numéro du bâton pilote annoncé (chaque conducteur en possède un).\n5. En sortie de VUT : appeler le PCC pour les instructions de transmission du bâton pilote à la rame en attente en sens inverse.\n6. Avant engagement en sens inverse : demander l'autorisation au PCC en annonçant le numéro du bâton pilote.\n@@WARNING@@\nEn présence d'agents de maîtrise sur place, même procédure, sauf que le régulateur PCC délègue aux AMs l'autorisation d'engagement des rames sur le tronçon en VUT.",
+      },
+    ],
+  },
+
+  // ─── 3.2-E1 Retournement et rebroussement (p. 46–47) ─────────
+  {
+    id: "retournement-rebroussement",
+    code: "3.2-E1",
+    title: "Manœuvres de retournement et de rebroussement",
+    cetPage: 46,
+    questions: [
+      {
+        id: "ch3-e1-00",
+        prompt:
+          "Quelles sont les consignes de manœuvre de retournement et de rebroussement ?",
+        cardPrompt:
+          "Quelles sont les consignes de manœuvre de retournement et de rebroussement ?",
+        answer:
+          "1. Retournement : changement de voie par une communication, repartir dans l'autre sens par l'autre voie.\n2. Rebroussement : retournement sur une même voie, équivalent à une circulation en VUT.\n3. Retournement de préférence sans voyageurs, sauf stations situées après la communication de retournement.\n4. Communications manuelles non signalées : manœuvre entière sur ordre ou autorisation du PCC.\n5. Les manoeuvres 'Hors terminus' et 'non prévue sur planchette', y compris 3e voie Occitanie ou L. Blum, sont sous contrôle obligatoire du PCC.\n6. Rebroussement : uniquement dans le cadre de la consigne 3.2-D (VUT), sauf tronçon court à bonne visibilité entre station et communication, ou tronçon VU protégé par la signalisation ferroviaire.\n@@INFO@@\nCas n° 1, communication manuelle après une station :\nDéposer les voyageurs après les avoir informés de la manœuvre.\nAvancer jusqu'au clou de limite de manœuvre pour dégager l'aiguillage ou vérifier sa position.\nEnclencher les feux de détresse.\nManipulateur au neutre, retirer clé KC, quitter cabine, refermer porte à clé.\nPositionner les aiguillages en déviée.\nRemonter en cabine de tête, mode VUT sur AEL si carrefour (ex. Albert 1er).\nDépart en sens inverse jusqu'à la station, accord PCC confirmé si visibilité insuffisante.\nSauf contre-ordre PCC, remettre les aiguillages en position initiale.\nPrévenir le PCC de la fin de manœuvre.\n@@INFO@@\nCas n° 2, communication manuelle avant une station :\nArrêter en station après information des voyageurs (sauf HLP).\nFeux de détresse, neutre, clé KC, fermer cabine à clé.\nChanger de cabine, après autorisation PCC, rebrousser jusqu'à l'aiguille.\nAiguille en déviée, changement de voie après accord PCC.\nVoyageurs montent sur le même quai (sauf HLP).\nAu départ, mode VUT si l'implantation l'impose (ex. contre-sens carrefour).\nRepositionner l'aiguille sur ordre PCC après passage.",
       },
     ],
   },

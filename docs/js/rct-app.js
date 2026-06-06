@@ -198,16 +198,28 @@ function escapeHtml(raw) {
     .replace(/"/g, "&quot;");
 }
 
+const ANSWER_WARNING_MARK = "@@WARNING@@";
 const ANSWER_INFO_MARK = "@@INFO@@";
+const ANSWER_ENCART_MARK_RE = /@@WARNING@@|@@INFO@@/g;
 
-/** Corps de réponse + encart info éventuel (`@@INFO@@` dans `answer` ou champ `answerInfo`). */
-function splitAnswerBodyAndInfo(raw) {
+/** Corps de réponse + encarts (`@@WARNING@@` attention orange, `@@INFO@@` information jaune). */
+function splitAnswerBodyAndEncarts(raw) {
   const text = String(raw ?? "");
-  const idx = text.indexOf(ANSWER_INFO_MARK);
-  if (idx === -1) return { body: text, info: null };
+  if (!text.includes(ANSWER_WARNING_MARK) && !text.includes(ANSWER_INFO_MARK)) {
+    return { body: text, encarts: [] };
+  }
+  const segments = text.split(ANSWER_ENCART_MARK_RE);
+  const marks = [...text.matchAll(ANSWER_ENCART_MARK_RE)].map((match) =>
+    match[0] === ANSWER_WARNING_MARK ? "warning" : "info",
+  );
   return {
-    body: text.slice(0, idx).trimEnd(),
-    info: text.slice(idx + ANSWER_INFO_MARK.length).trim() || null,
+    body: (segments[0] ?? "").trimEnd(),
+    encarts: marks
+      .map((type, i) => ({
+        type,
+        content: (segments[i + 1] ?? "").trim(),
+      }))
+      .filter((entry) => entry.content),
   };
 }
 
@@ -216,23 +228,27 @@ function answerForCard(q) {
   let raw = "";
   if (q.answer != null && String(q.answer).trim()) raw = q.answer;
   else if (q.choices?.length) raw = q.choices[q.correct ?? 0] ?? "";
-  return splitAnswerBodyAndInfo(raw).body;
+  return splitAnswerBodyAndEncarts(raw).body;
 }
 
-/** Encart info (hors points numérotés). */
-function answerInfoForCard(q) {
+/** Encarts hors points numérotés (attention orange, information jaune). */
+function answerEncartsForCard(q) {
   let raw = "";
   if (q.answer != null && String(q.answer).trim()) raw = q.answer;
-  const fromAnswer = splitAnswerBodyAndInfo(raw).info;
-  if (fromAnswer) return fromAnswer;
-  if (q?.answerInfo != null && String(q.answerInfo).trim()) return q.answerInfo;
+  const fromAnswer = splitAnswerBodyAndEncarts(raw).encarts;
+  if (fromAnswer.length) return fromAnswer;
+  if (q?.answerInfo != null && String(q.answerInfo).trim()) {
+    return [{ type: "warning", content: String(q.answerInfo).trim() }];
+  }
   const mod = getModuleById(q.axisId, q.moduleId);
   const src = mod?.questions?.find((item) => item.id === q.questionId);
-  if (src?.answerInfo != null && String(src.answerInfo).trim()) return src.answerInfo;
-  if (src?.answer != null && String(src.answer).includes(ANSWER_INFO_MARK)) {
-    return splitAnswerBodyAndInfo(src.answer).info;
+  if (src?.answerInfo != null && String(src.answerInfo).trim()) {
+    return [{ type: "warning", content: String(src.answerInfo).trim() }];
   }
-  return null;
+  if (src?.answer != null && String(src.answer).trim()) {
+    return splitAnswerBodyAndEncarts(src.answer).encarts;
+  }
+  return [];
 }
 
 /** Découpe une réponse en points numérotés (`1. …`, `2. …`). */
@@ -265,24 +281,67 @@ function formatAnswerHtml(raw) {
     .join("");
 }
 
-/** Encadré d'information (hors points numérotés), ex. encarts RCT p. 42. */
-function formatAnswerInfoHtml(raw) {
-  const text = String(raw ?? "").trim();
-  if (!text) return "";
-  const lines = text
+/** Titre de cas dans un encart (`Cas n° 1… :`) — pas de tiret devant. */
+function isEncartCaseTitleLine(line) {
+  return /^Cas n°\s*\d+/i.test(String(line ?? "").trim());
+}
+
+/** Préfixe `- ` sur chaque ligne d'encart sauf titres de cas. */
+function prefixEncartLine(line) {
+  const trimmed = String(line ?? "").trim();
+  if (!trimmed) return trimmed;
+  if (trimmed.startsWith("- ")) return trimmed;
+  if (isEncartCaseTitleLine(trimmed)) return trimmed;
+  return `- ${trimmed}`;
+}
+
+function formatAnswerEncartLinesHtml(raw, lineClass) {
+  const lines = String(raw ?? "")
+    .trim()
     .split(/\n+/)
     .map((line) => line.trim())
     .filter(Boolean);
-  const body = lines
-    .map(
-      (line) =>
-        `<p class="flashcard__answer-info-line">${escapeHtml(line)}</p>`,
-    )
+  return lines
+    .map((line) => {
+      const display = prefixEncartLine(line);
+      const cls = isEncartCaseTitleLine(line)
+        ? `${lineClass} ${lineClass}--case-title`
+        : lineClass;
+      return `<p class="${cls}">${escapeHtml(display)}</p>`;
+    })
     .join("");
+}
+
+/** Encadré attention orange (hors points numérotés), ex. RCT p. 42. */
+function formatAnswerAttentionHtml(raw) {
+  const text = String(raw ?? "").trim();
+  if (!text) return "";
+  const body = formatAnswerEncartLinesHtml(text, "flashcard__answer-info-line");
   return `<div class="flashcard__answer-info" role="note">
     <p class="flashcard__answer-info-heading"><span class="flashcard__answer-info-icon" aria-hidden="true">⚠</span> ATTENTION :</p>
     ${body}
   </div>`;
+}
+
+/** Encadré information jaune (exemples, précisions), ex. RCT p. 46–47. */
+function formatAnswerInformationHtml(raw) {
+  const text = String(raw ?? "").trim();
+  if (!text) return "";
+  const body = formatAnswerEncartLinesHtml(text, "flashcard__answer-note-line");
+  return `<div class="flashcard__answer-note" role="note">
+    <p class="flashcard__answer-note-heading"><span class="flashcard__answer-note-icon" aria-hidden="true">i</span> INFORMATION :</p>
+    ${body}
+  </div>`;
+}
+
+function formatAnswerEncartsHtml(encarts) {
+  return encarts
+    .map((entry) =>
+      entry.type === "info"
+        ? formatAnswerInformationHtml(entry.content)
+        : formatAnswerAttentionHtml(entry.content),
+    )
+    .join("");
 }
 
 /** Énoncé carte (pré-examen / examen final) : `cardPrompt` si défini, sinon `prompt`. */
@@ -937,7 +996,7 @@ function renderFlashcard() {
       </div>`
     : `<p class="flashcard-hint">Réfléchissez, puis touchez la carte pour voir la réponse.</p>`;
 
-  const answerInfoBlock = formatAnswerInfoHtml(answerInfoForCard(q) || "");
+  const answerEncartsBlock = formatAnswerEncartsHtml(answerEncartsForCard(q));
 
   return `
     <main class="main">
@@ -960,7 +1019,7 @@ function renderFlashcard() {
           cardSession.flipped
             ? `<div class="flashcard__verso">
                 <p class="flashcard__label">Réponse attendue</p>
-                <div class="flashcard__answer">${formatAnswerHtml(answerForCard(q))}${answerInfoBlock}</div>
+                <div class="flashcard__answer">${formatAnswerHtml(answerForCard(q))}${answerEncartsBlock}</div>
               </div>`
             : ""
         }

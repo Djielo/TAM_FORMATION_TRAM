@@ -1117,22 +1117,90 @@ body.app-dialog-open {
   box-shadow: 0 1px 4px rgb(230 126 34 / 18%);
 }
 
-.flashcard__answer-info-heading {
+.flashcard__answer-info-heading,
+.flashcard__answer-note-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   margin: 0 0 0.35rem;
+  padding: 0;
+  height: 1.55em;
   font-weight: 700;
   font-size: 0.8rem;
+  line-height: 1;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.flashcard__answer-info-heading {
   color: #c05600;
 }
 
+.flashcard__answer-info-icon,
+.flashcard__answer-note-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.55em;
+  height: 1.55em;
+  line-height: 1;
+  overflow: hidden;
+}
+
 .flashcard__answer-info-icon {
-  margin-right: 0.25rem;
+  font-size: 1.5em;
 }
 
 .flashcard__answer-info-line {
   margin: 0.25rem 0 0;
   font-weight: 600;
+}
+
+.flashcard__answer-info-line--case-title,
+.flashcard__answer-note-line--case-title {
+  margin-top: 0.5rem;
+  font-weight: 700;
+}
+
+.flashcard__answer-info-line--case-title:first-child,
+.flashcard__answer-note-line--case-title:first-child {
+  margin-top: 0;
+}
+
+.flashcard__answer-note {
+  margin-top: 0.85rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: var(--radius);
+  background: #fff9db;
+  border: 2px solid #ca8a04;
+  border-left-width: 5px;
+  color: #713f12;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  box-shadow: 0 1px 4px rgb(202 138 4 / 16%);
+}
+
+.flashcard__answer-note-heading {
+  color: #92400e;
+}
+
+.flashcard__answer-note-icon {
+  border-radius: 50%;
+  background: #ca8a04;
+  color: #fff;
+  font-size: 0.95em;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.flashcard__answer-note-line {
+  margin: 0.25rem 0 0;
+  font-weight: 600;
+}
+
+.flashcard__answer-note-line:first-of-type {
+  margin-top: 0;
 }
 
 .boot-error__pre {
