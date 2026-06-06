@@ -1084,9 +1084,20 @@ body.app-dialog-open {
 
 .flashcard__answer {
   margin: 0.35rem 0;
-  font-weight: 700;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.flashcard__answer-line {
+  white-space: normal;
+}
+
+.flashcard__answer-line--a {
   color: var(--accent);
-  white-space: pre-wrap;
+}
+
+.flashcard__answer-line--b {
+  color: color-mix(in srgb, var(--accent) 45%, var(--text));
 }
 
 .boot-error__pre {

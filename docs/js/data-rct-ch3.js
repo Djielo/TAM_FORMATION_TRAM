@@ -65,7 +65,7 @@ export const MODULES_CH3 = [
         cardPrompt:
           "Quelles sont les six étapes d'une prise de service au dépôt ?",
         answer:
-          "1. Se présenter à l'heure prévue de prise de service\n2. Porter la tenue réglementaire TaM\n3. Alcoolémie < 0,20 g/l ; stupéfiants interdits ; contrôles possibles à la PDS ; médicaments : vigilance — en parler au médecin traitant\n4. Habilitation valide pour la ligne et le matériel ; suspendue automatiquement après plus de 70 jours sans conduite commerciale sur une ligne autorisée (remise en main)\n5. Badger à l'arrivée au dépôt (au plus tard à l'heure de PDS) et à la montée dans la rame\n6. Récupérer sa planchette et sa feuille de route avant de rejoindre la rame en remisage",
+          "1. Se présenter à l'heure prévue de prise de service\n2. Porter la tenue réglementaire TaM\n3. Alcoolémie < 0,20 g/l ; stupéfiants interdits ; contrôles possibles à la PDS ; médicaments : vigilance... en parler au médecin traitant\n4. Habilitation valide pour la ligne et le matériel ; suspendue après 70 jours sans conduite commerciale => Remise en main obligatoire\n5. Badger à l'arrivée au dépôt (au plus tard à l'heure de PDS) et à la montée dans la rame\n6. Récupérer sa planchette et sa feuille de route avant de rejoindre la rame en remisage",
       },
     ],
   },
@@ -104,6 +104,25 @@ export const MODULES_CH3 = [
           "Quelles sont les étapes de la sortie du dépôt et de la mise en ligne ?",
         answer:
           "1. Préparation de la rame sur le remisage selon la partie 1 du RCT\n2. Rame prête : demander l'autorisation de sortie au PCC — le PCC construit l'itinéraire de sortie\n3. Sortie impossible pour raison technique : informer le PCC et suivre ses consignes\n4. Avant la sortie du dépôt — test télécommande d'aiguille : arrêt au panneau de télécommande d'aiguille (piste E) au CEMH, ou en marche à l'interface de sortie JP ; test G/TD/D + positionnement INDIR\n5. Avant la sortie dépôt — test balises PETRARQUE : balise arrière OK → feu avant barrière allumé ; balise avant OK → ouverture barrière ; défaut → appel PCC",
+      },
+    ],
+  },
+
+  // ─── 3.1-C Comportement du conducteur dans la rame (p. 41) ───
+  {
+    id: "comportement-rame",
+    code: "3.1-C",
+    title: "Comportement du conducteur dans la rame",
+    cetPage: 41,
+    questions: [
+      {
+        id: "ch3-conduite-00",
+        prompt:
+          "Quel doit être le comportement du conducteur dans la rame ?",
+        cardPrompt:
+          "Quel doit être le comportement du conducteur dans la rame ?",
+        answer:
+          "1. Présence en cabine : cadres, maîtrise, maintenance TaM en mission, formateurs, ou autorisation écrite — signalement obligatoire PCC\n2. Porte cabine fermée ; effets personnels dans le placard\n3. Conduite assise ; position vigilance (buste droit, pieds au sol) — apte à effectuer une commande urgence, comme un FS\n4. Interdit : fumer, s'alimenter, téléphone ou oreillettes ; phonie hors arrêt en mains libres\n5. Arrêt en ligne : rester au poste ; feux de détresse\n6. Ne pas quitter le tram en ligne, sauf cas de force majeure après évacuation => informer le PCC, mesures anti-accident (BS p. 35)\n7. Quitter la cabine : manipulateur neutre, clé KC, porte fermée (BS p. 35)\n8. Anomalie de service : annonce clientèle via sonorisation intérieure (ch. 3.9)\n9. Rame arrêtée : Ouverture porte cabine autorisée pour s'adresser à la clientèle",
       },
     ],
   },

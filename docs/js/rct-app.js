@@ -47,7 +47,7 @@ import {
 } from "./store.js";
 
 /** Version affichée — si la pop-up dit encore « Mode Révision », le navigateur sert un ancien fichier. */
-const APP_BUILD = "2026-06-06m";
+const APP_BUILD = "2026-06-06o";
 
 function getApp() {
   return document.getElementById("app");
@@ -199,6 +199,35 @@ function answerForCard(q) {
   if (q.answer != null && String(q.answer).trim()) return q.answer;
   if (q.choices?.length) return q.choices[q.correct ?? 0] ?? "";
   return "";
+}
+
+/** Découpe une réponse en points numérotés (`1. …`, `2. …`). */
+function splitAnswerPoints(raw) {
+  const text = String(raw ?? "").trim();
+  if (!text) return [];
+  const byNewline = text
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (byNewline.length > 1) return byNewline;
+  const byNumber = text
+    .split(/(?=\d+\.\s)/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (byNumber.length > 1) return byNumber;
+  return [text];
+}
+
+/** Réponse multi-points : couleurs alternées, flux continu (pas de saut de ligne). */
+function formatAnswerHtml(raw) {
+  const points = splitAnswerPoints(raw);
+  if (!points.length) return "";
+  return points
+    .map(
+      (point, i) =>
+        `<span class="flashcard__answer-line flashcard__answer-line--${i % 2 === 0 ? "a" : "b"}">${escapeHtml(point)}</span>`,
+    )
+    .join(" ");
 }
 
 /** Énoncé carte (pré-examen / examen final) : `cardPrompt` si défini, sinon `prompt`. */
@@ -874,7 +903,7 @@ function renderFlashcard() {
           cardSession.flipped
             ? `<div class="flashcard__verso">
                 <p class="flashcard__label">Réponse attendue</p>
-                <p class="flashcard__answer">${escapeHtml(answerForCard(q))}</p>
+                <div class="flashcard__answer">${formatAnswerHtml(answerForCard(q))}</div>
               </div>`
             : ""
         }
