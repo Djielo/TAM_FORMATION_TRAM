@@ -183,4 +183,21 @@ export const MODULES_CH3 = [
       },
     ],
   },
+
+  // ─── 3.2-B Circulation sur voie double (p. 44) ───────────────
+  {
+    id: "circulation-voie-double",
+    code: "3.2-B",
+    title: "Circulation sur voie double",
+    cetPage: 44,
+    questions: [
+      {
+        id: "ch3-vd-00",
+        prompt: "Quelles sont les règles de circulation sur voie double ?",
+        cardPrompt: "Quelles sont les règles de circulation sur voie double ?",
+        answer:
+          "1. Circulation nominale sur la voie de droite, dans le sens de marche.\n2. Respecter la signalisation (SIG) de présence tension, SIG lumineuse de carrefour, SIG de manœuvre, SIG de signalisation verticale et SIG de signalisation au sol.\n@@INFO@@\nVoie nominale V1 >>> L1 : Mosson → Odysseum ; L2 : Saint-Jean-de-Védas → Jacou.",
+      },
+    ],
+  },
 ];
