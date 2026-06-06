@@ -145,4 +145,23 @@ export const MODULES_CH3 = [
       },
     ],
   },
+
+  // ─── 3.2-A Gabarit limite d'obstacle — GLO (p. 43) ───────────
+  {
+    id: "glo-gabarit",
+    code: "3.2-A",
+    title: "Prise en compte du gabarit limite d'obstacle (GLO)",
+    cetPage: 43,
+    questions: [
+      {
+        id: "ch3-glo-00",
+        prompt:
+          "Quelle conduite adopter face au gabarit limite d'obstacle (GLO) ?",
+        cardPrompt:
+          "Quelle conduite adopter face au gabarit limite d'obstacle (GLO) ?",
+        answer:
+          "1. La bande au sol GLO délimite la zone de circulation propre au tramway, tenant compte du gabarit des rames.\n2. Piétons ou vélos à proximité du GLO : Adapter la vitesse. Faire usage du gong. Se préparer à toute manœuvre d'urgence.\n3. Obstacles à proximité du GLO : Ralentir. S'assurer de pouvoir dépasser en toute sécurité.\n4. Obstacles empiétant sur la limite GLO : Arrêter la rame. Appeler immédiatement le PCC.",
+      },
+    ],
+  },
 ];
