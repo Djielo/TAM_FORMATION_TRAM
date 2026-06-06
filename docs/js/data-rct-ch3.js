@@ -251,7 +251,295 @@ export const MODULES_CH3 = [
         cardPrompt:
           "Quelles sont les consignes de manœuvre de retournement et de rebroussement ?",
         answer:
-          "1. Retournement : changement de voie par une communication, repartir dans l'autre sens par l'autre voie.\n2. Rebroussement : retournement sur une même voie, équivalent à une circulation en VUT.\n3. Retournement de préférence sans voyageurs, sauf stations situées après la communication de retournement.\n4. Communications manuelles non signalées : manœuvre entière sur ordre ou autorisation du PCC.\n5. Les manoeuvres 'Hors terminus' et 'non prévue sur planchette', y compris 3e voie Occitanie ou L. Blum, sont sous contrôle obligatoire du PCC.\n6. Rebroussement : uniquement dans le cadre de la consigne 3.2-D (VUT), sauf tronçon court à bonne visibilité entre station et communication, ou tronçon VU protégé par la signalisation ferroviaire.\n@@INFO@@\nCas n° 1, communication manuelle après une station :\nDéposer les voyageurs après les avoir informés de la manœuvre.\nAvancer jusqu'au clou de limite de manœuvre pour dégager l'aiguillage ou vérifier sa position.\nEnclencher les feux de détresse.\nManipulateur au neutre, retirer clé KC, quitter cabine, refermer porte à clé.\nPositionner les aiguillages en déviée.\nRemonter en cabine de tête, mode VUT sur AEL si carrefour (ex. Albert 1er).\nDépart en sens inverse jusqu'à la station, accord PCC confirmé si visibilité insuffisante.\nSauf contre-ordre PCC, remettre les aiguillages en position initiale.\nPrévenir le PCC de la fin de manœuvre.\n@@INFO@@\nCas n° 2, communication manuelle avant une station :\nArrêter en station après information des voyageurs (sauf HLP).\nFeux de détresse, neutre, clé KC, fermer cabine à clé.\nChanger de cabine, après autorisation PCC, rebrousser jusqu'à l'aiguille.\nAiguille en déviée, changement de voie après accord PCC.\nVoyageurs montent sur le même quai (sauf HLP).\nAu départ, mode VUT si l'implantation l'impose (ex. contre-sens carrefour).\nRepositionner l'aiguille sur ordre PCC après passage.",
+          "1. Retournement : changement de voie par une communication, repartir dans l'autre sens par l'autre voie.\n2. Rebroussement : retournement sur une même voie, équivalent à une circulation en VUT.\n3. Retournement de préférence sans voyageurs, sauf stations situées après la communication de retournement.\n4. Communications manuelles non signalées : manœuvre entière sur ordre ou autorisation du PCC.\n5. Les manœuvres « Hors terminus » et « non prévue sur planchette », y compris 3e voie Occitanie ou L. Blum, sont sous contrôle obligatoire du PCC.\n6. Rebroussement : uniquement dans le cadre de la consigne 3.2-D (VUT), sauf tronçon court à bonne visibilité entre station et communication, ou tronçon VU protégé par la signalisation ferroviaire.\n@@INFO@@\nCas n° 1, communication manuelle après une station :\nDéposer les voyageurs après les avoir informés de la manœuvre.\nAvancer jusqu'au clou de limite de manœuvre pour dégager l'aiguillage ou vérifier sa position.\nEnclencher les feux de détresse.\nManipulateur au neutre, retirer clé KC, quitter cabine, refermer porte à clé.\nPositionner les aiguillages en déviée.\nRemonter en cabine de tête, mode VUT sur AEL si carrefour (ex. Albert 1er).\nDépart en sens inverse jusqu'à la station, accord PCC confirmé si visibilité insuffisante.\nSauf contre-ordre PCC, remettre les aiguillages en position initiale.\nPrévenir le PCC de la fin de manœuvre.\n@@INFO@@\nCas n° 2, communication manuelle avant une station :\nArrêter en station après information des voyageurs (sauf HLP).\nFeux de détresse, neutre, clé KC, fermer cabine à clé.\nChanger de cabine, après autorisation PCC, rebrousser jusqu'à l'aiguille.\nAiguille en déviée, changement de voie après accord PCC.\nVoyageurs montent sur le même quai (sauf HLP).\nAu départ, mode VUT si l'implantation l'impose (ex. contre-sens carrefour).\nRepositionner l'aiguille sur ordre PCC après passage.",
+      },
+    ],
+  },
+
+  // ─── 3.2-E2 Retournement en terminus (p. 47) ─────────────────
+  {
+    id: "retournement-terminus",
+    code: "3.2-E2",
+    title: "Manœuvre de retournement en terminus",
+    cetPage: 47,
+    questions: [
+      {
+        id: "ch3-e2-00",
+        prompt: "Quelles sont les consignes de retournement en terminus ?",
+        cardPrompt: "Quelles sont les consignes de retournement en terminus ?",
+        answer:
+          "1. Manœuvres en terminus ou terminus partiel selon instructions SAE ou planchette.\n2. Neutre, retirer clé KC, quitter cabine, fermer porte à clé.\n3. Traversée de la rame : vérifier objets oubliés ou suspects, prévenir le PCC si besoin.\n4. Cabine de tête en service : vérifier pré-sélection côté portes et girouettes.\n5. Avancer vers le quai, respecter la signalisation, déverrouiller les portes.\n6. Manœuvre avant-gare avec voyageurs, attention à la sélection d'ouverture des portes pour la descente.\n7. Vitesse en terminus limitée à 15 km/h.\n8. Quitter le poste sur temps de battement ou pause. Hors créneau, autorisation PCC.\n@@WARNING@@\nLa marche arrière depuis la cabine opposée au sens est formellement interdite.\nException : courtes distances en RP avec second agent dans la cabine opposée.",
+      },
+    ],
+  },
+
+  // ─── 3.2-E3 Rebroussement sur VU (p. 48) ─────────────────────
+  {
+    id: "rebroussement-vu",
+    code: "3.2-E3",
+    title: "Manœuvre de rebroussement sur voie unique",
+    cetPage: 48,
+    questions: [
+      {
+        id: "ch3-e3-00",
+        prompt:
+          "Quelles sont les consignes de rebroussement sur voie unique ?",
+        cardPrompt:
+          "Quelles sont les consignes de rebroussement sur voie unique ?",
+        answer:
+          "1. Rebroussement après station : s'engager jusqu'au repère de rebroussement (ex. Boirargues L3).\n2. Après autorisation PCC : changer de cabine, contrôler l'aiguille, se diriger vers le quai sur la voie opposée.\n@@INFO@@\nEn cas de conflit (deux rames opposées en VU) ou SM rouge (problème d'aiguillage) :\nLa rame la plus proche de l'évitement fait le rebroussement après autorisation PCC. Voyageurs à bord conseillés, après accord PCC.\nDégager au préalable l'appareil de voie de la station quittée, en marche avant si besoin.\nAprès changement de cabine : rebroussement à 5 km/h max, dépasser l'évitement (2 appareils), dégager l'aiguille de sortie avant de rebrousser.\nInformer le PCC de la position au retour sur le quai de départ.\nAprès autorisation PCC, repartir en direction de la station d'évitement.\nMarquer l'arrêt au SM de sortie de station, s'engager au vert.",
+      },
+    ],
+  },
+
+  // ─── 3.3 Circulation Haut Le Pied (p. 49) ────────────────────
+  {
+    id: "circulation-hlp",
+    code: "3.3",
+    title: "Circulation Haut Le Pied (sans voyageurs)",
+    cetPage: 49,
+    questions: [
+      {
+        id: "ch3-hlp-00",
+        prompt:
+          "Quelles sont les consignes de circulation Haut Le Pied (sans voyageurs) ?",
+        cardPrompt:
+          "Quelles sont les consignes de circulation Haut Le Pied (sans voyageurs) ?",
+        answer:
+          "1. Vitesse en station limitée à 15 km/h.\n2. Au passage en station : gong obligatoire, excepté à partir de 22 h, sauf si danger.\n3. Vérifier le message affiché sur la girouette.\n4. Feux de détresse actionnés.",
+      },
+    ],
+  },
+
+  // ─── 3.4 Feux et feux de détresse (p. 49) ─────────────────────
+  {
+    id: "feux-detresse",
+    code: "3.4",
+    title: "Utilisation des feux et feux de détresse",
+    cetPage: 49,
+    questions: [
+      {
+        id: "ch3-feux-00",
+        prompt:
+          "Quelles sont les consignes d'utilisation des feux et feux de détresse ?",
+        cardPrompt:
+          "Quelles sont les consignes d'utilisation des feux et feux de détresse ?",
+        answer:
+          "1. Circuler avec feux de croisement et éclairage intérieur allumés, jour et nuit.\n2. Feux de route et de brouillard selon Code de la route.\n3. Feux de détresse :\n- Arrêt anormal et prolongé en ligne.\n- Circulation HLP et en VUT.\n- Zone gare en cas d'itinéraire dévié.\n- Franchissement d'un carrefour, feux clignotants ou éteints.\n- Poussages ou remorquages.\n@@WARNING@@\nCroisement d'une rame arrêtée sur l'autre voie : ralentir à 10 km/h, arrêt à hauteur de la cabine de l'autre rame, informer impérativement le PCC avant de repartir.\nPanne feux de détresse sur arrêt anormal prolongé : placer le triangle de signalisation environ 40 m avant la rame.",
+      },
+    ],
+  },
+
+  // ─── 3.5 Utilisation du gong (p. 50) ───────────────────────────
+  {
+    id: "utilisation-gong",
+    code: "3.5",
+    title: "Utilisation du gong",
+    cetPage: 50,
+    questions: [
+      {
+        id: "ch3-gong-00",
+        prompt: "Quelles sont les consignes d'utilisation du gong ?",
+        cardPrompt: "Quelles sont les consignes d'utilisation du gong ?",
+        answer:
+          "1. Gong obligatoire dans les cas suivants :\n- Piétons ou cyclistes à proximité ou sur la voie.\n- Franchissement de carrefour ou de zone piétonne, en présence de sources de danger.\n- Croisement avec une rame ou un bus arrêté.\n2. De 7 h à 22 h seulement :\n- Arrivée en station.\n- Départ de station et mise en mouvement de la rame.\n- Croisement avec une rame en circulation, au passage à hauteur de la nacelle centrale.\n3. En mode dégradé :\n- Franchissement de carrefour avec feux en disfonctionnement.\n- VUT à contresens.\n@@WARNING@@\nEn cas de panne du gong :\n- Prévenir le PCC.\n- Respecter la vitesse de consigne de 20 km/h.\n- Klaxon si danger recommandé en remplacement.",
+      },
+    ],
+  },
+
+  // ─── 3.6 Distances de sécurité (p. 50) ───────────────────────
+  {
+    id: "distances-securite",
+    code: "3.6",
+    title: "Distances de sécurité",
+    cetPage: 50,
+    questions: [
+      {
+        id: "ch3-dist-00",
+        prompt: "Quelles sont les distances de sécurité entre rames ?",
+        cardPrompt: "Quelles sont les distances de sécurité entre rames ?",
+        answer:
+          "1. Entre deux rames circulant en ligne (commercial ou HLP) : 100 m minimum.\n2. Distance réduite à 50 m sur les tronçons limités à 30 km/h maxi.\n3. Deux rames à l'arrêt hors station : 5 m minimum.\n4. Adapter la vitesse d'approche d'une rame arrêtée selon visibilité et adhérence.\n5. Deux rames à l'arrêt en station : 2 m minimum.\n@@WARNING@@\nEntrée en station à quai double : vitesse max 15 km/h si première rame au quai ou rame arrêtée sur le quai opposé (risque de piéton traversant derrière la rame à l'arrêt).",
+      },
+    ],
+  },
+
+  // ─── 3.7 Arrêt en station — principes (p. 51) ──────────────────
+  {
+    id: "arret-station",
+    code: "3.7",
+    title: "Arrêt en station — Principes généraux",
+    cetPage: 51,
+    questions: [
+      {
+        id: "ch3-arret-00",
+        prompt:
+          "Quelles sont les consignes d'arrêt en station (avant ouverture des portes) ?",
+        cardPrompt:
+          "Quelles sont les consignes d'arrêt en station (avant ouverture des portes) ?",
+        answer:
+          "1. Montée et descente en station, seulement du côté prévu, sauf consigne particulière du PCC.\n2. En service commercial, arrêt marqué à chaque station.\n3. Entrée en station à 30 km/h maxi, gong actionné, ou 15 km/h si rame devant (quais allongés) ou sur la voie opposée (cf. § 3.6).\n4. Attention renforcée envers les voyageurs en bordure de quai.\n5. Immobilisation au clou rouge, à hauteur d'épaule du conducteur.\n6. Portes déverrouillées uniquement à l'arrêt complet de la rame.",
+      },
+    ],
+  },
+
+  // ─── 3.7-A Ouverture des portes (p. 51–52, jusqu'à § B) ───────
+  {
+    id: "ouverture-portes",
+    code: "3.7-A",
+    title: "Arrêt en station — Ouverture des portes",
+    cetPage: 51,
+    questions: [
+      {
+        id: "ch3-ouv-portes-00",
+        prompt: "Quelles sont les consignes d'ouverture des portes en station ?",
+        cardPrompt:
+          "Quelles sont les consignes d'ouverture des portes en station ?",
+        answer:
+          "1. Citadis 401 : à l'arrêt, pré-sélection droite active (BPAL enclenché et allumé), actionner le BPAL du mode self-service.\n2. Citadis 302 ou 402 : à l'arrêt, actionner le BPAL côté droit ou gauche selon l'emplacement du quai.\n3. Ouverture auto des doubles portes CC pour accès PMR ; autres portes ouvertes par voyageurs par bouton intérieur ou extérieur.\n4. Citadis 402 : demande PMR (pictogramme SIE), acquitter à l'écran pour ouvrir la caisse concernée (mode self).\n5. Surveiller la montée et la descente des voyageurs.\n6. Au terminus sur quai de départ : mode self activé, commutateur en N pour garder les portes centrales fermées (chauffage ou climatisation).\n7. Commandes portes actives depuis la cabine en service, ou depuis la dernière cabine en cas de changement de cabine en cours.\n@@WARNING@@\nForte affluence : actionner l'ouverture générale (BPAL) pour accélérer l'échange voyageur en station.",
+      },
+    ],
+  },
+
+  // ─── 3.7-B Fermeture des portes (p. 52) ──────────────────────
+  {
+    id: "fermeture-portes",
+    code: "3.7-B",
+    title: "Fermeture des portes",
+    cetPage: 52,
+    questions: [
+      {
+        id: "ch3-ferm-portes-00",
+        prompt: "Quelles sont les consignes de fermeture des portes en station ?",
+        cardPrompt:
+          "Quelles sont les consignes de fermeture des portes en station ?",
+        answer:
+          "1. Après environ 15s (faible affluence) ou 30s (forte affluence), en anticipant les dernières montées, décrocher le BPAL.\n2. Fermeture des portes centrales et portes en mode self, sécurités actives ; en cas d'obstacle, réouverture puis refermeture.\n3. Obstacle en phase de fermeture, portes bloquées : commande d'ouverture générale avant de relancer la fermeture.\n4. Forte affluence : appui prolongé sur le BPI, fermeture forcée, sécurités inhibées, message « attention à la fermeture des portes ».\n@@WARNING@@\nCitadis 401 : fermeture forcée via le BPAL du côté sélectionné interdite (annule le message d'alerte, risque d'ouverture côté entrevoie après poignée d'alarme).\nCitadis 302 et 402 : interdit d'ouvrir les deux côtés simultanément en exploitation commerciale, pour la même raison.",
+      },
+    ],
+  },
+
+  // ─── 3.7-C Départ de station (p. 53) ─────────────────────────
+  {
+    id: "depart-station",
+    code: "3.7-C",
+    title: "Départ de la station",
+    cetPage: 53,
+    questions: [
+      {
+        id: "ch3-depart-00",
+        prompt: "Quelles sont les consignes de départ de station ?",
+        cardPrompt: "Quelles sont les consignes de départ de station ?",
+        answer:
+          "1. VU lignes 2 et 3 (cantonnement) : départ autorisé uniquement si signalisation ferroviaire au vert, ne pas quitter le quai au rouge.\n2. Quai double, seconde position derrière une autre rame : marquer un deuxième arrêt en tête de quai pour la prise en charge des personnes handicapées.\n3. Portes verrouillées (bip cabine) : départ en surveillant le quai par rétrovisions, gong actionné.\n4. Jusqu'à ce que l'arrière de la rame ait quitté le quai : vérifier par rétrovisions qu'aucun voyageur n'est entraîné.\n5. Appel interphonie voyageur pendant le dégagement du quai : vérifier les rétrovisions.\n@@INFO@@\nRétrovisions : piéton entraîné par la rame, piéton en bordure du GLO pouvant être heurté.\n@@WARNING@@\nCorum L1V2, seconde position : position d'attente uniquement, échange voyageurs strictement interdit (quai non aligné, risque d'accident grave).",
+      },
+    ],
+  },
+
+  // ─── 3.7-D Défaut porte et poignée d'alarme (p. 54) ───────────
+  {
+    id: "defaut-porte",
+    code: "3.7-D",
+    title: "Défaut porte et poignée d'alarme",
+    cetPage: 54,
+    questions: [
+      {
+        id: "ch3-def-porte-00",
+        prompt:
+          "Quelles sont les consignes en cas de poignée d'alarme ou défaut porte ?",
+        cardPrompt:
+          "Quelles sont les consignes en cas de poignée d'alarme ou défaut porte ?",
+        answer:
+          "1. Poignée tirée pendant le dégagement du quai (BPIL phonie + SIE) : FU ou FMS, portes libérées après 15 s, risque d'ouverture côté entrevoie.\n2. Éviter toute ouverture du mauvais côté : réarmer la poignée ou sélectionner le bon côté de déverrouillage (401 = côté pré-sélectionné).\n3. Dialoguer avec l'auteur via interphonie, informer l'ensemble des voyageurs une fois la cause identifiée.\n4. Vérifier la sécurité des voyageurs avant redémarrage (chutes possibles après FU ou FMS).\n5. Même consigne rame à l'arrêt en ligne, hors zone de dégagement de quai.\n6. Mode dégradé défaut porte : condamner la porte, apposer l'autocollant d'information clientèle.\n7. Contrôler l'information sur la console SIE et l'efficacité de la condamnation.\n8. Signaler sur la feuille de route et au PCC.\n@@WARNING@@\nHors zone de dégagement : libération des portes 15 s après tirage de poignée, côté entrevoie si mauvais côté, en l'absence d'action conducteur.\nImpossible de condamner : le PCC peut ordonner d'isoler le contrôle portes (déplombage commutateur armoire de loge). Évacuation de la rame impérative au préalable.",
+      },
+    ],
+  },
+
+  // ─── 3.8 Communication avec la clientèle (p. 55) ─────────────
+  {
+    id: "communication-clientele",
+    code: "3.8",
+    title: "Communication avec la clientèle",
+    cetPage: 55,
+    questions: [
+      {
+        id: "ch3-client-00",
+        prompt:
+          "Quelles sont les consignes de communication avec la clientèle ?",
+        cardPrompt:
+          "Quelles sont les consignes de communication avec la clientèle ?",
+        answer:
+          "1. Garant de l'image TaM : attitude tournée vers le confort et la sécurité des clients.\n2. Situation perturbée ou incident : information impérative, ton rassurant pour éviter la panique.\n3. Situation imprévue : informer via la sonorisation des salles ; arrêt prolongé, expliquer l'évolution et rassurer.\n4. Phonie : respirer après connexion (premier mot souvent perdu).\n5. Parler calmement, mots détachés, voix posée, pas trop fort.\n6. Tenir la bouche à 5-6 cm du micro.\n@@INFO@@\nExemples d'annonces type :\n- Arrêt prolongé : informer du retard et de l'évolution de la situation.\n- Descente voyageurs : quitter la rame, préciser le relais (bus spécial, rame suivante, rame devant).\n- Terminus intermédiaire (Occitanie, L. Blum) : reporter sur la rame suivante.\n- Fumeurs : éteindre les cigarettes.\n- Portes : se tenir en arrière des portes pour faciliter la fermeture.",
+      },
+    ],
+  },
+
+  // ─── 3.9-A Signalements radio PCC (p. 56) ─────────────────────
+  {
+    id: "signalements-radio",
+    code: "3.9-A",
+    title: "Communication PCC — Signalements radio",
+    cetPage: 56,
+    questions: [
+      {
+        id: "ch3-radio-00",
+        prompt: "Quelles sont les consignes de signalement radio au PCC ?",
+        cardPrompt: "Quelles sont les consignes de signalement radio au PCC ?",
+        answer:
+          "1. Trois niveaux d'appel : normal, urgent, détresse (mise en toute écoute + feux de détresse).\n2. Citadis 402 détresse : appui long ; annuler en accrochant/décrochant le bouton feux de détresse.\n3. Appel obligatoire au PCC :\n- Tous les cas des consignes de circulation en ligne (partie 3) et d'urgence (partie 4).\n- Présence suspecte sur voie (handicapés mentaux, enfants, personnes âgées, etc.) ou piétons en tunnel.\n- Après FU ou FS suite à incident.\n- Défauts, dégâts, vandalisme ou anomalies sur matériel roulant (gravage, taggage, bris de glace, etc.).\n- Dégâts ou défauts au sol mettant en cause sécurité ou continuité d'exploitation.\n- Chantier sur voie mal protégé ou mal signalé, ou risque pour la ligne aérienne.\n- Panne des feux de traversée routière ou des feux des zones de manœuvre.\n@@WARNING@@\nFin de service : reporter les signalements radio sur la feuille de route.",
+      },
+    ],
+  },
+
+  // ─── 3.9-B Panne de phonie (p. 57) ─────────────────────────────
+  {
+    id: "panne-phonie",
+    code: "3.9-B",
+    title: "Communication PCC — Panne de phonie",
+    cetPage: 57,
+    questions: [
+      {
+        id: "ch3-phonie-00",
+        prompt: "Quelles sont les consignes en cas de panne de phonie ?",
+        cardPrompt: "Quelles sont les consignes en cas de panne de phonie ?",
+        answer:
+          "1. Panne générale, ou mode secours phonie indépendant du pupitre SAE inopérant sur la rame.\n2. Attendre l'arrivée d'une autre rame et lui demander de prévenir le PCC.\n3. Ou appeler le PCC avec son téléphone personnel, rame à l'arrêt, puis suivre les instructions du régulateur.\n@@WARNING@@\nFin de service : noter l'incident sur la feuille de route.",
+      },
+    ],
+  },
+
+  // ─── 3.9-C Rentrée et circulation dépôt (p. 57–58) ─────────────
+  {
+    id: "rentree-depot",
+    code: "3.9-C",
+    title: "Rentrée et circulation dans le dépôt",
+    cetPage: 57,
+    questions: [
+      {
+        id: "ch3-rentree-00",
+        prompt:
+          "Quelles sont les consignes de rentrée et circulation dans le dépôt ?",
+        cardPrompt:
+          "Quelles sont les consignes de rentrée et circulation dans le dépôt ?",
+        answer:
+          "1. Demander l'autorisation de rentrer au dépôt.\n2. Stationner sur le site désigné par le PCC (voie E, en station ou sur remisage selon l'heure).\n3. Vérifier l'état intérieur et extérieur de la rame.\n4. Signaler tout dégât ou dysfonctionnement sur la feuille de route.\n5. Noter le kilométrage effectué et le nombre d'heures.\n6. Déposer la feuille de route dans la boîte aux lettres prévue.\n7. Ranger la planchette en salle de prise de service.\n8. Pour circuler dans le dépôt :\n- Circulation toujours sans client.\n- Circulation sous contrôle du PCC.\n- Respecter la signalisation de manœuvre.\n- Déplacements sous responsabilité du conducteur.\n- Vitesse max 10 km/h (3 km/h en zone ateliers).\n- Circulation en zone atelier interdite aux conducteurs.",
+      },
+    ],
+  },
+
+  // ─── 3.9-D Signalements par écrit (p. 58) ──────────────────────
+  {
+    id: "signalements-ecrits",
+    code: "3.9-D",
+    title: "Signalements par écrit",
+    cetPage: 58,
+    questions: [
+      {
+        id: "ch3-ecrit-00",
+        prompt: "Quelles sont les consignes de signalement par écrit ?",
+        cardPrompt: "Quelles sont les consignes de signalement par écrit ?",
+        answer:
+          "1. On distingue :\n- Feuille de route attachée au conducteur : incidents ayant affecté son service.\n- Feuille de route (de couleur) attachée à la rame : fonctionnement du matériel roulant et embarqué (valideurs, etc.).\n2. Le conducteur doit :\n- Apporter le plus grand soin à la rédaction de la feuille de route.\n- Remplir correctement les rubriques (accidents, incidents, etc.).\n- Noter les anomalies liées au matériel roulant sur la feuille de route.\n- Noter les appels importants du PCC.\n3. Rapport interne, notamment en cas :\n- D'incidents susceptibles d'entraîner plaintes ou réclamations.\n- D'accident corporel ou matériel, ou dégâts sur le matériel roulant.\n@@WARNING@@\nRapport interne : formulation engageante vis-à-vis du RCT et de l'interprétation administrative ; porter le plus grand soin à sa rédaction. Peut être établi lors d'un entretien de restitution avec un AM Exploitation.",
       },
     ],
   },

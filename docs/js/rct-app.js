@@ -268,30 +268,41 @@ function splitAnswerPoints(raw) {
   return [text];
 }
 
+/** Sous-point d'une liste (`- …`) sous un intitulé `3. Feux de détresse :`. */
+function isAnswerSubPoint(line) {
+  return String(line ?? "").trim().startsWith("- ");
+}
+
 /** Réponse multi-points : un point par ligne, couleurs alternées. */
 function formatAnswerHtml(raw) {
   const points = splitAnswerPoints(raw);
   if (!points.length) return "";
+  let mainIndex = 0;
   return points
-    .map((point, i) => {
-      const tone = i % 2 === 0 ? "a" : "b";
-      const color = ANSWER_POINT_COLORS[i % 2];
+    .map((point) => {
+      const sub = isAnswerSubPoint(point);
+      if (!sub) mainIndex += 1;
+      const tone = sub ? "sub" : mainIndex % 2 === 0 ? "a" : "b";
+      const color = sub ? ANSWER_POINT_COLORS[1] : ANSWER_POINT_COLORS[(mainIndex - 1) % 2];
       return `<div class="flashcard__answer-point flashcard__answer-point--${tone}" style="color:${color}">${escapeHtml(point)}</div>`;
     })
     .join("");
 }
 
-/** Titre de cas dans un encart (`Cas n° 1… :`) — pas de tiret devant. */
-function isEncartCaseTitleLine(line) {
-  return /^Cas n°\s*\d+/i.test(String(line ?? "").trim());
+/** Intitulé d'encart (`Cas n° 1… :`, `En cas de… :`) — pas de tiret devant. */
+function isEncartIntroLine(line) {
+  const trimmed = String(line ?? "").trim();
+  if (!trimmed) return false;
+  if (/^Cas n°\s*\d+/i.test(trimmed)) return true;
+  return trimmed.endsWith(":");
 }
 
-/** Préfixe `- ` sur chaque ligne d'encart sauf titres de cas. */
+/** Préfixe `- ` sur chaque ligne d'encart sauf intitulés d'introduction. */
 function prefixEncartLine(line) {
   const trimmed = String(line ?? "").trim();
   if (!trimmed) return trimmed;
   if (trimmed.startsWith("- ")) return trimmed;
-  if (isEncartCaseTitleLine(trimmed)) return trimmed;
+  if (isEncartIntroLine(trimmed)) return trimmed;
   return `- ${trimmed}`;
 }
 
@@ -304,7 +315,7 @@ function formatAnswerEncartLinesHtml(raw, lineClass) {
   return lines
     .map((line) => {
       const display = prefixEncartLine(line);
-      const cls = isEncartCaseTitleLine(line)
+      const cls = /^Cas n°\s*\d+/i.test(line)
         ? `${lineClass} ${lineClass}--case-title`
         : lineClass;
       return `<p class="${cls}">${escapeHtml(display)}</p>`;

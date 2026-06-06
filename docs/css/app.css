@@ -1104,6 +1104,10 @@ body.app-dialog-open {
   color: #5a9a7a;
 }
 
+.flashcard__answer-point--sub {
+  padding-left: 1.1rem;
+}
+
 .flashcard__answer-info {
   margin-top: 0.85rem;
   padding: 0.7rem 0.8rem;
