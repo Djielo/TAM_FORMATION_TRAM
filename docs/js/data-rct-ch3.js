@@ -160,7 +160,26 @@ export const MODULES_CH3 = [
         cardPrompt:
           "Quelle conduite adopter face au gabarit limite d'obstacle (GLO) ?",
         answer:
-          "1. La bande au sol GLO délimite la zone de circulation propre au tramway, tenant compte du gabarit des rames.\n2. Piétons ou vélos à proximité du GLO : Adapter la vitesse. Faire usage du gong. Se préparer à toute manœuvre d'urgence.\n3. Obstacles à proximité du GLO : Ralentir. S'assurer de pouvoir dépasser en toute sécurité.\n4. Obstacles empiétant sur la limite GLO : Arrêter la rame. Appeler immédiatement le PCC.",
+          "1. La bande au sol GLO délimite la zone de circulation propre au tramway, tenant compte du gabarit des rames.\n2. Piétons ou vélos à proximité du GLO : Adapter la vitesse. Faire usage du gong. Se préparer à toute manœuvre d'urgence.\n3. Obstacles à proximité du GLO : Ralentir. S'assurer de pouvoir dépasser en toute sécurité.\n4. Obstacles empiétant sur le GLO : Arrêter la rame. Appeler immédiatement le PCC.",
+      },
+    ],
+  },
+
+  // ─── 3.2-A Ouverture de voie (p. 43) ─────────────────────────
+  {
+    id: "ouverture-voie",
+    code: "3.2-A ouverture",
+    title: "Ouverture de la voie sur voie double ou voie unique",
+    cetPage: 43,
+    questions: [
+      {
+        id: "ch3-ouv-00",
+        prompt:
+          "Quelles sont les consignes d'ouverture de voie sur voie double ou voie unique ?",
+        cardPrompt:
+          "Quelles sont les consignes d'ouverture de voie sur voie double ou voie unique ?",
+        answer:
+          "1. Vitesse limitée à 40 km/h maximum.\n2. Contrôler la position des appareils de voie. Si non visible (neige, …), arrêter la rame.\n3. Signaler la présence d'objets éventuels sur la voie.\n4. Signaler l'état de la signalisation.\n5. Signaler l'état de la ligne aérienne.\n6. Signaler les dysfonctionnements de DAT.\n7. Signaler les dégâts éventuels commis sur le mobilier d'équipement des stations.\n8. Signaler l'absence de l'éclairage en station.\n9. À chaque terminus, informer le PCC de l'état de la voie, notamment la présence de zones de voie glissantes.",
       },
     ],
   },
