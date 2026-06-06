@@ -200,4 +200,21 @@ export const MODULES_CH3 = [
       },
     ],
   },
+
+  // ─── 3.2-C Circulation sur voie unique (p. 44) ───────────────
+  {
+    id: "circulation-voie-unique",
+    code: "3.2-C",
+    title: "Circulation sur voie unique",
+    cetPage: 44,
+    questions: [
+      {
+        id: "ch3-vu-00",
+        prompt: "Quelles sont les règles de circulation sur voie unique ?",
+        cardPrompt: "Quelles sont les règles de circulation sur voie unique ?",
+        answer:
+          "1. Respecter impérativement la signalisation de manœuvre sur chaque évitement, elle protège le début d'un canton.\n2. Ne démarrer de la station qu'après le passage au vert du feu de manœuvre, pour tenir compte des boucles sur VU et la continuité de l'échange voyageurs.\n3. En cas de franchissement, réagir immédiatement à la sirène et aux lampes flash par un freinage d'urgence (FU).\n4. Si les lampes flash s'allument en cours de trajet (franchissement d'un signal au rouge par une rame en sens inverse), effectuer immédiatement un FU, s'arrêter en ligne, appeler le PCC et suivre ses consignes.\n@@INFO@@\nEntrée d'évitement : contrôler l'INDIR, comme pour toute aiguille prise par la pointe.\nSortie d'évitement, aiguille en voie déviée : vitesse maxi 15 km/h.",
+      },
+    ],
+  },
 ];
