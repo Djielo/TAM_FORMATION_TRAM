@@ -47,7 +47,9 @@ import {
 } from "./store.js";
 
 /** Version affichée — si la pop-up dit encore « Mode Révision », le navigateur sert un ancien fichier. */
-const APP_BUILD = "2026-06-06o";
+const APP_BUILD = "2026-06-06q";
+
+const ANSWER_POINT_COLORS = ["#1a6b4a", "#5a9a7a"];
 
 function getApp() {
   return document.getElementById("app");
@@ -218,16 +220,17 @@ function splitAnswerPoints(raw) {
   return [text];
 }
 
-/** Réponse multi-points : couleurs alternées, flux continu (pas de saut de ligne). */
+/** Réponse multi-points : un point par ligne, couleurs alternées. */
 function formatAnswerHtml(raw) {
   const points = splitAnswerPoints(raw);
   if (!points.length) return "";
   return points
-    .map(
-      (point, i) =>
-        `<span class="flashcard__answer-line flashcard__answer-line--${i % 2 === 0 ? "a" : "b"}">${escapeHtml(point)}</span>`,
-    )
-    .join(" ");
+    .map((point, i) => {
+      const tone = i % 2 === 0 ? "a" : "b";
+      const color = ANSWER_POINT_COLORS[i % 2];
+      return `<div class="flashcard__answer-point flashcard__answer-point--${tone}" style="color:${color}">${escapeHtml(point)}</div>`;
+    })
+    .join("");
 }
 
 /** Énoncé carte (pré-examen / examen final) : `cardPrompt` si défini, sinon `prompt`. */

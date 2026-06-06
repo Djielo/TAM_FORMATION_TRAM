@@ -1088,16 +1088,20 @@ body.app-dialog-open {
   line-height: 1.45;
 }
 
-.flashcard__answer-line {
-  white-space: normal;
+.flashcard__answer-point {
+  display: block;
 }
 
-.flashcard__answer-line--a {
-  color: var(--accent);
+.flashcard__answer-point + .flashcard__answer-point {
+  margin-top: 0.25rem;
 }
 
-.flashcard__answer-line--b {
-  color: color-mix(in srgb, var(--accent) 45%, var(--text));
+.flashcard__answer-point--a {
+  color: #1a6b4a;
+}
+
+.flashcard__answer-point--b {
+  color: #5a9a7a;
 }
 
 .boot-error__pre {

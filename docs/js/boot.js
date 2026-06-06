@@ -106,7 +106,7 @@ async function start() {
     await import("./pool.js");
     await import("./store.js");
     await import("./pretest-session.js");
-    await import("./rct-app.js");
+    await import("./rct-app.js?v=2026-06-06q");
   } catch (err) {
     const msg = err?.stack || err?.message || String(err);
     const wrongFolder = /introuvables|HTTP 404/i.test(msg);
