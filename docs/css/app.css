@@ -887,6 +887,16 @@ body.app-dialog-open {
   margin: 0 0 0.65rem;
 }
 
+.help-modal__list {
+  margin: 0 0 0.65rem;
+  padding-left: 1.15rem;
+  font-size: 0.9rem;
+}
+
+.help-modal__list li {
+  margin-bottom: 0.45rem;
+}
+
 .help-modal__dismiss {
   display: flex;
   align-items: center;
@@ -900,9 +910,31 @@ body.app-dialog-open {
   margin-top: 0.35rem;
 }
 
-.help-modal .btn--ghost {
-  margin-right: 0.5rem;
+.help-modal__actions--pair {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.help-modal__actions--pair .btn {
+  flex: 1 1 0;
   width: auto;
+  min-width: 0;
+  margin-top: 0;
+  min-height: 3.25rem;
+  padding: 0.45rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  line-height: 1.2;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.help-modal__actions--pair .btn__stack {
+  display: block;
 }
 
 /* Dialogues système (confirm / alert) */
@@ -1054,6 +1086,23 @@ body.app-dialog-open {
   margin: 0.35rem 0;
   font-weight: 700;
   color: var(--accent);
+  white-space: pre-wrap;
+}
+
+.boot-error__pre {
+  white-space: pre-wrap;
+  font-size: 0.8rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--surface-2, #f4f4f4);
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.boot-error__hints {
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+  line-height: 1.5;
 }
 
 .flashcard__explain {

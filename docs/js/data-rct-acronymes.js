@@ -1,4 +1,4 @@
-/** RCT (EXP-CSG-01-17) — Chapitre Acronymes (à parcourir en premier en révision) */
+/** RCT (EXP-CSG-01-17) — Acronymes (à parcourir en premier en pré-examen) */
 export const MODULES_ACRONYMES = [
   {
     id: "abbr-materiel",

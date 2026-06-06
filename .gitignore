@@ -15,7 +15,17 @@ docs/REDIGER-QUESTIONS-RCT.md
 
 # Suivi audit local (non versionné)
 docs/AUDIT_RCT.md
+docs/HOWTO_BACKUP_ECRASEMENT.md
 scripts/list-rct-questions.mjs
+
+# Réponses quizz / positionnement / outils (travail local)
+reponses-*.txt
+reponses-*.md
+*.pdf
+
+# Dépendances Node (tests locaux — jamais versionner)
+node_modules/
+docs/node_modules/
 
 # OS & éditeurs
 .DS_Store

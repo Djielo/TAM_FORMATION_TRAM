@@ -1,7 +1,7 @@
 /**
  * Sauvegarde hors navigateur (fichier JSON sur l'appareil) et reprise après vidage du cache.
  */
-import { KEYS, migrateStorage, STORAGE_SCHEMA_VERSION } from "./progress.js";
+import { KEYS, migrateStorage, STORAGE_SCHEMA_VERSION } from "./store.js";
 
 export const BACKUP_FILE_NAME = "tam-rct-progression.json";
 export const BACKUP_FORMAT_VERSION = 1;

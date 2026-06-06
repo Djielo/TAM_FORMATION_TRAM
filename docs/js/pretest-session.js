@@ -1,14 +1,14 @@
 /**
  * Construction de file pré-examen (erreurs réparties + nouvelles + SRS).
  */
-import { getQuestionsForAxis } from "./pool.js";
 import {
   PRETEST_FINAL_UNLOCK_RATE,
-  getPretestChapterMastery,
+  getPretestModuleMastery,
+  getQuestionsForModule,
   getSrsRow,
   isPretestCardEverMastered,
   isSrsEligible,
-} from "./progress.js";
+} from "./store.js";
 
 function shuffle(arr) {
   const a = [...arr];
@@ -21,13 +21,14 @@ function shuffle(arr) {
 
 /**
  * @param {string} axisId
+ * @param {string} moduleId
  * @param {number} targetCount
  * @returns {string[]} questionIds
  */
-export function buildPretestQueue(axisId, targetCount) {
-  const chapter = getQuestionsForAxis(axisId);
+export function buildPretestQueue(axisId, moduleId, targetCount) {
+  const chapter = getQuestionsForModule(axisId, moduleId);
   const now = Date.now();
-  const { rate } = getPretestChapterMastery(axisId);
+  const { rate } = getPretestModuleMastery(axisId, moduleId);
   const focusUnmastered = rate < PRETEST_FINAL_UNLOCK_RATE;
 
   const pending = chapter
@@ -92,11 +93,12 @@ export function buildPretestQueue(axisId, targetCount) {
   return shuffle(pool.slice(0, targetCount));
 }
 
-export function createPretestSession(axisId, targetCount) {
+export function createPretestSession(axisId, moduleId, targetCount) {
   return {
     axisId,
+    moduleId,
     targetCount,
-    queue: buildPretestQueue(axisId, targetCount),
+    queue: buildPretestQueue(axisId, moduleId, targetCount),
     index: 0,
     masterCount: 0,
     startedAt: Date.now(),

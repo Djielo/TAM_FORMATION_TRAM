@@ -1,11 +1,9 @@
 /**
  * RCT — Règlement de Circulation Tramway TaM (EXP-CSG-01-17)
- * Point d'agrégation : axes + modules par chapitre (data-rct-ch1 … ch4).
+ * Périmètre actif : acronymes + ch. 1 (circulation) + ch. 2 (urgence).
  */
 
 import { MODULES_ACRONYMES } from "./data-rct-acronymes.js";
-import { MODULES_CH1 } from "./data-rct-ch1.js";
-import { MODULES_CH2 } from "./data-rct-ch2.js";
 import { MODULES_CH3 } from "./data-rct-ch3.js";
 import { MODULES_CH4 } from "./data-rct-ch4.js";
 
@@ -14,37 +12,21 @@ export const AXES = [
     id: "acronymes",
     num: null,
     title: "Acronymes",
-    desc: "Sigles du RCT — à connaître avant les chapitres 1 à 4",
+    desc: "Sigles du RCT — à connaître avant les chapitres 1 et 2",
     cetPages: "liste",
     available: true,
   },
   {
-    id: "materiel",
-    num: 1,
-    title: "Utilisation du matériel roulant",
-    desc: "Cabine, sablières, veille automatique, modes dégradés…",
-    cetPages: "3–19",
-    available: true,
-  },
-  {
-    id: "signalisation",
-    num: 2,
-    title: "Respect de la signalisation",
-    desc: "Feux, panneaux, zones spécifiques, traversées routières…",
-    cetPages: "20–37",
-    available: true,
-  },
-  {
     id: "circulation",
-    num: 3,
+    num: 1,
     title: "Consignes de circulation en ligne",
-    desc: "Prise de service, VUT, portes, PCC…",
-    cetPages: "38–58",
+    desc: "Tableau des vitesses, PDS, VUT, portes, PCC…",
+    cetPages: "34, 38–58",
     available: MODULES_CH3.length > 0,
   },
   {
     id: "urgence",
-    num: 4,
+    num: 2,
     title: "Consignes d'urgence",
     desc: "4 consignes générales, évacuation, coordinateur…",
     cetPages: "59–75",
@@ -55,8 +37,14 @@ export const AXES = [
 /** Clés = id des axes dans AXES */
 export const MODULES = {
   acronymes: MODULES_ACRONYMES,
-  materiel: MODULES_CH1,
-  signalisation: MODULES_CH2,
   circulation: MODULES_CH3,
   urgence: MODULES_CH4,
 };
+
+export function getModulesForAxis(axisId) {
+  return MODULES[axisId] || [];
+}
+
+export function getModuleById(axisId, moduleId) {
+  return getModulesForAxis(axisId).find((m) => m.id === moduleId) || null;
+}
