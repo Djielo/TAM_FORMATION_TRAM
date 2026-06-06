@@ -725,6 +725,32 @@ function consigneCountLabel(n) {
   return n === 1 ? "1 consigne" : `${n} consignes`;
 }
 
+/** Carte liste avec bandeau vert (modules / blocs pré-examen). */
+function pretestModuleCardHtml({
+  code,
+  title,
+  desc,
+  badge,
+  countLabel,
+  dataAttr,
+  dataValue,
+}) {
+  return `
+    <button type="button" class="module-card" ${dataAttr}="${escapeHtml(dataValue)}">
+      <div class="module-card__banner">
+        <span class="module-card__name">${escapeHtml(title)}</span>
+        <span class="module-card__ref">${escapeHtml(code)}</span>
+      </div>
+      <div class="module-card__body">
+        ${desc ? `<p class="module-card__desc module-card__desc--muted">${desc}</p>` : ""}
+        <div class="module-card__foot">
+          ${badge}
+          <span class="module-card__count">${countLabel}</span>
+        </div>
+      </div>
+    </button>`;
+}
+
 function moduleCardCount(axisId, moduleId) {
   return getQuestionsForModule(axisId, moduleId).length;
 }
@@ -769,14 +795,45 @@ function pretestBackAfterModule(axisId, moduleId) {
 }
 
 function pretestBackLabel(screenName) {
-  if (screenName === "pretest-chapters") return "← Chapitres";
   if (screenName === "pretest-groups") return "← Chapitres";
-  if (screenName === "pretest-modules" && route.groupId) {
-    const group = getModuleGroupById(route.axisId, route.groupId);
-    return group ? `← ${group.title}` : "← Groupes";
-  }
-  if (screenName === "pretest-modules") return "← Consignes";
+  if (screenName === "pretest-modules" && route.groupId) return "← Groupes";
+  if (screenName === "pretest-modules") return "← Chapitres";
   return "← Retour";
+}
+
+function navigatePretestBack() {
+  switch (screen) {
+    case "pretest-modules":
+      if (route.groupId) {
+        screen = "pretest-groups";
+        route.moduleId = null;
+      } else {
+        screen = "pretest-chapters";
+        route = { axisId: null, groupId: null, moduleId: null };
+      }
+      break;
+    case "pretest-groups":
+      screen = "pretest-chapters";
+      route = { axisId: null, groupId: null, moduleId: null };
+      break;
+    case "pretest-setup":
+    case "pretest-cloze":
+    case "pretest-card":
+      if (route.groupId) {
+        screen = "pretest-modules";
+        route.moduleId = null;
+      } else if (pretestModuleCount(route.axisId) > 1) {
+        screen = "pretest-modules";
+        route.moduleId = null;
+      } else {
+        screen = "pretest-chapters";
+        route = { axisId: null, groupId: null, moduleId: null };
+      }
+      break;
+    default:
+      screen = "pretest-chapters";
+      route = { axisId: null, groupId: null, moduleId: null };
+  }
 }
 
 function pretestSessionCardLabel(session) {
@@ -940,7 +997,7 @@ function renderPretestChapters() {
   return `
     <main class="main">
       <p class="intro-note">Choisissez un chapitre, puis une <strong>consigne</strong> (vitesses, prise de service, relève…). Chaque consigne se travaille à part. Marquez chaque carte <strong>Je maîtrise</strong> pour progresser vers l'examen final (100 % requis sur chaque chapitre).</p>
-      <div class="axes">
+      <div class="modules">
         ${AXES.filter((a) => a.available)
           .map((axis) => {
             const ch = pre.chapters.find((c) => c.axisId === axis.id);
@@ -978,17 +1035,15 @@ function renderPretestChapters() {
                         complete: total > 0 && mastered >= total,
                       }) + ` · ${pre.thresholdPct} % requis`;
             }
-            const cardClass =
-              axis.id === "acronymes"
-                ? "axis-card axis-card--recommended"
-                : "axis-card";
-            return `
-              <button type="button" class="${cardClass}" data-pretest-axis="${axis.id}">
-                <span class="axis-card__num">${axisChapterLabel(axis)}</span>
-                <div class="axis-card__title">${escapeHtml(axis.title)}</div>
-                <p class="axis-card__desc">${axisCetMeta(axis)}</p>
-                <div class="axis-card__meta">${badge} · ${countLabel}</div>
-              </button>`;
+            return pretestModuleCardHtml({
+              code: axisChapterLabel(axis),
+              title: axis.title,
+              desc: axisCetMeta(axis),
+              badge,
+              countLabel,
+              dataAttr: "data-pretest-axis",
+              dataValue: axis.id,
+            });
           })
           .join("")}
       </div>
@@ -1039,19 +1094,22 @@ function renderPretestGroups() {
       <h2 class="screen-title">${escapeHtml(axis.title)}</h2>
       <p class="screen-sub">${axisChapterLabel(axis)} — RCT p. ${escapeHtml(axis.cetPages)}</p>
       <p class="intro-note">Choisissez un <strong>bloc</strong>, puis une consigne à travailler séparément.</p>
-      <div class="axes">
+      <div class="modules">
         ${groups
           .map((group) => {
             const n = group.moduleIds.length;
             const modules = getModulesInGroup(route.axisId, group.id);
             const agg = getConsignesAggregate(route.axisId, modules);
             const badge = consigneBadgeHtml(agg);
-            return `
-              <button type="button" class="axis-card" data-pretest-group="${group.id}">
-                <span class="axis-card__num">${escapeHtml(group.code)}</span>
-                <div class="axis-card__title">${escapeHtml(group.title)}</div>
-                <div class="axis-card__meta">${badge} · ${consigneCountLabel(n)}</div>
-              </button>`;
+            return pretestModuleCardHtml({
+              code: group.code,
+              title: group.title,
+              desc: "",
+              badge,
+              countLabel: consigneCountLabel(n),
+              dataAttr: "data-pretest-group",
+              dataValue: group.id,
+            });
           })
           .join("")}
       </div>
@@ -1079,7 +1137,7 @@ function renderPretestModules() {
       <h2 class="screen-title">${escapeHtml(listTitle)}</h2>
       <p class="screen-sub">${listSub}</p>
       <p class="intro-note">Choisissez une consigne à travailler <strong>séparément</strong>.</p>
-      <div class="axes">
+      <div class="modules">
         ${modules
           .map((mod) => {
             const n = mod.questions.length;
@@ -1090,13 +1148,15 @@ function renderPretestModules() {
               mod,
               active,
             );
-            return `
-              <button type="button" class="axis-card" data-pretest-module="${mod.id}">
-                <span class="axis-card__num">${escapeHtml(mod.code)}</span>
-                <div class="axis-card__title">${escapeHtml(mod.title)}</div>
-                ${group ? "" : `<p class="axis-card__desc">${moduleCetMeta(mod)}</p>`}
-                <div class="axis-card__meta">${badge} · ${moduleCardCountLabel(route.axisId, mod.id, n)}</div>
-              </button>`;
+            return pretestModuleCardHtml({
+              code: mod.code,
+              title: mod.title,
+              desc: group ? "" : moduleCetMeta(mod),
+              badge,
+              countLabel: moduleCardCountLabel(route.axisId, mod.id, n),
+              dataAttr: "data-pretest-module",
+              dataValue: mod.id,
+            });
           })
           .join("")}
       </div>
@@ -1132,7 +1192,7 @@ function renderPretestSetup() {
     route.groupId && getModuleGroupById(route.axisId, route.groupId)
       ? `← ${getModuleGroupById(route.axisId, route.groupId).title}`
       : pretestModuleCount(route.axisId) > 1
-        ? "← Consignes"
+        ? `← ${axis.title}`
         : "← Chapitres";
 
   const radios = sizes
@@ -1350,11 +1410,16 @@ function renderClozePretest() {
           : "Retrouvez les mots masqués, puis touchez un <strong class=\"cloze-hint__mark\">trou</strong> pour vérifier."
       }</p>
       <article class="cloze-card">
-        <p class="cloze-card__chapter">${escapeHtml(mod.title)}</p>
+        <div class="module-card__banner">
+          <span class="module-card__name">${escapeHtml(mod.title)}</span>
+          <span class="module-card__ref">${escapeHtml(mod.code)}</span>
+        </div>
+        <div class="cloze-card__inner">
         <h2 class="cloze-card__prompt">${escapeHtml(promptForCard(q))}</h2>
         <p class="cloze-card__ref">(${moduleRef})</p>
         <div class="cloze-card__body">${html}</div>
         <button type="button" class="btn btn--ghost btn--small cloze-reveal" data-cloze-reveal>${revealLabel}</button>
+        </div>
       </article>
       <div class="cloze-actions">
         <button type="button" class="btn btn--primary" data-cloze-master>Je maîtrise</button>
@@ -1539,17 +1604,7 @@ function bindPretest() {
   );
 
   app.querySelector("[data-pretest-back]")?.addEventListener("click", () => {
-    if (route.groupId) {
-      screen = "pretest-groups";
-      route.groupId = null;
-      route.moduleId = null;
-    } else if (pretestModuleCount(route.axisId) > 1) {
-      screen = "pretest-modules";
-      route.moduleId = null;
-    } else {
-      screen = "pretest-chapters";
-      route = { axisId: null, groupId: null, moduleId: null };
-    }
+    navigatePretestBack();
     render();
   });
 
