@@ -1,4 +1,3 @@
-import { AXES, getModuleById, getModulesForAxis } from "./data.js";
 import {
   pickAndRestoreBackupFile,
   shouldOfferBackupRestore,
@@ -13,6 +12,8 @@ import {
   invalidateQuestionPool,
   getQuestionsForAxis,
   getTotalQuestionCount,
+  getModuleById,
+  getModulesForAxis,
   sessionSizesForChapter,
 } from "./pool.js";
 import { createPretestSession } from "./pretest-session.js";
@@ -47,7 +48,8 @@ import {
 } from "./store.js";
 
 /** Version affichée — si la pop-up dit encore « Mode Révision », le navigateur sert un ancien fichier. */
-const APP_BUILD = "2026-06-06q";
+const APP_BUILD = globalThis.__RCT_BUILD__?.APP_BUILD || "dev";
+const { AXES } = globalThis.__RCT_DATA__;
 
 const ANSWER_POINT_COLORS = ["#1a6b4a", "#5a9a7a"];
 
@@ -196,11 +198,41 @@ function escapeHtml(raw) {
     .replace(/"/g, "&quot;");
 }
 
+const ANSWER_INFO_MARK = "@@INFO@@";
+
+/** Corps de réponse + encart info éventuel (`@@INFO@@` dans `answer` ou champ `answerInfo`). */
+function splitAnswerBodyAndInfo(raw) {
+  const text = String(raw ?? "");
+  const idx = text.indexOf(ANSWER_INFO_MARK);
+  if (idx === -1) return { body: text, info: null };
+  return {
+    body: text.slice(0, idx).trimEnd(),
+    info: text.slice(idx + ANSWER_INFO_MARK.length).trim() || null,
+  };
+}
+
 /** Réponse attendue (carte) : champ `answer` ou repli ancien format QCM. */
 function answerForCard(q) {
-  if (q.answer != null && String(q.answer).trim()) return q.answer;
-  if (q.choices?.length) return q.choices[q.correct ?? 0] ?? "";
-  return "";
+  let raw = "";
+  if (q.answer != null && String(q.answer).trim()) raw = q.answer;
+  else if (q.choices?.length) raw = q.choices[q.correct ?? 0] ?? "";
+  return splitAnswerBodyAndInfo(raw).body;
+}
+
+/** Encart info (hors points numérotés). */
+function answerInfoForCard(q) {
+  let raw = "";
+  if (q.answer != null && String(q.answer).trim()) raw = q.answer;
+  const fromAnswer = splitAnswerBodyAndInfo(raw).info;
+  if (fromAnswer) return fromAnswer;
+  if (q?.answerInfo != null && String(q.answerInfo).trim()) return q.answerInfo;
+  const mod = getModuleById(q.axisId, q.moduleId);
+  const src = mod?.questions?.find((item) => item.id === q.questionId);
+  if (src?.answerInfo != null && String(src.answerInfo).trim()) return src.answerInfo;
+  if (src?.answer != null && String(src.answer).includes(ANSWER_INFO_MARK)) {
+    return splitAnswerBodyAndInfo(src.answer).info;
+  }
+  return null;
 }
 
 /** Découpe une réponse en points numérotés (`1. …`, `2. …`). */
@@ -231,6 +263,26 @@ function formatAnswerHtml(raw) {
       return `<div class="flashcard__answer-point flashcard__answer-point--${tone}" style="color:${color}">${escapeHtml(point)}</div>`;
     })
     .join("");
+}
+
+/** Encadré d'information (hors points numérotés), ex. encarts RCT p. 42. */
+function formatAnswerInfoHtml(raw) {
+  const text = String(raw ?? "").trim();
+  if (!text) return "";
+  const lines = text
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const body = lines
+    .map(
+      (line) =>
+        `<p class="flashcard__answer-info-line">${escapeHtml(line)}</p>`,
+    )
+    .join("");
+  return `<div class="flashcard__answer-info" role="note">
+    <p class="flashcard__answer-info-heading"><span class="flashcard__answer-info-icon" aria-hidden="true">⚠</span> ATTENTION :</p>
+    ${body}
+  </div>`;
 }
 
 /** Énoncé carte (pré-examen / examen final) : `cardPrompt` si défini, sinon `prompt`. */
@@ -885,6 +937,8 @@ function renderFlashcard() {
       </div>`
     : `<p class="flashcard-hint">Réfléchissez, puis touchez la carte pour voir la réponse.</p>`;
 
+  const answerInfoBlock = formatAnswerInfoHtml(answerInfoForCard(q) || "");
+
   return `
     <main class="main">
       ${
@@ -906,7 +960,7 @@ function renderFlashcard() {
           cardSession.flipped
             ? `<div class="flashcard__verso">
                 <p class="flashcard__label">Réponse attendue</p>
-                <div class="flashcard__answer">${formatAnswerHtml(answerForCard(q))}</div>
+                <div class="flashcard__answer">${formatAnswerHtml(answerForCard(q))}${answerInfoBlock}</div>
               </div>`
             : ""
         }

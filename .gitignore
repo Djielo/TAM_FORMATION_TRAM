@@ -10,8 +10,10 @@ output/
 # Procédure de lancement locale (usage personnel)
 PROCEDURE_LANCEMENT.md
 
-# Guide rédaction questions (usage local / IA)
+# Guides rédaction et évolutions (usage local / IA)
 docs/REDIGER-QUESTIONS-RCT.md
+docs/REDACTION_REPONSES_CARTES.md
+docs/EVOLUTIONS.md
 
 # Suivi audit local (non versionné)
 docs/AUDIT_RCT.md

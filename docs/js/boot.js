@@ -2,7 +2,11 @@
  * Point d'entrée unique — vérifie l'environnement, charge l'application, intercepte les erreurs.
  */
 
+const BUST = globalThis.__RCT_BUST__ || String(Date.now());
+globalThis.__RCT_BUST__ = BUST;
+
 const EXPECTED_SCRIPTS = [
+  "js/build.js",
   "js/data.js",
   "js/pool.js",
   "js/store.js",
@@ -11,6 +15,10 @@ const EXPECTED_SCRIPTS = [
   "js/dialog.js",
   "js/rct-app.js",
 ];
+
+function mod(path) {
+  return import(`${path}?v=${BUST}`);
+}
 
 function escapeHtml(raw) {
   return String(raw)
@@ -50,7 +58,7 @@ async function verifyScriptsReachable() {
   const missing = [];
   for (const path of EXPECTED_SCRIPTS) {
     try {
-      const res = await fetch(path, { cache: "no-store" });
+      const res = await fetch(`${path}?v=${BUST}`, { cache: "no-store" });
       if (!res.ok) missing.push(`${path} (HTTP ${res.status})`);
     } catch (err) {
       missing.push(`${path} (${err?.message || "réseau"})`);
@@ -101,12 +109,11 @@ async function start() {
 
   try {
     await verifyScriptsReachable();
-    // Chaîne de modules dans l'ordre (évite les imports manquants entre fichiers).
-    await import("./data.js");
-    await import("./pool.js");
-    await import("./store.js");
-    await import("./pretest-session.js");
-    await import("./rct-app.js?v=2026-06-06q");
+    globalThis.__RCT_BUILD__ = await mod("./build.js");
+    globalThis.__RCT_DATA__ = await mod("./data.js");
+    const pool = await mod("./pool.js");
+    pool.invalidateQuestionPool();
+    await mod("./rct-app.js");
   } catch (err) {
     const msg = err?.stack || err?.message || String(err);
     const wrongFolder = /introuvables|HTTP 404/i.test(msg);

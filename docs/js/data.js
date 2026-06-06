@@ -3,9 +3,16 @@
  * Périmètre actif : acronymes + ch. 1 (circulation) + ch. 2 (urgence).
  */
 
-import { MODULES_ACRONYMES } from "./data-rct-acronymes.js";
-import { MODULES_CH3 } from "./data-rct-ch3.js";
-import { MODULES_CH4 } from "./data-rct-ch4.js";
+const bust = globalThis.__RCT_BUST__ || String(Date.now());
+
+const [{ MODULES_ACRONYMES }, { MODULES_CH3 }, { MODULES_CH4 }] =
+  await Promise.all([
+    import(`./data-rct-acronymes.js?v=${bust}`),
+    import(`./data-rct-ch3.js?v=${bust}`),
+    import(`./data-rct-ch4.js?v=${bust}`),
+  ]);
+
+export { MODULES_ACRONYMES, MODULES_CH3, MODULES_CH4 };
 
 export const AXES = [
   {

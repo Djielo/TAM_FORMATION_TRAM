@@ -122,7 +122,26 @@ export const MODULES_CH3 = [
         cardPrompt:
           "Quel doit être le comportement du conducteur dans la rame ?",
         answer:
-          "1. Présence en cabine (signalement obligatoire PCC) : cadres, maîtrise, maintenance TaM en mission, formateurs, ou autorisation écrite.\n2. Porte cabine fermée. Effets personnels dans le placard.\n3. Conduite assise. Position vigilance (buste droit, pieds au sol) adaptée pour effectuer une commande d'urgence, comme un FS.\n4. Interdit de fumer, de s'alimenter, de téléphoner avec ou sans oreillettes. Phonie hors arrêt en mains libres.\n5. Arrêt en ligne, rester au poste + feux de détresse.\n6. Ne pas quitter le tram en ligne, sauf cas de force majeure après évacuation => informer le PCC + appliquer mesures anti-accident (BS p. 35).\n7. Quitter la cabine, manipulateur neutre, clé KC, porte fermée (BS p. 35).\n8. Anomalie de service: Annonce clientèle via sonorisation intérieure (ch. 3.9).\n9. Rame arrêtée, ouverture porte cabine autorisée pour s'adresser à la clientèle.",
+          "1. Présence en cabine (signalement obligatoire PCC) : cadres, maîtrise, maintenance TaM en mission, formateurs, ou autorisation écrite.\n2. Rouler porte cabine fermée. Effets personnels dans le placard.\n3. Conduite assise. Position vigilance (buste droit, pieds au sol) adaptée pour effectuer une commande d'urgence, comme un FS.\n4. Interdit de fumer, de s'alimenter, de téléphoner avec ou sans oreillettes. Phonie hors arrêt en mains libres.\n5. Arrêt en ligne, rester au poste + feux de détresse.\n6. Ne pas quitter le tram en ligne, sauf cas de force majeure après évacuation => informer le PCC + appliquer mesures anti-accident (BS p. 35).\n7. Quitter la cabine: Manipulateur neutre, clé KC, porte fermée (BS p. 35).\n8. Anomalie de service: Annonce clientèle via sonorisation intérieure (ch. 3.9).\n9. Rame arrêtée: Ouverture porte cabine autorisée pour s'adresser à la clientèle.",
+      },
+    ],
+  },
+
+  // ─── 3.2 Circulation en ligne (p. 42) ────────────────────────
+  {
+    id: "circulation-ligne",
+    code: "3.2",
+    title: "Circulation en ligne",
+    cetPage: 42,
+    questions: [
+      {
+        id: "ch3-circ-00",
+        prompt:
+          "Quelles sont les règles de circulation en ligne ?",
+        cardPrompt:
+          "Quelles sont les règles de circulation en ligne ?",
+        answer:
+          "1. Conduire toujours depuis la cabine dans le sens de la marche (marche arrière interdite).\n2. Circuler en marche à vue, adapter sa vitesse à l'environnement.\n3. En ligne, appliquer les mêmes règles de prévoyance et de défiance que pour tout véhicule de transport.\n4. Être en mesure d'arrêter la rame en toute circonstance.\n5. Respecter la signalisation ferroviaire et routière, et les limitations de vitesse en ligne. Éviter le mode traction au passage des IS.\n6. Visibilité réduite (brouillard, dégagement de fumée), adapter la vitesse aux conditions.\n7. En sortie de courbe, attendre que la rame soit droite pour reprendre de la vitesse : sécurité, guidage pour éviter le déraillement, confort clientèle, préservation de l'infrastructure.\n8. Baisse anormale du niveau de vigilance ou pertes de vigilance répétées, alerter immédiatement le PCC sur son état de santé.\n@@INFO@@\nRelevés tachymétriques réguliers et aléatoires.\nMédicaments : baisse de vigilance, autorisation du médecin traitant.",
       },
     ],
   },

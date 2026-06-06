@@ -1,12 +1,15 @@
 /**
  * Persistance locale : maîtrise QCM, SRS pré-examen, sessions, préférences.
  */
-import { AXES, MODULES } from "./data.js";
 import {
   getQuestionPool,
   getQuestionsForAxis,
   getTotalQuestionCount,
 } from "./pool.js";
+
+function rctData() {
+  return globalThis.__RCT_DATA__;
+}
 
 /** Filtre le pool — défini ici pour ne pas dépendre d'un export optionnel de pool.js. */
 export function getQuestionsForModule(axisId, moduleId) {
@@ -117,7 +120,7 @@ export function loadRevisionProgress() {
 }
 
 export function saveModuleScore(axisId, moduleId, score, totalFromQuiz) {
-  const mod = MODULES[axisId]?.find((m) => m.id === moduleId);
+  const mod = rctData().MODULES[axisId]?.find((m) => m.id === moduleId);
   const total = mod?.questions.length ?? totalFromQuiz;
   const all = loadRevisionProgress();
   const key = `${axisId}/${moduleId}`;
@@ -134,7 +137,7 @@ export function getModuleProgress(axisId, moduleId) {
 
 /** Comptage aligné sur le pool actuel (source de vérité pour 🥳 et 404/404). */
 export function getModuleQuestionStats(axisId, moduleId) {
-  const mod = MODULES[axisId]?.find((m) => m.id === moduleId);
+  const mod = rctData().MODULES[axisId]?.find((m) => m.id === moduleId);
   if (!mod) return { total: 0, validated: 0, bestRun: null, perfect: false };
   const mastery = loadMastery();
   const total = mod.questions.length;
@@ -414,7 +417,7 @@ export function getAxisRevisionMastery(axisId) {
 
 export function isPretestChapterUnlocked(axisId) {
   if (isDevBypassUnlock()) return true;
-  const axis = AXES.find((a) => a.id === axisId);
+  const axis = rctData().AXES.find((a) => a.id === axisId);
   return !!axis?.available;
 }
 
@@ -436,7 +439,7 @@ export function isDevBypassUnlock() {
 }
 
 export function isPretestTabUnlocked() {
-  return AXES.some((a) => a.available);
+  return rctData().AXES.some((a) => a.available);
 }
 
 export function loadPretestStats() {
@@ -495,7 +498,7 @@ export function getPretestScopeKey(axisId, moduleId) {
 }
 
 export function getPretestUnlockProgress() {
-  const chapters = AXES.filter((a) => a.available);
+  const chapters = rctData().AXES.filter((a) => a.available);
   const items = chapters.map((a) => {
     const { mastered, total, rate } = getPretestChapterMastery(a.id);
     return {

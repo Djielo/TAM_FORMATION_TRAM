@@ -1,7 +1,10 @@
 /**
  * Index plat des questions RCT (métadonnées chapitre / module).
  */
-import { AXES, MODULES } from "./data.js";
+
+function rctData() {
+  return globalThis.__RCT_DATA__;
+}
 
 let _cache = null;
 
@@ -11,6 +14,7 @@ export function invalidateQuestionPool() {
 
 export function getQuestionPool() {
   if (_cache) return _cache;
+  const { AXES, MODULES } = rctData();
   const all = [];
   for (const axis of AXES) {
     const modules = MODULES[axis.id] || [];
@@ -25,6 +29,7 @@ export function getQuestionPool() {
           prompt: q.prompt,
           cardPrompt: q.cardPrompt || null,
           answer,
+          answerInfo: q.answerInfo || null,
           choices: q.choices,
           correct: q.correct,
           explanation: q.explanation,
@@ -50,14 +55,20 @@ export function getQuestionsForAxis(axisId) {
   return getQuestionPool().filter((q) => q.axisId === axisId);
 }
 
-export { getModuleById, getModulesForAxis } from "./data.js";
+export function getModulesForAxis(axisId) {
+  return rctData().getModulesForAxis(axisId);
+}
+
+export function getModuleById(axisId, moduleId) {
+  return rctData().getModuleById(axisId, moduleId);
+}
 
 export function getQuestionById(questionId) {
   return getQuestionPool().find((q) => q.questionId === questionId) || null;
 }
 
 export function getAxisById(axisId) {
-  return AXES.find((a) => a.id === axisId) || null;
+  return rctData().AXES.find((a) => a.id === axisId) || null;
 }
 
 /** Quotas pré-examen / examen final par pas de 25. */
