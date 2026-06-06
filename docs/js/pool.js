@@ -16,10 +16,15 @@ export function getQuestionPool() {
     const modules = MODULES[axis.id] || [];
     for (const mod of modules) {
       for (const q of mod.questions) {
+        const answer =
+          q.answer != null && String(q.answer).trim()
+            ? q.answer
+            : q.choices?.[q.correct ?? 0] ?? "";
         all.push({
           questionId: q.id,
           prompt: q.prompt,
           cardPrompt: q.cardPrompt || null,
+          answer,
           choices: q.choices,
           correct: q.correct,
           explanation: q.explanation,

@@ -47,7 +47,7 @@ import {
 } from "./store.js";
 
 /** Version affichée — si la pop-up dit encore « Mode Révision », le navigateur sert un ancien fichier. */
-const APP_BUILD = "2026-06-06k";
+const APP_BUILD = "2026-06-06m";
 
 function getApp() {
   return document.getElementById("app");
@@ -194,8 +194,11 @@ function escapeHtml(raw) {
     .replace(/"/g, "&quot;");
 }
 
-function correctChoiceText(q) {
-  return q.choices[q.correct];
+/** Réponse attendue (carte) : champ `answer` ou repli ancien format QCM. */
+function answerForCard(q) {
+  if (q.answer != null && String(q.answer).trim()) return q.answer;
+  if (q.choices?.length) return q.choices[q.correct ?? 0] ?? "";
+  return "";
 }
 
 /** Énoncé carte (pré-examen / examen final) : `cardPrompt` si défini, sinon `prompt`. */
@@ -871,8 +874,7 @@ function renderFlashcard() {
           cardSession.flipped
             ? `<div class="flashcard__verso">
                 <p class="flashcard__label">Réponse attendue</p>
-                <p class="flashcard__answer">${escapeHtml(correctChoiceText(q))}</p>
-                <p class="flashcard__explain">${escapeHtml(q.explanation)}</p>
+                <p class="flashcard__answer">${escapeHtml(answerForCard(q))}</p>
               </div>`
             : ""
         }
@@ -1102,7 +1104,7 @@ function bindFlashcard() {
       axisTitle: q.axisTitle,
       prompt: q.prompt,
       moduleRef: `voir ch. ${q.moduleCode}`,
-      answer: correctChoiceText(q),
+      answer: answerForCard(q),
     });
     advanceCard();
   });
