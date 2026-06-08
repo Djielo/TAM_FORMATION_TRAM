@@ -19,10 +19,10 @@ export function getQuestionsForModule(axisId, moduleId) {
 }
 
 /** Incrémenter si la structure localStorage ou les règles de comptage changent. */
-export const STORAGE_SCHEMA_VERSION = 7;
+export const STORAGE_SCHEMA_VERSION = 8;
 
-/** Part des questions du chapitre marquées « Je maîtrise » en pré-examen pour débloquer l'examen final. */
-export const PRETEST_FINAL_UNLOCK_RATE = 1;
+/** Part des questions du chapitre maîtrisées en pré-examen pour débloquer l'examen final. */
+export const PRETEST_FINAL_UNLOCK_RATE = 0.9;
 
 /** Nombre de questions par session d'examen final. */
 export const FINAL_EXAM_QUESTION_COUNT = 50;
@@ -38,6 +38,7 @@ export const KEYS = {
   pretestPrefs: "tam-rct-pretest-prefs-v1",
   pretestActive: "tam-rct-pretest-active-v1",
   pretestLastEnd: "tam-rct-pretest-last-end-v1",
+  clozeDailyIntro: "tam-rct-cloze-daily-intro-v1",
   finalPrefs: "tam-rct-final-exam-prefs-v1",
   helpDismissed: "tam-rct-help-dismissed-v2",
   helpDismissedLegacy: "tam-rct-help-dismissed-v1",
@@ -71,13 +72,27 @@ const LEGACY_CET_KEYS = {
 
 const ALL_STORAGE_KEYS = Object.values(KEYS);
 
-const FIVE_MIN_MS = 5 * 60 * 1000;
-
-/** Paliers SRS (ms) — échelle indicative simplifiée. */
+/**
+ * Paliers SRS (ms) — délais absolus depuis la première apparition de la consigne.
+ * Court terme serré, puis 1 → 21 j pour couvrir ~3 semaines d’apprentissage.
+ */
 export const SRS_INTERVALS_MS = [
-  60_000, 120_000, 180_000, 300_000, 600_000, 900_000, 1_800_000, 3_600_000,
-  10_800_000, 21_600_000, 43_200_000, 86_400_000, 259_200_000, 432_000_000,
-  604_800_000, 864_000_000, 1_296_000_000,
+  300_000, /* 5 min */
+  600_000, /* 10 min */
+  1_200_000, /* 20 min */
+  2_700_000, /* 45 min */
+  5_400_000, /* 1 h 30 */
+  10_800_000, /* 3 h */
+  21_600_000, /* 6 h */
+  43_200_000, /* 12 h */
+  86_400_000, /* 1 j */
+  172_800_000, /* 2 j */
+  259_200_000, /* 3 j */
+  432_000_000, /* 5 j */
+  604_800_000, /* 7 j */
+  864_000_000, /* 10 j */
+  1_209_600_000, /* 14 j */
+  1_814_400_000, /* 21 j */
 ];
 
 function readJson(key, fallback) {
@@ -256,9 +271,26 @@ export function migrateStorage() {
   }
 }
 
+/** Réaffiche l’aide présentation / pré-examen après une mise à jour des consignes SRS. */
+function migrateHelpContentRefresh() {
+  const flag = "tam-rct-help-content-srs-v2";
+  if (localStorage.getItem(flag)) return false;
+  const h = readJson(KEYS.helpDismissed, {});
+  delete h.welcome;
+  delete h.pretest;
+  writeJson(KEYS.helpDismissed, h);
+  try {
+    localStorage.setItem(flag, "1");
+  } catch {
+    /* ignore */
+  }
+  return true;
+}
+
 function migrateStorageInner() {
   const cetCopied = migrateCetStorageToRct();
   migrateHelpDismissed();
+  migrateHelpContentRefresh();
 
   const stored = parseInt(localStorage.getItem(KEYS.schema) || "0", 10);
   if (stored >= STORAGE_SCHEMA_VERSION) {
@@ -468,8 +500,15 @@ export function isPretestCardEverMastered(questionId) {
   return !!getSrsRow(questionId).everMastered;
 }
 
-/** Cartes du chapitre ayant reçu « Je maîtrise » au moins une fois (cumul entre sessions). */
+/** Maîtrise d'un chapitre (cartes ou consignes selon le type). */
 export function getPretestChapterMastery(axisId) {
+  const consigneFn = globalThis.__RCT_CONSIGNE_CHAPTER_MASTERY__;
+  if (
+    (axisId === "circulation" || axisId === "urgence") &&
+    typeof consigneFn === "function"
+  ) {
+    return consigneFn(axisId);
+  }
   const questions = getQuestionsForAxis(axisId);
   let mastered = 0;
   for (const q of questions) {
@@ -537,14 +576,16 @@ function saveSrs(data) {
 
 function defaultSrsRow() {
   return {
+    /** Instant où la consigne a été présentée pour la première fois (ancrage SRS). */
+    firstSeenAt: 0,
     intervalIndex: 0,
     nextReviewAt: 0,
     sessionsUntilEligible: 0,
     pendingReview: false,
     everMastered: false,
-    /** Nombre de trous cible (texte à trous). */
+    /** Nombre de trous actifs (texte à trous). */
     clozeBlanks: 5,
-    /** Variante aléatoire des positions de trous. */
+    /** Passages enregistrés (Je maîtrise / À revoir) — ne change pas les positions de trous. */
     clozeSeed: 0,
   };
 }
@@ -558,30 +599,49 @@ export function getClozeState(questionId) {
   };
 }
 
-/** « Je maîtrise » — SRS + plus de trous au prochain passage. */
+/** « Je maîtrise » — SRS + 2 trous fixes en plus (mêmes mots qu'avant + 2 nouveaux). */
 export function applyClozeMaster(questionId, maxSegments) {
   applySrsMaster(questionId);
   const all = loadSrs();
   const row = all[questionId];
   if (!row) return;
   const current = row.clozeBlanks ?? 5;
-  row.clozeBlanks = Math.min(current + 5, Math.max(1, maxSegments));
+  row.clozeBlanks = Math.min(current + 2, Math.max(1, maxSegments));
   row.clozeSeed = (row.clozeSeed ?? 0) + 1;
   saveSrs(all);
 }
 
-/** « À revoir » — SRS + mêmes trous, nouvelles positions. */
-export function applyClozeReview(questionId) {
-  applySrsReview(questionId);
+/** « À revoir » — SRS − 1 trou (minimum 5), mêmes mots conservés. */
+export function applyClozeReview(questionId, deferSessions = 2) {
+  applySrsReview(questionId, deferSessions);
   const all = loadSrs();
   const row = all[questionId];
   if (!row) return;
+  const current = row.clozeBlanks ?? 5;
+  row.clozeBlanks = Math.max(5, current - 1);
   row.clozeSeed = (row.clozeSeed ?? 0) + 1;
   saveSrs(all);
 }
 
 export function getSrsRow(questionId) {
   return loadSrs()[questionId] || defaultSrsRow();
+}
+
+/** Enregistre la première apparition (horodatage fixe pour tout le parcours SRS). */
+export function ensureSrsIntroduced(questionId, seenAt = Date.now()) {
+  const all = loadSrs();
+  const row = { ...defaultSrsRow(), ...all[questionId] };
+  if (row.firstSeenAt) return row.firstSeenAt;
+  if (row.intervalIndex > 0) {
+    const offset =
+      SRS_INTERVALS_MS[row.intervalIndex - 1] ?? SRS_INTERVALS_MS[0];
+    row.firstSeenAt = seenAt - offset;
+  } else {
+    row.firstSeenAt = seenAt;
+  }
+  all[questionId] = row;
+  saveSrs(all);
+  return row.firstSeenAt;
 }
 
 function sessionsSkipAfterMaster(intervalIndex) {
@@ -593,10 +653,13 @@ function sessionsSkipAfterMaster(intervalIndex) {
 export function applySrsMaster(questionId) {
   const all = loadSrs();
   const row = { ...defaultSrsRow(), ...all[questionId] };
+  const firstSeen = row.firstSeenAt || Date.now();
+  if (!row.firstSeenAt) row.firstSeenAt = firstSeen;
   const nextIndex = Math.min(row.intervalIndex + 1, SRS_INTERVALS_MS.length);
-  const delay = SRS_INTERVALS_MS[nextIndex - 1] ?? SRS_INTERVALS_MS[0];
+  const offset = SRS_INTERVALS_MS[nextIndex - 1] ?? SRS_INTERVALS_MS[0];
   row.intervalIndex = nextIndex;
-  row.nextReviewAt = Date.now() + delay;
+  /** Échéance absolue depuis la première apparition, pas depuis ce « Je maîtrise ». */
+  row.nextReviewAt = firstSeen + offset;
   row.sessionsUntilEligible = sessionsSkipAfterMaster(nextIndex);
   row.pendingReview = false;
   row.everMastered = true;
@@ -604,12 +667,11 @@ export function applySrsMaster(questionId) {
   saveSrs(all);
 }
 
-export function applySrsReview(questionId) {
+export function applySrsReview(questionId, deferSessions = 2) {
   const all = loadSrs();
   const row = { ...defaultSrsRow(), ...all[questionId] };
   row.intervalIndex = 0;
-  row.nextReviewAt = Date.now();
-  row.sessionsUntilEligible = 0;
+  row.sessionsUntilEligible = Math.max(0, deferSessions);
   row.pendingReview = true;
   all[questionId] = row;
   saveSrs(all);
@@ -617,9 +679,24 @@ export function applySrsReview(questionId) {
 
 export function isSrsEligible(questionId, now = Date.now()) {
   const row = getSrsRow(questionId);
-  if (row.pendingReview) return true;
   if (row.sessionsUntilEligible > 0) return false;
+  if (row.pendingReview) return true;
+  if ((row.intervalIndex ?? 0) === 0 && !row.everMastered) return true;
   return row.nextReviewAt <= now;
+}
+
+/** Après une consigne texte à trous — décompte le délai « à revoir » sur toutes les cartes. */
+export function onClozeSessionComplete() {
+  const all = loadSrs();
+  let changed = false;
+  for (const row of Object.values(all)) {
+    if (row.sessionsUntilEligible > 0) {
+      row.sessionsUntilEligible -= 1;
+      changed = true;
+    }
+  }
+  if (changed) saveSrs(all);
+  writeJson(KEYS.pretestLastEnd, Date.now());
 }
 
 /** Après une session pré-examen terminée pour une consigne. */
@@ -644,10 +721,80 @@ export function getPretestLastEndAt() {
   return readJson(KEYS.pretestLastEnd, 0) || 0;
 }
 
+/** Pause 5 min désactivée — les intervalles SRS et le sommeil couvrent l’espacement. */
 export function needsPretestPauseWarning() {
-  const last = getPretestLastEndAt();
-  if (!last) return false;
-  return Date.now() - last < FIVE_MIN_MS;
+  return false;
+}
+
+/** Nouvelles consignes texte à trous — quota journalier (base + bonus opt-in). */
+const CLOZE_DAILY_NEW_BASE = 10;
+
+function todayIso() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function loadClozeDailyRow() {
+  const today = todayIso();
+  const raw = readJson(KEYS.clozeDailyIntro, null);
+  const defaults = {
+    date: today,
+    count: 0,
+    target: CLOZE_DAILY_NEW_BASE,
+    noMoreNewToday: false,
+  };
+  if (!raw || typeof raw !== "object") return defaults;
+  if (raw.date !== today) return defaults;
+  return {
+    ...defaults,
+    count: raw.count ?? 0,
+    target: raw.target ?? CLOZE_DAILY_NEW_BASE,
+    noMoreNewToday: Boolean(raw.noMoreNewToday),
+  };
+}
+
+function saveClozeDailyRow(row) {
+  writeJson(KEYS.clozeDailyIntro, row);
+}
+
+/** Nouvelles consignes mises en route aujourd’hui. */
+export function getClozeDailyIntroCount() {
+  return loadClozeDailyRow().count;
+}
+
+/** Plafond du jour (10 par défaut, +5 ou +10 si l’utilisateur accepte). */
+export function getClozeDailyNewTarget() {
+  return loadClozeDailyRow().target;
+}
+
+export function recordClozeDailyIntro() {
+  const row = loadClozeDailyRow();
+  row.count += 1;
+  saveClozeDailyRow(row);
+}
+
+/** Objectif du jour atteint : proposer d’ajouter des consignes ? */
+export function shouldOfferClozeDailyExtra() {
+  const row = loadClozeDailyRow();
+  return row.count >= row.target && !row.noMoreNewToday;
+}
+
+/** L’utilisateur accepte d’introduire encore N consignes aujourd’hui. */
+export function addClozeDailyExtra(extraCount) {
+  const row = loadClozeDailyRow();
+  row.target += extraCount;
+  row.noMoreNewToday = false;
+  saveClozeDailyRow(row);
+}
+
+/** Pas de nouvelles consignes pour le reste de la journée (révisions seulement). */
+export function declineClozeDailyExtra() {
+  const row = loadClozeDailyRow();
+  row.noMoreNewToday = true;
+  saveClozeDailyRow(row);
+}
+
+export function hasClozeDeclinedNewToday() {
+  return loadClozeDailyRow().noMoreNewToday;
 }
 
 /* ─── Pré-examen prefs / session active ─── */

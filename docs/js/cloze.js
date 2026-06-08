@@ -1,14 +1,26 @@
 /**
  * Texte à trous — tokens mot à mot (pré-examen lecture).
  */
-import { getSrsRow } from "./store.js";
+import { getModulesForAxis } from "./data.js";
+import {
+  getClozeDailyIntroCount,
+  getClozeDailyNewTarget,
+  getSrsRow,
+  isSrsEligible,
+} from "./store.js";
 
 export const CLOZE_INITIAL_BLANKS = 5;
-export const CLOZE_BLANK_STEP = 5;
+export const CLOZE_MIN_BLANKS = 5;
+/** Trous ajoutés à chaque « Je maîtrise ». */
+export const CLOZE_MASTER_STEP = 2;
+/** Trous retirés à chaque « À revoir » (sans descendre sous CLOZE_MIN_BLANKS). */
+export const CLOZE_REVIEW_STEP = 1;
+/** Objectif de nouvelles consignes découvertes par jour (file automatique). */
+export const CLOZE_DAILY_NEW_TARGET = 10;
 
-/** Toutes les consignes du ch. circulation (y compris vitesses, une consigne par palier). */
+/** Chapitres consignes (texte à trous) — libellés « consigne », pas « carte » / « session ». */
 export function isClozePretestModule(axisId, moduleId) {
-  return axisId === "circulation";
+  return axisId === "circulation" || axisId === "urgence";
 }
 
 const ANSWER_WARNING_MARK = "@@WARNING@@";
@@ -226,8 +238,8 @@ function mulberry32(seed) {
   };
 }
 
-function hashSeed(questionId, clozeSeed) {
-  const str = `${questionId}:${clozeSeed}`;
+function hashQuestionOrder(questionId) {
+  const str = `${questionId}:cloze-order`;
   let h = 2166136261;
   for (let i = 0; i < str.length; i++) {
     h ^= str.charCodeAt(i);
@@ -236,12 +248,15 @@ function hashSeed(questionId, clozeSeed) {
   return h >>> 0;
 }
 
-/** Choisit les ids de tokens à masquer. */
-export function pickBlankSegmentIds(segments, blankCount, questionId, clozeSeed) {
+/**
+ * Choisit les ids à masquer — ordre fixe par consigne (premiers N d'une permutation stable).
+ * Les mêmes mots restent masqués tant qu'on garde le même nombre de trous.
+ */
+export function pickBlankSegmentIds(segments, blankCount, questionId) {
   const ids = segments.map((s) => s.id);
   if (!ids.length || blankCount <= 0) return new Set();
 
-  const rng = mulberry32(hashSeed(questionId, clozeSeed));
+  const rng = mulberry32(hashQuestionOrder(questionId));
   const shuffled = [...ids];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
@@ -294,7 +309,7 @@ function renderRowHtml(row, blankIds, revealedAll, revealedBlanks, tone) {
 
 /**
  * @param {string} raw
- * @param {{ blankCount: number, questionId: string, clozeSeed: number, revealedAll?: boolean, revealedBlanks?: Set<string> }} opts
+ * @param {{ blankCount: number, questionId: string, revealedAll?: boolean, revealedBlanks?: Set<string> }} opts
  */
 export function renderClozeHtml(raw, opts) {
   const { segments, blocks } = buildClozeSegments(raw);
@@ -302,7 +317,6 @@ export function renderClozeHtml(raw, opts) {
     segments,
     opts.blankCount,
     opts.questionId,
-    opts.clozeSeed,
   );
   const revealedAll = !!opts.revealedAll;
   const revealedBlanks = opts.revealedBlanks ?? new Set();
@@ -362,3 +376,148 @@ export function getClozeDisplayProgress(questionId, answerRaw) {
     complete,
   };
 }
+
+/**
+ * Choisit la prochaine consigne texte à trous (file interne, pas de choix utilisateur).
+ * Priorité : SRS échu → nouvelles (quota/j) → en cours → à revoir (après rotation).
+ */
+export function countClozeAlternatives(excludeQuestionId, axisId = "circulation") {
+  if (axisId !== "circulation") return 0;
+  const modules = getModulesForAxis(axisId).filter((mod) =>
+    isClozePretestModule(axisId, mod.id),
+  );
+  let n = 0;
+  for (const mod of modules) {
+    const q = mod.questions?.[0];
+    if (!q?.id || q.id === excludeQuestionId) continue;
+    const row = getSrsRow(q.id);
+    if (row.sessionsUntilEligible > 0) continue;
+    n += 1;
+  }
+  return n;
+}
+
+/** Consignes jamais ouvertes (encore introduisibles). */
+export function countUntouchedClozeConsignes(axisId = "circulation") {
+  if (axisId !== "circulation") return 0;
+  const modules = getModulesForAxis(axisId).filter((mod) =>
+    isClozePretestModule(axisId, mod.id),
+  );
+  let n = 0;
+  for (const mod of modules) {
+    const q = mod.questions?.[0];
+    if (!q?.id) continue;
+    if ((getSrsRow(q.id).clozeSeed ?? 0) === 0) n += 1;
+  }
+  return n;
+}
+
+/** Délai avant la prochaine révision SRS, ou null si rien de planifié. */
+export function getClozeIdleState(axisId = "circulation") {
+  if (axisId !== "circulation") return { waitMs: null, deferredCount: 0 };
+  const modules = getModulesForAxis(axisId).filter((mod) =>
+    isClozePretestModule(axisId, mod.id),
+  );
+  const now = Date.now();
+  let waitMs = Infinity;
+  let deferredCount = 0;
+
+  for (const mod of modules) {
+    const q = mod.questions?.[0];
+    if (!q?.id) continue;
+    const row = getSrsRow(q.id);
+    if (row.pendingReview && row.sessionsUntilEligible > 0) deferredCount += 1;
+    if (row.pendingReview || (row.intervalIndex ?? 0) === 0) continue;
+    if (row.nextReviewAt > now) {
+      waitMs = Math.min(waitMs, row.nextReviewAt - now);
+    }
+  }
+
+  return {
+    waitMs: Number.isFinite(waitMs) ? waitMs : null,
+    deferredCount,
+  };
+}
+
+export function formatClozeWaitFr(ms) {
+  const mins = Math.max(1, Math.ceil(ms / 60_000));
+  if (mins < 60) return `${mins} minute${mins > 1 ? "s" : ""}`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  if (m === 0) return `${h} h`;
+  return `${h} h ${m} min`;
+}
+
+export function pickNextClozeModule(axisId = "circulation") {
+  if (axisId !== "circulation") return null;
+  const modules = getModulesForAxis(axisId).filter((mod) =>
+    isClozePretestModule(axisId, mod.id),
+  );
+  const now = Date.now();
+  const dailyNew = getClozeDailyIntroCount();
+  const dailyTarget = getClozeDailyNewTarget();
+  let best = null;
+  let bestScore = -Infinity;
+
+  for (const mod of modules) {
+    const q = mod.questions?.[0];
+    if (!q?.id) continue;
+    const questionId = q.id;
+    const row = getSrsRow(questionId);
+    let score = 0;
+
+    if (row.sessionsUntilEligible > 0) continue;
+
+    if (isSrsEligible(questionId, now) && (row.intervalIndex ?? 0) > 0 && !row.pendingReview) {
+      score += 600_000 + Math.min(now - (row.nextReviewAt ?? 0), 86_400_000);
+    }
+
+    const touched = (row.clozeSeed ?? 0) > 0;
+    if (!touched) {
+      if (dailyNew < dailyTarget) score += 400_000 - dailyNew * 100;
+      else score -= 50_000;
+    } else {
+      const prog = getClozeDisplayProgress(questionId, q.answer ?? "");
+      if (prog.inProgress) score += 300_000 + (100 - prog.pct) * 100;
+      else if (!prog.complete) score += 200_000;
+      else if (!row.pendingReview) score += 10_000;
+    }
+
+    if (row.pendingReview) score += 250_000;
+
+    score += Math.random() * 10_000;
+
+    if (score > bestScore) {
+      bestScore = score;
+      best = mod.id;
+    }
+  }
+
+  return best && bestScore > 0 ? { axisId, moduleId: best } : null;
+}
+
+/** Maîtrise chapitre consignes : moyenne des % texte à trous (100 % = tous les mots masqués). */
+export function getConsignesChapterMastery(axisId) {
+  const modules = getModulesForAxis(axisId).filter((mod) =>
+    isClozePretestModule(axisId, mod.id),
+  );
+  const total = modules.length;
+  if (!total) return { mastered: 0, total: 0, rate: 0 };
+  let pctSum = 0;
+  let completeCount = 0;
+  for (const mod of modules) {
+    const q = mod.questions?.[0];
+    if (!q?.id) continue;
+    const prog = getClozeDisplayProgress(q.id, q.answer ?? "");
+    pctSum += prog.complete ? 100 : prog.pct;
+    if (prog.complete) completeCount += 1;
+  }
+  const avgPct = pctSum / total;
+  return {
+    mastered: completeCount,
+    total,
+    rate: avgPct / 100,
+  };
+}
+
+globalThis.__RCT_CONSIGNE_CHAPTER_MASTERY__ = getConsignesChapterMastery;

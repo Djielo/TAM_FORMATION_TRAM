@@ -958,6 +958,22 @@ body.app-dialog-open {
   text-align: center;
 }
 
+.help-modal__actions--extra {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.help-modal__actions--extra .help-modal__actions--pair {
+  margin-top: 0;
+}
+
+.help-modal__actions--extra > .btn {
+  width: 100%;
+  margin-top: 0;
+}
+
 .help-modal__actions--pair .btn__stack {
   display: block;
 }

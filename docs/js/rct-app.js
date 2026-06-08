@@ -25,7 +25,13 @@ import {
   buildClozeSegments,
   getClozeDisplayProgress,
   isClozePretestModule,
+  pickNextClozeModule,
+  countClozeAlternatives,
+  countUntouchedClozeConsignes,
+  getClozeIdleState,
+  formatClozeWaitFr,
   renderClozeHtml,
+  CLOZE_DAILY_NEW_TARGET,
 } from "./cloze.js";
 import { createPretestSession } from "./pretest-session.js";
 import {
@@ -35,8 +41,14 @@ import {
   applyClozeMaster,
   applyClozeReview,
   applySrsMaster,
+  ensureSrsIntroduced,
   applySrsReview,
+  addClozeDailyExtra,
+  declineClozeDailyExtra,
+  getClozeDailyIntroCount,
+  getClozeDailyNewTarget,
   getClozeState,
+  getSrsRow,
   dismissHelp,
   getActiveFinalSession,
   getActivePretestSession,
@@ -47,12 +59,16 @@ import {
   getPretestUnlockProgress,
   isDevBypassUnlock,
   isFinalExamUnlocked,
+  PRETEST_FINAL_UNLOCK_RATE,
   isHelpDismissed,
   isPretestChapterUnlocked,
   migrateStorage,
   sanitizePretestActiveSessions,
   needsPretestPauseWarning,
   onPretestSessionComplete,
+  onClozeSessionComplete,
+  recordClozeDailyIntro,
+  shouldOfferClozeDailyExtra,
   recordPretestSessionResult,
   resetAllUserProgress,
   saveActiveFinalSession,
@@ -103,6 +119,9 @@ let pendingHelp = null;
 let pendingBackupRestore = false;
 let showPauseWarn = false;
 let pauseWarnContinue = null;
+let showClozeDailyExtra = false;
+let clozeDailyExtraContinue = null;
+let showClozeIdleWait = null;
 /** @type {string} */
 let cetTitleTapCount = 0;
 let cetTitleTapTimer = null;
@@ -116,27 +135,20 @@ function axisChapterLabel(axis) {
   return `Chapitre ${axis.num}`;
 }
 
-/** Parties disponibles (Acronymes, ch. 1, ch. 2…) pour les textes d'aide. */
-function availablePartsListHtml() {
-  const parts = AXES.filter((a) => a.available).map((a) => {
-    const label = axisChapterLabel(a);
-    if (a.id === "acronymes") return `<strong>${label}</strong>`;
-    const short =
-      a.id === "circulation"
-        ? "circulation en ligne"
-        : a.id === "urgence"
-          ? "urgence"
-          : escapeHtml(a.title);
-    return `<strong>${label}</strong> (${short})`;
-  });
-  if (parts.length === 0) return "les parties disponibles";
-  if (parts.length === 1) return parts[0];
-  return `${parts.slice(0, -1).join(", ")} et ${parts[parts.length - 1]}`;
+/** Chapitres disponibles (hors Acronymes) pour les textes d'aide. */
+function availableChaptersTitlesHtml() {
+  const chapters = AXES.filter((a) => a.available && a.num != null).map(
+    (a) => `<strong>${escapeHtml(a.title)}</strong>`,
+  );
+  if (!chapters.length) return "les chapitres";
+  if (chapters.length === 1) return chapters[0];
+  return `${chapters.slice(0, -1).join(", ")} et ${chapters[chapters.length - 1]}`;
 }
 
 /** Formulation unique — déverrouillage de l'onglet Examen final. */
 function examFinalGoalText() {
-  return `L'<strong>Examen final</strong> s'ouvre lorsque ${availablePartsListHtml()} affichent chacune <strong>100 %</strong> de cartes marquées <strong>Je maîtrise</strong> au moins une fois en <strong>Pré-examen</strong>.`;
+  const pct = Math.round(PRETEST_FINAL_UNLOCK_RATE * 100);
+  return `L'<strong>Examen final</strong> s'ouvre lorsque <strong>Acronymes</strong> et chaque chapitre (${availableChaptersTitlesHtml()}) atteignent au moins <strong>${pct} %</strong> de maîtrise en <strong>Pré-examen</strong> (cartes pour les acronymes, textes à trous pour les consignes).`;
 }
 
 function axisCetMeta(axis) {
@@ -149,18 +161,25 @@ const HELP_TEXT = {
     title: "Présentation",
     get body() {
       return `<p><strong>Important :</strong> votre progression est enregistrée sur cet appareil (même lien et même navigateur).</p>
-      <p><strong>Conseil :</strong> commencez par <strong>Acronymes</strong>, puis le <strong>chapitre 1</strong> (circulation en ligne)${AXES.some((a) => a.id === "urgence" && a.available) ? ", puis le <strong>chapitre 2</strong> (urgence)" : ""}.</p>
-      <p>Deux modes : <strong>Pré-examen</strong> (cartes recto-verso — <strong>Je maîtrise</strong> / <strong>À revoir</strong>) et <strong>Examen final</strong> (${FINAL_EXAM_QUESTION_COUNT} questions tirées au hasard, réussite ${FINAL_PASS_COUNT} / ${FINAL_EXAM_QUESTION_COUNT}).</p>
+      <p><strong>Conseil :</strong> commencez par <strong>Acronymes</strong>, puis enchaînez avec les chapitres : ${availableChaptersTitlesHtml()}.</p>
+      <p>Deux modes : <strong>Pré-examen</strong> (entraînement avec répétition espacée) et <strong>Examen final</strong> (${FINAL_EXAM_QUESTION_COUNT} questions tirées au hasard, réussite ${FINAL_PASS_COUNT} / ${FINAL_EXAM_QUESTION_COUNT}).</p>
+      <p><strong>Chapitres consignes :</strong> texte à trous, file automatique, environ <strong>${CLOZE_DAILY_NEW_TARGET} nouvelles consignes par jour</strong>, révisions calées sur la <strong>première fois</strong> où vous les voyez (SRS sur ~3 semaines).</p>
       <p>${examFinalGoalText()}</p>`;
     },
   },
   pretest: {
     title: "Mode Pré-examen",
     get body() {
-      return `<p>Cartes <strong>recto-verso</strong> : réfléchissez, retournez la carte, puis indiquez <strong>Je maîtrise</strong> ou <strong>À revoir</strong> (répétition espacée).</p>
-      <p>Choisissez d'abord un <strong>chapitre</strong>, puis une <strong>consigne</strong> (ex. tableau des vitesses, prise de service au dépôt, relève en ligne). Chaque consigne se travaille <strong>séparément</strong> — les cartes ne sont pas mélangées entre consignes.</p>
-      <p>Choisissez un quota par session (ou « tout le bloc » sur les petites consignes). Une session interrompue reprend où vous l'avez laissée.</p>
-      <p><strong>Conseil :</strong> laissez au moins <strong>5 minutes</strong> entre deux sessions de pré-examen (quel que soit le chapitre) pour mieux mémoriser.</p>
+      return `<p><strong>Acronymes :</strong> cartes recto-verso — indiquez <strong>Je maîtrise</strong> ou <strong>À revoir</strong> après le verso.</p>
+      <p><strong>Chapitres consignes</strong> (${availableChaptersTitlesHtml()}) : chaque consigne est un <strong>texte à trous</strong>. Ouvrez le chapitre : l’application enchaîne automatiquement la prochaine consigne à travailler.</p>
+      <ul class="help-modal__list">
+        <li><strong>${CLOZE_DAILY_NEW_TARGET} nouvelles consignes par jour</strong> mises en route ; à l’objectif atteint, vous pouvez en ajouter (<strong>+5</strong> ou <strong>+10</strong>) ou continuer les révisions seulement.</li>
+        <li><strong>Révisions SRS</strong> depuis la <strong>première apparition</strong> de chaque consigne (5 min, 10 min, 20 min… puis jours sur environ 3 semaines).</li>
+        <li><strong>Je maîtrise :</strong> deux trous en plus au passage suivant ; la consigne reviendra au moment prévu par le calendrier SRS.</li>
+        <li><strong>À revoir :</strong> un trou en moins ; la consigne repasse <strong>plus tard</strong>, après d’autres consignes — pas tout de suite.</li>
+        <li>Quand plus rien n’est disponible selon le SRS, l’application indique <strong>quand revenir</strong> ou propose <strong>5 nouvelles consignes</strong> pour combler l’attente.</li>
+      </ul>
+      <p>Le lendemain, le quota repart à <strong>${CLOZE_DAILY_NEW_TARGET} nouvelles consignes</strong> ; les révisions des consignes déjà vues continuent selon leur calendrier.</p>
       <p>${examFinalGoalText()}</p>`;
     },
   },
@@ -423,7 +442,7 @@ function renderUnlockBanner() {
           : `${c.title} (${c.masteryPct} %)`,
       )
       .join(" · ");
-    const main = `<p class="header__unlock">Pré-examen : ${okCount} / ${totalCh} à 100 % pour l'examen final.</p>`;
+    const main = `<p class="header__unlock">Pré-examen : ${okCount} / ${totalCh} à ${pre.thresholdPct} % pour l'examen final.</p>`;
     if (!pending) return main;
     return `${main}<p class="header__unlock header__unlock--sub">Reste : ${pending}.</p>`;
   }
@@ -433,8 +452,9 @@ function renderUnlockBanner() {
 
 function renderTabsShell(mainHtml) {
   const lockFinal = !isFinalExamUnlocked();
+  const unlockPct = Math.round(PRETEST_FINAL_UNLOCK_RATE * 100);
   const finalTitle = lockFinal
-    ? "Pré-examen : 100 % de cartes maîtrisées sur Acronymes, ch. 1 et ch. 2"
+    ? `Pré-examen : ${unlockPct} % de maîtrise sur Acronymes et chaque chapitre`
     : "Examen final";
   return `
     <div class="app-top-bar">
@@ -519,6 +539,119 @@ async function offerBackupRestore() {
     message: "Votre sauvegarde a été rechargée. Vous pouvez continuer le pré-examen.",
   });
   render();
+}
+
+function renderClozeIdleModal(idle) {
+  const axisId = idle.axisId ?? "circulation";
+  const waitLabel =
+    idle.waitMs != null ? formatClozeWaitFr(idle.waitMs) : null;
+  const untouched = countUntouchedClozeConsignes(axisId);
+  const canAddNew = untouched > 0;
+  const body = waitLabel
+    ? `<p>Aucune consigne à travailler pour le moment selon le calendrier SRS.</p>
+       <p>Prochaine révision possible dans environ <strong>${waitLabel}</strong>.</p>`
+    : `<p>Aucune consigne à travailler pour le moment.</p>`;
+  const deferred =
+    idle.deferredCount > 0
+      ? `<p>Vous avez ${idle.deferredCount} consigne${idle.deferredCount > 1 ? "s" : ""} marquée${idle.deferredCount > 1 ? "s" : ""} « À revoir » : elles reviendront après d’autres consignes.</p>`
+      : "";
+  const bridgeHint = canAddNew
+    ? `<p>Vous pouvez attendre la prochaine révision SRS, ou mettre en route <strong>5 nouvelles consignes</strong> pour combler ce créneau — les révisions précédentes reprendront ensuite selon leur calendrier.</p>`
+    : `<p>Revenez plus tard ou reprenez demain pour de nouvelles consignes.</p>`;
+
+  const actions = canAddNew
+    ? `<div class="help-modal__actions help-modal__actions--extra">
+         <div class="help-modal__actions--pair">
+           <button type="button" class="btn btn--ghost" data-idle-wait>
+             <span class="btn__stack">Revenir dans</span>
+             <span class="btn__stack">${waitLabel ? `~${waitLabel}` : "un moment"}</span>
+           </button>
+           <button type="button" class="btn btn--primary" data-idle-extra="5">
+             <span class="btn__stack">+5 nouvelles</span>
+             <span class="btn__stack">consignes</span>
+           </button>
+         </div>
+       </div>`
+    : `<button type="button" class="btn btn--primary" data-idle-wait>Compris</button>`;
+
+  app.innerHTML = `
+    <div class="help-backdrop" role="dialog" aria-modal="true">
+      <div class="help-modal">
+        <h2>Pause d’apprentissage</h2>
+        <div class="help-modal__body">
+          ${body}
+          ${deferred}
+          ${bridgeHint}
+        </div>
+        ${actions}
+      </div>
+    </div>`;
+
+  const leave = () => {
+    showClozeIdleWait = null;
+    route.axisId = axisId;
+    route.groupId = null;
+    route.moduleId = null;
+    screen = "pretest-groups";
+    render();
+  };
+
+  app.querySelector("[data-idle-wait]")?.addEventListener("click", leave);
+  app.querySelector("[data-idle-extra='5']")?.addEventListener("click", () => {
+    addClozeDailyExtra(5);
+    showClozeIdleWait = null;
+    continueClozeRevision(axisId);
+  });
+}
+
+function renderClozeDailyExtraModal() {
+  const count = getClozeDailyIntroCount();
+  const target = getClozeDailyNewTarget();
+  app.innerHTML = `
+    <div class="help-backdrop" role="dialog" aria-modal="true">
+      <div class="help-modal">
+        <h2>Objectif du jour atteint</h2>
+        <div class="help-modal__body">
+          <p>Vous avez mis en route <strong>${count}</strong> consigne${count > 1 ? "s" : ""} aujourd’hui (objectif : ${target}).</p>
+          <p>Voulez-en ajouter d’autres pour accélérer votre apprentissage ? Demain, le quota repart à 10 nouvelles consignes ; les révisions des consignes déjà vues continueront selon leur calendrier.</p>
+        </div>
+        <div class="help-modal__actions help-modal__actions--extra">
+          <div class="help-modal__actions--pair">
+            <button type="button" class="btn btn--primary" data-extra="5">
+              <span class="btn__stack">+5 consignes</span>
+              <span class="btn__stack">aujourd’hui</span>
+            </button>
+            <button type="button" class="btn btn--primary" data-extra="10">
+              <span class="btn__stack">+10 consignes</span>
+              <span class="btn__stack">aujourd’hui</span>
+            </button>
+          </div>
+          <button type="button" class="btn btn--ghost" data-extra-decline>
+            Non, révisions seulement pour aujourd’hui
+          </button>
+        </div>
+      </div>
+    </div>`;
+
+  const finish = () => {
+    showClozeDailyExtra = false;
+    const cont = clozeDailyExtraContinue;
+    clozeDailyExtraContinue = null;
+    cont?.();
+  };
+
+  app.querySelector("[data-extra='5']")?.addEventListener("click", () => {
+    addClozeDailyExtra(5);
+    finish();
+  });
+  app.querySelector("[data-extra='10']")?.addEventListener("click", () => {
+    addClozeDailyExtra(10);
+    finish();
+  });
+  app.querySelector("[data-extra-decline]")?.addEventListener("click", () => {
+    declineClozeDailyExtra();
+    finish();
+  });
 }
 
 function renderPauseWarnModal() {
@@ -615,7 +748,7 @@ function syncRouteGroupFromModule(axisId, moduleId) {
 
 /** Chapitre consignes (texte à trous) — libellés « consigne », pas « carte » / « session ». */
 function usesConsigneLabels(axisId) {
-  return axisId === "circulation";
+  return axisId === "circulation" || axisId === "urgence";
 }
 
 function isClozeModuleActive(axisId, moduleId) {
@@ -711,7 +844,9 @@ function consigneBadgeHtml({
 
 function carteBadgeHtml({ mastered, total, pct, complete, sessionLabel }) {
   if (sessionLabel) {
-    return `<span class="badge badge--active">Session en cours : carte ${sessionLabel.current} / ${sessionLabel.total}</span>`;
+    const pctNote =
+      pct != null ? ` · ${pct} % au chapitre` : "";
+    return `<span class="badge badge--active">Session en cours : carte ${sessionLabel.current} / ${sessionLabel.total}${pctNote}</span>`;
   }
   const cls = progressBadgeClass({ inProgress: false, complete, mastered, pct });
   if (complete) {
@@ -755,7 +890,10 @@ function moduleCardCount(axisId, moduleId) {
   return getQuestionsForModule(axisId, moduleId).length;
 }
 
-/** Une seule carte : pas d'écran « Démarrer / tout le bloc ». */
+/** Seuil au-delà duquel l'écran « taille de session » (25, 50…) est proposé. */
+const PRETEST_SETUP_MIN_CARDS = 25;
+
+/** Une seule carte ou bloc ≤ 25 cartes : session directe (pas d'écran quota). */
 function openPretestModule(axisId, moduleId) {
   syncRouteGroupFromModule(axisId, moduleId);
   if (isClozePretestModule(axisId, moduleId)) {
@@ -763,7 +901,7 @@ function openPretestModule(axisId, moduleId) {
     return;
   }
   const count = moduleCardCount(axisId, moduleId);
-  if (count <= 1) {
+  if (count <= PRETEST_SETUP_MIN_CARDS) {
     const active = reconcileActivePretestSession(axisId, moduleId);
     launchPretestSession(
       axisId,
@@ -849,6 +987,7 @@ function openClozePretest(axisId, moduleId) {
   if (!q) return;
 
   const start = () => {
+    ensureSrsIntroduced(q.questionId);
     cardSession = {
       mode: "pretest-cloze",
       axisId,
@@ -870,6 +1009,17 @@ function openClozePretest(axisId, moduleId) {
   start();
 }
 
+function continueClozeRevision(axisId) {
+  const next = pickNextClozeModule(axisId);
+  if (next) {
+    openClozePretest(next.axisId, next.moduleId);
+    return;
+  }
+  const idle = getClozeIdleState(axisId);
+  showClozeIdleWait = { ...idle, axisId };
+  render();
+}
+
 function finishClozePretest(mastered) {
   const { axisId, moduleId, questionId } = cardSession;
   const q = getQuestionById(questionId);
@@ -879,24 +1029,41 @@ function finishClozePretest(mastered) {
       ?.answer ??
     "";
   const { segments } = buildClozeSegments(raw);
+  const wasNew = (getSrsRow(questionId).clozeSeed ?? 0) === 0;
 
   if (mastered) {
     applyClozeMaster(questionId, segments.length);
   } else {
-    applyClozeReview(questionId);
+    const others = countClozeAlternatives(questionId, axisId);
+    const defer = others > 0 ? Math.min(3, others) : 0;
+    applyClozeReview(questionId, defer);
   }
-  onPretestSessionComplete(axisId, moduleId);
+  if (wasNew) recordClozeDailyIntro();
+  onClozeSessionComplete();
   recordPretestSessionResult(
     getPretestScopeKey(axisId, moduleId),
     mastered ? 1 : 0,
     1,
   );
   cardSession = null;
-  const back = pretestBackAfterModule(axisId, moduleId);
-  screen = back;
-  if (screen === "pretest-chapters") route = { axisId: null, groupId: null, moduleId: null };
+
+  const tryNext = () => continueClozeRevision(axisId);
+  if (wasNew && shouldOfferClozeDailyExtra()) {
+    showClozeDailyExtra = true;
+    clozeDailyExtraContinue = tryNext;
+    void writeProgressBackupFile();
+    render();
+    return;
+  }
+  if (needsPretestPauseWarning()) {
+    showPauseWarn = true;
+    pauseWarnContinue = tryNext;
+    void writeProgressBackupFile();
+    render();
+    return;
+  }
+  tryNext();
   void writeProgressBackupFile();
-  render();
 }
 
 function launchPretestSession(axisId, moduleId, count, resumeSession) {
@@ -996,7 +1163,7 @@ function renderPretestChapters() {
 
   return `
     <main class="main">
-      <p class="intro-note">Choisissez un chapitre, puis une <strong>consigne</strong> (vitesses, prise de service, relève…). Chaque consigne se travaille à part. Marquez chaque carte <strong>Je maîtrise</strong> pour progresser vers l'examen final (100 % requis sur chaque chapitre).</p>
+      <p class="intro-note">Commencez par <strong>Acronymes</strong>, puis les chapitres consignes. L'examen final s'ouvre à <strong>${pre.thresholdPct} %</strong> de maîtrise sur chaque partie (cartes ou textes à trous).</p>
       <div class="modules">
         ${AXES.filter((a) => a.available)
           .map((axis) => {
@@ -1027,6 +1194,7 @@ function renderPretestChapters() {
                 : active
                   ? carteBadgeHtml({
                       sessionLabel: pretestSessionCardLabel(active),
+                      pct: chPct,
                     })
                   : carteBadgeHtml({
                         mastered,
@@ -1074,8 +1242,11 @@ function pretestModuleBadgeHtml(axisId, moduleId, mod, active) {
   const pct = Math.round(rate * 100);
 
   if (active) {
+    const ch = getPretestUnlockProgress().chapters.find((c) => c.axisId === axisId);
+    const chPct = ch?.masteryPct ?? Math.round(rate * 100);
     return carteBadgeHtml({
       sessionLabel: pretestSessionCardLabel(active),
+      pct: chPct,
     });
   }
   if (total > 0 && rate >= 1) {
@@ -1383,11 +1554,10 @@ function renderClozePretest() {
   const backLabel = pretestBackLabel("pretest-modules");
 
   const raw = q.answer ?? "";
-  const { blankCount, clozeSeed } = getClozeState(questionId);
+  const { blankCount } = getClozeState(questionId);
   const { html, totalSegments, blankCount: shownBlanks } = renderClozeHtml(raw, {
     blankCount,
     questionId,
-    clozeSeed,
     revealedAll: revealed,
     revealedBlanks: cardSession.revealedBlanks ?? new Set(),
   });
@@ -1552,6 +1722,13 @@ function openPretestAxis(axisId) {
   route.axisId = axisId;
   route.groupId = null;
   route.moduleId = null;
+  if (axisHasModuleGroups(axisId) && usesConsigneLabels(axisId)) {
+    const next = pickNextClozeModule(axisId);
+    if (next) {
+      openPretestModule(next.axisId, next.moduleId);
+      return;
+    }
+  }
   if (axisHasModuleGroups(axisId)) {
     screen = "pretest-groups";
   } else if (modules.length > 1) {
@@ -1782,6 +1959,16 @@ function render() {
   if (!getApp()) return;
 
   document.body.classList.remove("quiz-modal-open");
+
+  if (showClozeIdleWait) {
+    renderClozeIdleModal(showClozeIdleWait);
+    return;
+  }
+
+  if (showClozeDailyExtra) {
+    renderClozeDailyExtraModal();
+    return;
+  }
 
   if (showPauseWarn) {
     renderPauseWarnModal();
