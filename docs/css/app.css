@@ -78,37 +78,11 @@ body.app-dialog-open {
   background: rgb(255 255 255 / 25%);
 }
 
-.header__title-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-}
-
 .header h1 {
   margin: 0;
   font-size: 1.35rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-}
-
-.header__help {
-  flex-shrink: 0;
-  width: 1.35rem;
-  height: 1.35rem;
-  padding: 0;
-  border: 1px solid rgb(255 255 255 / 45%);
-  border-radius: 50%;
-  background: rgb(255 255 255 / 12%);
-  color: inherit;
-  font-size: 0.8rem;
-  font-weight: 700;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.header__help:hover {
-  background: rgb(255 255 255 / 22%);
 }
 
 .help-cloze-box {

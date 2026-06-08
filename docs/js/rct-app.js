@@ -200,15 +200,6 @@ const HELP_TEXT = {
       <p>${examFinalRulesText()}</p>`;
     },
   },
-  guide: {
-    title: "Aide rapide",
-    get body() {
-      return `${helpAcronymesLineHtml()}
-      ${helpChapitresConsignesLineHtml()}
-      ${clozeHelpEncartHtml()}
-      ${helpDailyConsignesHtml()}`;
-    },
-  },
   final: {
     title: "Mode Examen final",
     get body() {
@@ -485,10 +476,7 @@ function renderTabsShell(mainHtml) {
   return `
     <div class="app-top-bar">
       <header class="header header--app">
-        <div class="header__title-row">
-          <h1>RCT</h1>
-          <button type="button" class="header__help" data-rct-help aria-label="Aide rapide" title="Aide rapide">?</button>
-        </div>
+        <h1>RCT</h1>
         <p>Règlement de Circulation Tramway TaM</p>
         ${renderUnlockBanner()}
       </header>
@@ -518,10 +506,7 @@ function renderHelpModal(mode) {
     return;
   }
   const bodyHtml = h.body;
-  const dismissHtml =
-    mode === "guide"
-      ? ""
-      : `<label class="help-modal__dismiss"><input type="checkbox" data-help-dismiss /> ${mode === "welcome" ? "Ne plus afficher au démarrage" : "Ne plus afficher"}</label>`;
+  const dismissHtml = `<label class="help-modal__dismiss"><input type="checkbox" data-help-dismiss /> ${mode === "welcome" ? "Ne plus afficher au démarrage" : "Ne plus afficher"}</label>`;
   app.innerHTML = `
     <div class="help-backdrop" role="dialog" aria-modal="true">
       <div class="help-modal">
@@ -2045,14 +2030,6 @@ function render() {
   else bindFinal();
 
   bindHiddenResetGesture();
-  bindHeaderHelp();
-}
-
-function bindHeaderHelp() {
-  app.querySelector("[data-rct-help]")?.addEventListener("click", () => {
-    pendingHelp = "guide";
-    render();
-  });
 }
 
 async function requestFullProgressReset() {
