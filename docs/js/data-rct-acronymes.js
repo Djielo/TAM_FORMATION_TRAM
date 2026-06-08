@@ -74,6 +74,28 @@ export const MODULES_ACRONYMES = [
         correct: 0,
         explanation: "M2 = Motrice 2 (RCT p. 6, § 1.1-C).",
       },
+      {
+        id: "abbr-ead",
+        prompt: "Que signifie l'acronyme EAD ?",
+        choices: [
+          "Équipement d'Accès d'Urgence",
+          "Équipement d'Alarme d'Urgence",
+        ],
+        correct: 0,
+        explanation:
+          "EAD = Équipement d'Accès d'Urgence (RCT, liste des sigles).",
+      },
+      {
+        id: "abbr-eed",
+        prompt: "Que signifie l'acronyme EED ?",
+        choices: [
+          "Équipement d'Évacuation d'Urgence",
+          "Équipement d'Extinction d'Urgence",
+        ],
+        correct: 0,
+        explanation:
+          "EED = Équipement d'Évacuation d'Urgence (RCT, liste des sigles).",
+      },
     ],
   },
   {
@@ -402,6 +424,14 @@ export const MODULES_ACRONYMES = [
         correct: 0,
         explanation:
           "IBT = Itinéraire par Boucle de Télécommande (RCT p. 35, § 2.5-B).",
+      },
+      {
+        id: "abbr-ins",
+        prompt: "Que signifie l'acronyme INS ?",
+        choices: ["Itinéraire Non Signalé", "Itinéraire Non Sécurisé"],
+        correct: 0,
+        explanation:
+          "INS = Itinéraire Non Signalé (RCT p. 35, § 2.5-B).",
       },
     ],
   },
