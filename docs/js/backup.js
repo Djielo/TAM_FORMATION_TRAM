@@ -17,6 +17,8 @@ const EXPORT_KEY_IDS = [
   "srs",
   "pretestPrefs",
   "pretestLastEnd",
+  "clozeDailyIntro",
+  "clozeActive",
   "finalPrefs",
   "helpDismissed",
   "pretestStats",

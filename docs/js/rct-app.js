@@ -34,6 +34,7 @@ import {
   CLOZE_DAILY_NEW_TARGET,
   CLOZE_CONSIGNE_MASTERY_RATE,
   getClozeSessionBlankIds,
+  hasUnfinishedClozeCycle,
   isClozeSessionComplete,
 } from "./cloze.js";
 import { createPretestSession } from "./pretest-session.js";
@@ -48,9 +49,14 @@ import {
   ensureSrsIntroduced,
   applySrsReview,
   addClozeDailyExtra,
+  clearActiveClozeSession,
+  CLOZE_DAILY_MAX,
   declineClozeDailyExtra,
+  getActiveClozeSession,
   getClozeDailyIntroCount,
+  getClozeDailyMaxExtra,
   getClozeDailyNewTarget,
+  markClozeExtensionOffered,
   getClozeState,
   getSrsRow,
   dismissHelp,
@@ -72,9 +78,11 @@ import {
   onPretestSessionComplete,
   onClozeSessionComplete,
   recordClozeDailyIntro,
+  recordClozeSessionResult,
   shouldOfferClozeDailyExtra,
   recordPretestSessionResult,
   resetAllUserProgress,
+  saveActiveClozeSession,
   saveActiveFinalSession,
   saveActivePretestSession,
   saveFinalPref,
@@ -126,6 +134,8 @@ let pauseWarnContinue = null;
 let showClozeDailyExtra = false;
 let clozeDailyExtraContinue = null;
 let showClozeIdleWait = null;
+/** Reprise auto des consignes après la modale Présentation (ou au chargement). */
+let pendingClozeResume = false;
 /** @type {string} */
 let cetTitleTapCount = 0;
 let cetTitleTapTimer = null;
@@ -155,7 +165,7 @@ function clozeHelpEncartHtml() {
 }
 
 function helpDailyConsignesHtml() {
-  return `<p>Environ <strong>${CLOZE_DAILY_NEW_TARGET} nouvelles consignes par jour</strong> seront ajoutées. Il vous sera toutefois proposé d’en ajouter vous-même.</p>`;
+  return `<p><strong>${CLOZE_DAILY_NEW_TARGET} nouvelles consignes par jour</strong>, présentées l’une après l’autre sans revenir en arrière. À la fin de ce lot, vous pourrez <strong>une seule fois</strong> en ajouter (de 1 à 10, maximum <strong>${CLOZE_DAILY_MAX}</strong> dans la journée) ou passer aux révisions. Les révisions priorisent les consignes les moins bien réussies, selon le calendrier SRS.</p>`;
 }
 
 /** Déverrouillage de l'onglet Examen final. */
@@ -519,6 +529,10 @@ function renderHelpModal(mode) {
   app.querySelector("[data-help-close]").addEventListener("click", () => {
     if (app.querySelector("[data-help-dismiss]")?.checked) dismissHelp(mode);
     pendingHelp = null;
+    if (pendingClozeResume && tryResumeClozeSession()) {
+      pendingClozeResume = false;
+      return;
+    }
     render();
     if ((mode === "welcome" || mode === "pretest") && pendingBackupRestore) {
       pendingBackupRestore = false;
@@ -623,29 +637,36 @@ function renderClozeIdleModal(idle) {
 }
 
 function renderClozeDailyExtraModal() {
+  markClozeExtensionOffered();
   const count = getClozeDailyIntroCount();
   const target = getClozeDailyNewTarget();
+  const maxExtra = getClozeDailyMaxExtra();
+  const pickerCells = Array.from({ length: 10 }, (_, i) => {
+    const n = i + 1;
+    const enabled = n <= maxExtra;
+    return `<label class="cloze-extra-picker__choice${enabled ? "" : " cloze-extra-picker__choice--disabled"}">
+      <span class="cloze-extra-picker__num">${n}</span>
+      <input type="radio" name="cloze-extra-count" value="${n}"${enabled ? "" : " disabled"} />
+    </label>`;
+  }).join("");
+
   app.innerHTML = `
     <div class="help-backdrop" role="dialog" aria-modal="true">
       <div class="help-modal">
-        <h2>Objectif du jour atteint</h2>
+        <h2>Lot du jour terminé</h2>
         <div class="help-modal__body">
-          <p>Vous avez mis en route <strong>${count}</strong> consigne${count > 1 ? "s" : ""} aujourd’hui (objectif : ${target}).</p>
-          <p>Voulez-en ajouter d’autres pour accélérer votre apprentissage ? Demain, le quota repart à 10 nouvelles consignes ; les révisions des consignes déjà vues continueront selon leur calendrier.</p>
+          <p>Vous avez fait vos <strong>${target}</strong> premières consignes du jour (nouvelles consignes vues : <strong>${count}</strong>).</p>
+          <p>C’est le <strong>seul moment de la journée</strong> pour en ajouter d’autres (maximum <strong>${CLOZE_DAILY_MAX}</strong> au total). Sinon, vous repasserez vos consignes par ordre de difficulté, selon le calendrier SRS.</p>
+          <div class="cloze-extra-picker" role="group" aria-label="Nombre de consignes supplémentaires">
+            ${pickerCells}
+          </div>
         </div>
         <div class="help-modal__actions help-modal__actions--extra">
-          <div class="help-modal__actions--pair">
-            <button type="button" class="btn btn--primary" data-extra="5">
-              <span class="btn__stack">+5 consignes</span>
-              <span class="btn__stack">aujourd’hui</span>
-            </button>
-            <button type="button" class="btn btn--primary" data-extra="10">
-              <span class="btn__stack">+10 consignes</span>
-              <span class="btn__stack">aujourd’hui</span>
-            </button>
-          </div>
+          <button type="button" class="btn btn--primary" data-extra-confirm disabled>
+            Valider le nombre choisi
+          </button>
           <button type="button" class="btn btn--ghost" data-extra-decline>
-            Non, révisions seulement pour aujourd’hui
+            Non, révisions seulement
           </button>
         </div>
       </div>
@@ -658,14 +679,20 @@ function renderClozeDailyExtraModal() {
     cont?.();
   };
 
-  app.querySelector("[data-extra='5']")?.addEventListener("click", () => {
-    addClozeDailyExtra(5);
+  const confirmBtn = app.querySelector("[data-extra-confirm]");
+  app.querySelectorAll('input[name="cloze-extra-count"]').forEach((input) => {
+    input.addEventListener("change", () => {
+      if (confirmBtn) confirmBtn.disabled = false;
+    });
+  });
+
+  confirmBtn?.addEventListener("click", () => {
+    const picked = app.querySelector('input[name="cloze-extra-count"]:checked');
+    if (!picked) return;
+    addClozeDailyExtra(Number(picked.value));
     finish();
   });
-  app.querySelector("[data-extra='10']")?.addEventListener("click", () => {
-    addClozeDailyExtra(10);
-    finish();
-  });
+
   app.querySelector("[data-extra-decline]")?.addEventListener("click", () => {
     declineClozeDailyExtra();
     finish();
@@ -998,6 +1025,106 @@ function pretestSessionCardLabel(session) {
   return { current, total };
 }
 
+function persistActiveClozeSession(overrides = {}) {
+  const axisId = overrides.axisId ?? cardSession?.axisId;
+  if (!axisId || !usesConsigneLabels(axisId)) return;
+
+  if (overrides.pendingDailyExtra) {
+    saveActiveClozeSession({ axisId, pendingDailyExtra: true });
+    return;
+  }
+
+  if (cardSession?.mode === "pretest-cloze") {
+    saveActiveClozeSession({
+      axisId: cardSession.axisId,
+      moduleId: cardSession.moduleId,
+      questionId: cardSession.questionId,
+      revealedBlanks: [...(cardSession.revealedBlanks ?? [])],
+      confirmedBlanks: [...(cardSession.confirmedBlanks ?? [])],
+      sessionBlankIds: [...(cardSession.sessionBlankIds ?? [])],
+      pendingDailyExtra: false,
+    });
+    return;
+  }
+
+  if (hasUnfinishedClozeCycle(axisId)) {
+    saveActiveClozeSession({
+      axisId,
+      pendingDailyExtra: Boolean(overrides.pendingDailyExtra),
+    });
+  } else {
+    clearActiveClozeSession();
+  }
+}
+
+function canResumeClozeSession() {
+  const saved = getActiveClozeSession();
+  if (!saved?.axisId || !usesConsigneLabels(saved.axisId)) return false;
+  if (!isPretestChapterUnlocked(saved.axisId)) return false;
+  if (saved.questionId) {
+    return Boolean(getQuestionById(saved.questionId));
+  }
+  return saved.pendingDailyExtra || hasUnfinishedClozeCycle(saved.axisId);
+}
+
+function tryResumeClozeSession() {
+  const saved = getActiveClozeSession();
+  if (!saved?.axisId || !canResumeClozeSession()) {
+    clearActiveClozeSession();
+    return false;
+  }
+
+  activeTab = "pretest";
+  route = {
+    axisId: saved.axisId,
+    groupId: null,
+    moduleId: saved.moduleId ?? null,
+  };
+
+  if (saved.pendingDailyExtra && shouldOfferClozeDailyExtra()) {
+    showClozeDailyExtra = true;
+    clozeDailyExtraContinue = () => continueClozeRevision(saved.axisId);
+    render();
+    return true;
+  }
+
+  if (saved.questionId && saved.moduleId) {
+    const q = getQuestionById(saved.questionId);
+    if (!q) {
+      clearActiveClozeSession();
+      return false;
+    }
+    const raw = q.answer ?? "";
+    const { blankCount } = getClozeState(saved.questionId);
+    const sessionBlankIds = new Set(
+      saved.sessionBlankIds?.length
+        ? saved.sessionBlankIds
+        : getClozeSessionBlankIds(raw, blankCount, saved.questionId),
+    );
+    cardSession = {
+      mode: "pretest-cloze",
+      axisId: saved.axisId,
+      moduleId: saved.moduleId,
+      questionId: saved.questionId,
+      revealedBlanks: new Set(saved.revealedBlanks ?? []),
+      confirmedBlanks: new Set(saved.confirmedBlanks ?? []),
+      sessionBlankIds,
+    };
+    screen = "pretest-cloze";
+    render();
+    return true;
+  }
+
+  const next = pickNextClozeModule(saved.axisId);
+  if (next) {
+    openClozePretest(next.axisId, next.moduleId);
+    return true;
+  }
+
+  clearActiveClozeSession();
+  return false;
+}
+
 function openClozePretest(axisId, moduleId) {
   if (!isPretestChapterUnlocked(axisId)) return;
   const questions = getQuestionsForModule(axisId, moduleId);
@@ -1019,6 +1146,8 @@ function openClozePretest(axisId, moduleId) {
       sessionBlankIds,
     };
     screen = "pretest-cloze";
+    route = { axisId, groupId: null, moduleId };
+    persistActiveClozeSession();
     render();
   };
 
@@ -1037,6 +1166,7 @@ function continueClozeRevision(axisId) {
     openClozePretest(next.axisId, next.moduleId);
     return;
   }
+  clearActiveClozeSession();
   const idle = getClozeIdleState(axisId);
   showClozeIdleWait = { ...idle, axisId };
   render();
@@ -1047,6 +1177,7 @@ function continueAfterClozePretest(axisId, wasNew) {
   if (wasNew && shouldOfferClozeDailyExtra()) {
     showClozeDailyExtra = true;
     clozeDailyExtraContinue = tryNext;
+    persistActiveClozeSession({ axisId, pendingDailyExtra: true });
     void writeProgressBackupFile();
     render();
     return;
@@ -1063,7 +1194,8 @@ function continueAfterClozePretest(axisId, wasNew) {
 }
 
 function finishClozePretestAsMaster() {
-  const { axisId, moduleId, questionId, confirmedBlanks } = cardSession;
+  const { axisId, moduleId, questionId, confirmedBlanks, sessionBlankIds } =
+    cardSession;
   const q = getQuestionById(questionId);
   const raw =
     q?.answer ??
@@ -1073,26 +1205,36 @@ function finishClozePretestAsMaster() {
   const { segments } = buildClozeSegments(raw);
   const wasNew = (getSrsRow(questionId).clozeSeed ?? 0) === 0;
   const confirmedIds = [...(confirmedBlanks ?? [])];
+  const sessionTotal = sessionBlankIds?.size ?? confirmedIds.length;
 
+  recordClozeSessionResult(questionId, confirmedIds.length, sessionTotal);
   applyClozeMaster(questionId, segments.length, confirmedIds);
   if (wasNew) recordClozeDailyIntro();
   onClozeSessionComplete();
   recordPretestSessionResult(getPretestScopeKey(axisId, moduleId), 1, 1);
   cardSession = null;
+  persistActiveClozeSession({ axisId });
   continueAfterClozePretest(axisId, wasNew);
 }
 
 function finishClozePretestAsReview() {
-  const { axisId, moduleId, questionId, confirmedBlanks } = cardSession;
+  const { axisId, moduleId, questionId, confirmedBlanks, sessionBlankIds } =
+    cardSession;
+  const wasNew = (getSrsRow(questionId).clozeSeed ?? 0) === 0;
   const confirmedIds = [...(confirmedBlanks ?? [])];
+  const sessionTotal = sessionBlankIds?.size ?? Math.max(confirmedIds.length, 1);
+
+  recordClozeSessionResult(questionId, confirmedIds.length, sessionTotal);
   if (confirmedIds.length) mergeClozeConfirmed(questionId, confirmedIds);
   const others = countClozeAlternatives(questionId, axisId);
   const defer = others > 0 ? Math.min(3, others) : 0;
   applyClozeReview(questionId, defer);
   onClozeSessionComplete();
+  if (wasNew) recordClozeDailyIntro();
   recordPretestSessionResult(getPretestScopeKey(axisId, moduleId), 0, 1);
   cardSession = null;
-  continueAfterClozePretest(axisId, false);
+  persistActiveClozeSession({ axisId });
+  continueAfterClozePretest(axisId, wasNew);
 }
 
 function launchPretestSession(axisId, moduleId, count, resumeSession) {
@@ -1866,6 +2008,7 @@ function bindClozePretest() {
       mergeClozeConfirmed(cardSession.questionId, [...cardSession.confirmedBlanks]);
       onClozeSessionComplete();
     }
+    clearActiveClozeSession();
     cardSession = null;
     screen = pretestBackAfterModule(axisId, moduleId);
     if (screen === "pretest-chapters") {
@@ -1884,10 +2027,12 @@ function bindClozePretest() {
     if (cardSession.confirmedBlanks.has(id)) return;
     if (!cardSession.revealedBlanks.has(id)) {
       cardSession.revealedBlanks.add(id);
+      persistActiveClozeSession();
       render();
       return;
     }
     cardSession.confirmedBlanks.add(id);
+    persistActiveClozeSession();
     render();
     tryCompleteClozeSession();
   });
@@ -2127,8 +2272,12 @@ function init() {
     sanitizePretestActiveSessions();
     const restored = tryRestoreOnLoad();
     pendingBackupRestore = !restored && shouldOfferBackupRestore();
+    pendingClozeResume = !restored && canResumeClozeSession();
     if (!restored && !isHelpDismissed("welcome")) {
       pendingHelp = "welcome";
+    } else if (pendingClozeResume) {
+      pendingClozeResume = false;
+      tryResumeClozeSession();
     } else if (pendingBackupRestore) {
       queueBackupRestoreOffer();
       pendingBackupRestore = false;
@@ -2142,6 +2291,10 @@ function init() {
 
 window.addEventListener("beforeunload", () => {
   if (cardSession?.mode === "final") persistFinalSession();
+  if (cardSession?.mode === "pretest-cloze") persistActiveClozeSession();
+  else if (showClozeDailyExtra && route.axisId) {
+    persistActiveClozeSession({ axisId: route.axisId, pendingDailyExtra: true });
+  }
 });
 
 if (document.readyState === "loading") {

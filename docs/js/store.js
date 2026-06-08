@@ -39,6 +39,7 @@ export const KEYS = {
   pretestActive: "tam-rct-pretest-active-v1",
   pretestLastEnd: "tam-rct-pretest-last-end-v1",
   clozeDailyIntro: "tam-rct-cloze-daily-intro-v1",
+  clozeActive: "tam-rct-cloze-active-v1",
   finalPrefs: "tam-rct-final-exam-prefs-v1",
   helpDismissed: "tam-rct-help-dismissed-v2",
   helpDismissedLegacy: "tam-rct-help-dismissed-v1",
@@ -589,6 +590,10 @@ function defaultSrsRow() {
     clozeSeed: 0,
     /** Ids des mots validés (2e toucher) — cumul entre sessions. */
     clozeConfirmedIds: [],
+    /** Dernière session : trous validés / trous proposés (priorité révisions). */
+    clozeLastSessionHits: 0,
+    clozeLastSessionTotal: 0,
+    lastClozeAt: 0,
   };
 }
 
@@ -746,6 +751,8 @@ export function needsPretestPauseWarning() {
 
 /** Nouvelles consignes texte à trous — quota journalier (base + bonus opt-in). */
 const CLOZE_DAILY_NEW_BASE = 10;
+/** Plafond absolu de nouvelles consignes par jour. */
+export const CLOZE_DAILY_MAX = 20;
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
@@ -759,14 +766,16 @@ function loadClozeDailyRow() {
     count: 0,
     target: CLOZE_DAILY_NEW_BASE,
     noMoreNewToday: false,
+    extensionOffered: false,
   };
   if (!raw || typeof raw !== "object") return defaults;
   if (raw.date !== today) return defaults;
   return {
     ...defaults,
     count: raw.count ?? 0,
-    target: raw.target ?? CLOZE_DAILY_NEW_BASE,
+    target: Math.min(CLOZE_DAILY_MAX, raw.target ?? CLOZE_DAILY_NEW_BASE),
     noMoreNewToday: Boolean(raw.noMoreNewToday),
+    extensionOffered: Boolean(raw.extensionOffered),
   };
 }
 
@@ -779,9 +788,15 @@ export function getClozeDailyIntroCount() {
   return loadClozeDailyRow().count;
 }
 
-/** Plafond du jour (10 par défaut, +5 ou +10 si l’utilisateur accepte). */
+/** Plafond du jour (10 par défaut, jusqu’à 20 si prolongation acceptée). */
 export function getClozeDailyNewTarget() {
   return loadClozeDailyRow().target;
+}
+
+/** Nombre max encore ajoutable aujourd’hui (1 à 10). */
+export function getClozeDailyMaxExtra() {
+  const row = loadClozeDailyRow();
+  return Math.max(0, Math.min(10, CLOZE_DAILY_MAX - row.target));
 }
 
 export function recordClozeDailyIntro() {
@@ -790,17 +805,41 @@ export function recordClozeDailyIntro() {
   saveClozeDailyRow(row);
 }
 
-/** Objectif du jour atteint : proposer d’ajouter des consignes ? */
-export function shouldOfferClozeDailyExtra() {
-  const row = loadClozeDailyRow();
-  return row.count >= row.target && !row.noMoreNewToday;
+/** Score de la dernière session (trous validés sur trous proposés). */
+export function recordClozeSessionResult(questionId, hits, total) {
+  const all = loadSrs();
+  const row = { ...defaultSrsRow(), ...all[questionId] };
+  row.clozeLastSessionHits = Math.max(0, Math.min(hits, total));
+  row.clozeLastSessionTotal = Math.max(1, total);
+  row.lastClozeAt = Date.now();
+  all[questionId] = row;
+  saveSrs(all);
 }
 
-/** L’utilisateur accepte d’introduire encore N consignes aujourd’hui. */
+/** Objectif du jour atteint : unique proposition de prolongation. */
+export function shouldOfferClozeDailyExtra() {
+  const row = loadClozeDailyRow();
+  return (
+    row.count >= row.target &&
+    !row.extensionOffered &&
+    row.target < CLOZE_DAILY_MAX
+  );
+}
+
+/** Marque la proposition de prolongation comme affichée (une fois par jour). */
+export function markClozeExtensionOffered() {
+  const row = loadClozeDailyRow();
+  row.extensionOffered = true;
+  saveClozeDailyRow(row);
+}
+
+/** L’utilisateur accepte d’introduire encore N consignes aujourd’hui (1–10). */
 export function addClozeDailyExtra(extraCount) {
   const row = loadClozeDailyRow();
-  row.target += extraCount;
+  const n = Math.max(1, Math.min(10, Math.floor(extraCount)));
+  row.target = Math.min(CLOZE_DAILY_MAX, row.target + n);
   row.noMoreNewToday = false;
+  row.extensionOffered = true;
   saveClozeDailyRow(row);
 }
 
@@ -808,11 +847,29 @@ export function addClozeDailyExtra(extraCount) {
 export function declineClozeDailyExtra() {
   const row = loadClozeDailyRow();
   row.noMoreNewToday = true;
+  row.extensionOffered = true;
   saveClozeDailyRow(row);
 }
 
 export function hasClozeDeclinedNewToday() {
   return loadClozeDailyRow().noMoreNewToday;
+}
+
+/** Session consignes en cours (texte à trous) ou reprise du lot du jour. */
+export function getActiveClozeSession() {
+  return readJson(KEYS.clozeActive, null);
+}
+
+export function saveActiveClozeSession(payload) {
+  if (!payload) {
+    localStorage.removeItem(KEYS.clozeActive);
+    return;
+  }
+  writeJson(KEYS.clozeActive, { ...payload, savedAt: Date.now() });
+}
+
+export function clearActiveClozeSession() {
+  localStorage.removeItem(KEYS.clozeActive);
 }
 
 /* ─── Pré-examen prefs / session active ─── */

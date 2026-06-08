@@ -6,7 +6,9 @@ import {
   getClozeDailyIntroCount,
   getClozeDailyNewTarget,
   getSrsRow,
+  hasClozeDeclinedNewToday,
   isSrsEligible,
+  shouldOfferClozeDailyExtra,
 } from "./store.js";
 
 export const CLOZE_INITIAL_BLANKS = 5;
@@ -396,9 +398,33 @@ export function getClozeDisplayProgress(questionId, answerRaw) {
   };
 }
 
+/** Phase découverte : nouvelles consignes à la file jusqu’au quota du jour. */
+export function isClozeNewDiscoveryActive(axisId = "circulation") {
+  if (hasClozeDeclinedNewToday()) return false;
+  if (getClozeDailyIntroCount() >= getClozeDailyNewTarget()) return false;
+  return countUntouchedClozeConsignes(axisId) > 0;
+}
+
+function listClozeModules(axisId = "circulation") {
+  return getModulesForAxis(axisId).filter((mod) =>
+    isClozePretestModule(axisId, mod.id),
+  );
+}
+
+function pickNextUntouchedClozeModule(axisId = "circulation") {
+  for (const mod of listClozeModules(axisId)) {
+    const q = mod.questions?.[0];
+    if (!q?.id) continue;
+    if ((getSrsRow(q.id).clozeSeed ?? 0) === 0) {
+      return { axisId, moduleId: mod.id };
+    }
+  }
+  return null;
+}
+
 /**
  * Choisit la prochaine consigne texte à trous (file interne, pas de choix utilisateur).
- * Priorité : SRS échu → nouvelles (quota/j) → en cours → à revoir (après rotation).
+ * D’abord les nouvelles (quota/j), puis révisions par score session + SRS.
  */
 export function countClozeAlternatives(excludeQuestionId, axisId = "circulation") {
   if (axisId !== "circulation") return 0;
@@ -467,52 +493,67 @@ export function formatClozeWaitFr(ms) {
   return `${h} h ${m} min`;
 }
 
-export function pickNextClozeModule(axisId = "circulation") {
-  if (axisId !== "circulation") return null;
-  const modules = getModulesForAxis(axisId).filter((mod) =>
-    isClozePretestModule(axisId, mod.id),
-  );
+function pickNextClozeRevisionModule(axisId = "circulation") {
   const now = Date.now();
-  const dailyNew = getClozeDailyIntroCount();
-  const dailyTarget = getClozeDailyNewTarget();
-  let best = null;
-  let bestScore = -Infinity;
+  const candidates = [];
 
-  for (const mod of modules) {
+  for (const mod of listClozeModules(axisId)) {
     const q = mod.questions?.[0];
     if (!q?.id) continue;
     const questionId = q.id;
     const row = getSrsRow(questionId);
-    let score = 0;
 
+    if ((row.clozeSeed ?? 0) === 0) continue;
     if (row.sessionsUntilEligible > 0) continue;
 
-    if (isSrsEligible(questionId, now) && (row.intervalIndex ?? 0) > 0 && !row.pendingReview) {
-      score += 600_000 + Math.min(now - (row.nextReviewAt ?? 0), 86_400_000);
+    const srsDue = isSrsEligible(questionId, now);
+    if (
+      (row.intervalIndex ?? 0) > 0 &&
+      !row.pendingReview &&
+      !srsDue
+    ) {
+      continue;
     }
 
-    const touched = (row.clozeSeed ?? 0) > 0;
-    if (!touched) {
-      if (dailyNew < dailyTarget) score += 400_000 - dailyNew * 100;
-      else score -= 50_000;
-    } else {
-      const prog = getClozeDisplayProgress(questionId, q.answer ?? "");
-      if (prog.inProgress) score += 300_000 + (100 - prog.pct) * 100;
-      else if (!prog.complete) score += 200_000;
-      else if (!row.pendingReview) score += 10_000;
-    }
+    const total = row.clozeLastSessionTotal || CLOZE_INITIAL_BLANKS;
+    const hits = Math.min(row.clozeLastSessionHits ?? 0, total);
 
-    if (row.pendingReview) score += 250_000;
-
-    score += Math.random() * 10_000;
-
-    if (score > bestScore) {
-      bestScore = score;
-      best = mod.id;
-    }
+    candidates.push({
+      axisId,
+      moduleId: mod.id,
+      hits,
+      total,
+      srsDue,
+      lastClozeAt: row.lastClozeAt ?? 0,
+      pendingReview: Boolean(row.pendingReview),
+    });
   }
 
-  return best && bestScore > 0 ? { axisId, moduleId: best } : null;
+  if (!candidates.length) return null;
+
+  candidates.sort((a, b) => {
+    if (a.hits !== b.hits) return a.hits - b.hits;
+    if (a.pendingReview !== b.pendingReview) return a.pendingReview ? -1 : 1;
+    if (a.srsDue !== b.srsDue) return a.srsDue ? -1 : 1;
+    return a.lastClozeAt - b.lastClozeAt;
+  });
+
+  const best = candidates[0];
+  return { axisId: best.axisId, moduleId: best.moduleId };
+}
+
+export function pickNextClozeModule(axisId = "circulation") {
+  if (axisId !== "circulation" && axisId !== "urgence") return null;
+  if (isClozeNewDiscoveryActive(axisId)) {
+    return pickNextUntouchedClozeModule(axisId);
+  }
+  return pickNextClozeRevisionModule(axisId);
+}
+
+/** Lot consignes du jour non terminé (nouvelles, révisions ou prolongation en attente). */
+export function hasUnfinishedClozeCycle(axisId = "circulation") {
+  if (shouldOfferClozeDailyExtra()) return true;
+  return pickNextClozeModule(axisId) != null;
 }
 
 /** Maîtrise chapitre consignes : moyenne des % texte à trous (100 % = tous les mots masqués). */
