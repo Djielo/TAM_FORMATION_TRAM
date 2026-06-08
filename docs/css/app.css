@@ -932,27 +932,58 @@ body.app-dialog-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: max(0.75rem, env(safe-area-inset-top, 0px))
+    max(0.75rem, env(safe-area-inset-right, 0px))
+    max(0.75rem, env(safe-area-inset-bottom, 0px))
+    max(0.75rem, env(safe-area-inset-left, 0px));
   z-index: 100;
+  overflow: hidden;
 }
 
 .help-modal {
+  display: flex;
+  flex-direction: column;
   background: var(--surface);
   border-radius: var(--radius);
   padding: 1.25rem;
   max-width: 400px;
   width: 100%;
+  max-height: min(
+    88dvh,
+    calc(
+      100dvh - max(0.75rem, env(safe-area-inset-top, 0px)) -
+        max(0.75rem, env(safe-area-inset-bottom, 0px))
+    )
+  );
   box-shadow: var(--shadow);
+  min-height: 0;
 }
 
 .help-modal h2 {
+  flex-shrink: 0;
   margin: 0 0 0.75rem;
   font-size: 1.1rem;
 }
 
 .help-modal__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(26 35 50 / 28%) transparent;
   font-size: 0.9rem;
   color: var(--text);
+}
+
+.help-modal__body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.help-modal__body::-webkit-scrollbar-thumb {
+  background: rgb(26 35 50 / 28%);
+  border-radius: 4px;
 }
 
 .help-modal__body p {
@@ -970,19 +1001,22 @@ body.app-dialog-open {
 }
 
 .help-modal__dismiss {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin: 0.75rem 0;
+  margin: 0.75rem 0 0;
   font-size: 0.85rem;
 }
 
 .help-modal .btn {
+  flex-shrink: 0;
   width: 100%;
   margin-top: 0.35rem;
 }
 
 .help-modal__actions--pair {
+  flex-shrink: 0;
   display: flex;
   gap: 0.5rem;
   margin-top: 0.75rem;
@@ -1006,6 +1040,7 @@ body.app-dialog-open {
 }
 
 .help-modal__actions--extra {
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
