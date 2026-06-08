@@ -428,6 +428,7 @@ function navigate(nextScreen, nextRoute = {}) {
 
 function setTab(tab) {
   if (tab === "final" && !isFinalExamUnlocked()) return;
+  stashClozeProgressBeforeLeave();
   activeTab = tab;
   cardSession = null;
   route = { axisId: null, groupId: null, moduleId: null };
@@ -985,6 +986,7 @@ function pretestBackLabel(screenName) {
 }
 
 function navigatePretestBack() {
+  stashClozeProgressBeforeLeave();
   switch (screen) {
     case "pretest-modules":
       if (route.groupId) {
@@ -1023,6 +1025,18 @@ function pretestSessionCardLabel(session) {
   const total = session.queue?.length ?? session.targetCount ?? 0;
   const current = Math.min((session.index ?? 0) + 1, Math.max(1, total));
   return { current, total };
+}
+
+/** Sauvegarde la consigne en cours avant de quitter l’écran (navigation, onglet, rafraîchissement). */
+function stashClozeProgressBeforeLeave() {
+  if (cardSession?.mode !== "pretest-cloze") return;
+  const { questionId, confirmedBlanks } = cardSession;
+  if (confirmedBlanks?.size) {
+    mergeClozeConfirmed(questionId, [...confirmedBlanks]);
+    onClozeSessionComplete();
+  }
+  persistActiveClozeSession();
+  cardSession = null;
 }
 
 function persistActiveClozeSession(overrides = {}) {
@@ -1135,14 +1149,27 @@ function openClozePretest(axisId, moduleId) {
     ensureSrsIntroduced(q.questionId);
     const raw = q.answer ?? "";
     const { blankCount } = getClozeState(q.questionId);
-    const sessionBlankIds = getClozeSessionBlankIds(raw, blankCount, q.questionId);
+    const saved = getActiveClozeSession();
+    const resumeSame =
+      saved?.questionId === q.questionId &&
+      saved?.moduleId === moduleId &&
+      saved?.axisId === axisId;
+    const sessionBlankIds = new Set(
+      resumeSame && saved.sessionBlankIds?.length
+        ? saved.sessionBlankIds
+        : getClozeSessionBlankIds(raw, blankCount, q.questionId),
+    );
     cardSession = {
       mode: "pretest-cloze",
       axisId,
       moduleId,
       questionId: q.questionId,
-      revealedBlanks: new Set(),
-      confirmedBlanks: new Set(),
+      revealedBlanks: new Set(
+        resumeSame ? (saved.revealedBlanks ?? []) : [],
+      ),
+      confirmedBlanks: new Set(
+        resumeSame ? (saved.confirmedBlanks ?? []) : [],
+      ),
       sessionBlankIds,
     };
     screen = "pretest-cloze";
@@ -1905,6 +1932,15 @@ function openPretestAxis(axisId) {
   route.groupId = null;
   route.moduleId = null;
   if (axisHasModuleGroups(axisId) && usesConsigneLabels(axisId)) {
+    const saved = getActiveClozeSession();
+    if (
+      saved?.axisId === axisId &&
+      saved.questionId &&
+      canResumeClozeSession()
+    ) {
+      tryResumeClozeSession();
+      return;
+    }
     const next = pickNextClozeModule(axisId);
     if (next) {
       openPretestModule(next.axisId, next.moduleId);
@@ -1956,6 +1992,7 @@ function bindPretest() {
   app.querySelector("[data-pretest-back-chapters]")?.addEventListener(
     "click",
     () => {
+      stashClozeProgressBeforeLeave();
       screen = "pretest-chapters";
       route = { axisId: null, groupId: null, moduleId: null };
       render();
@@ -2004,12 +2041,7 @@ function bindClozePretest() {
   app.querySelector("[data-cloze-abort]")?.addEventListener("click", () => {
     const axisId = cardSession?.axisId ?? route.axisId;
     const moduleId = cardSession?.moduleId ?? route.moduleId;
-    if (cardSession?.mode === "pretest-cloze" && cardSession.confirmedBlanks?.size) {
-      mergeClozeConfirmed(cardSession.questionId, [...cardSession.confirmedBlanks]);
-      onClozeSessionComplete();
-    }
-    clearActiveClozeSession();
-    cardSession = null;
+    stashClozeProgressBeforeLeave();
     screen = pretestBackAfterModule(axisId, moduleId);
     if (screen === "pretest-chapters") {
       route = { axisId: null, groupId: null, moduleId: null };
@@ -2291,7 +2323,7 @@ function init() {
 
 window.addEventListener("beforeunload", () => {
   if (cardSession?.mode === "final") persistFinalSession();
-  if (cardSession?.mode === "pretest-cloze") persistActiveClozeSession();
+  if (cardSession?.mode === "pretest-cloze") stashClozeProgressBeforeLeave();
   else if (showClozeDailyExtra && route.axisId) {
     persistActiveClozeSession({ axisId: route.axisId, pendingDailyExtra: true });
   }
