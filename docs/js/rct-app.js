@@ -99,6 +99,15 @@ function getApp() {
   return document.getElementById("app");
 }
 
+/** Remonte la page après passage à une nouvelle consigne (évite de rester scrollé en bas). */
+function scrollMainToTop() {
+  requestAnimationFrame(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  });
+}
+
 /** Conteneur racine (#app) — utilisé par tous les écrans. */
 const app = {
   querySelector(sel) {
@@ -160,7 +169,7 @@ function helpChapitresConsignesLineHtml() {
 function clozeHelpEncartHtml() {
   return `<div class="help-cloze-box" role="note">
     <p class="help-cloze-box__label">Principe du texte à trous</p>
-    <p>Touchez un trou pour afficher le mot auquel vous pensiez. Retouchez si vous l’aviez trouvé. Si tous les trous ont été trouvés, passage à la consigne suivante. Sinon, cliquez sur le bouton «&nbsp;Revoir cette consigne plus tard&nbsp;».</p>
+    <p>Touchez un trou pour afficher le mot auquel vous pensiez. Retouchez pour valider si vous l’aviez trouvé. Retouchez encore pour annuler une validation accidentelle. Si tous les trous sont validés, passage à la consigne suivante. Sinon, cliquez sur «&nbsp;Revoir cette consigne plus tard&nbsp;».</p>
   </div>`;
 }
 
@@ -1139,7 +1148,7 @@ function tryResumeClozeSession() {
   return false;
 }
 
-function openClozePretest(axisId, moduleId) {
+function openClozePretest(axisId, moduleId, { scrollToTop = false } = {}) {
   if (!isPretestChapterUnlocked(axisId)) return;
   const questions = getQuestionsForModule(axisId, moduleId);
   const q = questions[0];
@@ -1176,6 +1185,7 @@ function openClozePretest(axisId, moduleId) {
     route = { axisId, groupId: null, moduleId };
     persistActiveClozeSession();
     render();
+    if (scrollToTop) scrollMainToTop();
   };
 
   if (needsPretestPauseWarning()) {
@@ -1190,7 +1200,7 @@ function openClozePretest(axisId, moduleId) {
 function continueClozeRevision(axisId) {
   const next = pickNextClozeModule(axisId);
   if (next) {
-    openClozePretest(next.axisId, next.moduleId);
+    openClozePretest(next.axisId, next.moduleId, { scrollToTop: true });
     return;
   }
   clearActiveClozeSession();
@@ -2056,7 +2066,12 @@ function bindClozePretest() {
     if (!id) return;
     if (!cardSession.revealedBlanks) cardSession.revealedBlanks = new Set();
     if (!cardSession.confirmedBlanks) cardSession.confirmedBlanks = new Set();
-    if (cardSession.confirmedBlanks.has(id)) return;
+    if (cardSession.confirmedBlanks.has(id)) {
+      cardSession.confirmedBlanks.delete(id);
+      persistActiveClozeSession();
+      render();
+      return;
+    }
     if (!cardSession.revealedBlanks.has(id)) {
       cardSession.revealedBlanks.add(id);
       persistActiveClozeSession();

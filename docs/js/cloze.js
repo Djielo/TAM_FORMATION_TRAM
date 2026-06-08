@@ -296,7 +296,7 @@ function renderTokenHtml(tok, blankIds, revealedBlanks, confirmedBlanks) {
       return `<button type="button" class="cloze-blank" data-cloze-blank="${escapeHtml(tok.blankId)}" style="min-width:${w}rem" aria-label="1er toucher : afficher le mot" title="1er toucher : afficher · 2e toucher : valider">···</button>`;
     }
     if (wasBlank && isConfirmed) {
-      return `<span class="cloze-confirmed">${escapeHtml(tok.text)}</span>`;
+      return `<button type="button" class="cloze-filled cloze-filled--confirmed" data-cloze-blank="${escapeHtml(tok.blankId)}" aria-label="Touchez pour annuler la validation" title="Toucher à nouveau pour repasser en mot non validé">${escapeHtml(tok.text)}</button>`;
     }
     if (wasBlank && isRevealed) {
       return `<button type="button" class="cloze-filled cloze-filled--pending" data-cloze-blank="${escapeHtml(tok.blankId)}" aria-label="2e toucher : valider ce mot" title="Toucher à nouveau pour valider">${escapeHtml(tok.text)}</button>`;

@@ -1475,7 +1475,8 @@ body.app-dialog-open {
   background: #d4e4f8;
 }
 
-.cloze-confirmed {
+.cloze-confirmed,
+.cloze-filled--confirmed {
   color: var(--ok);
   font-weight: 700;
   background: #e8f6ec;
@@ -1483,6 +1484,19 @@ body.app-dialog-open {
   padding: 0 0.12em;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
+}
+
+.cloze-filled--confirmed {
+  display: inline;
+  border: none;
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.cloze-filled--confirmed:hover {
+  background: #d8efe0;
 }
 
 .cloze-encart {
