@@ -32,6 +32,9 @@ import {
   formatClozeWaitFr,
   renderClozeHtml,
   CLOZE_DAILY_NEW_TARGET,
+  CLOZE_CONSIGNE_MASTERY_RATE,
+  getClozeSessionBlankIds,
+  isClozeSessionComplete,
 } from "./cloze.js";
 import { createPretestSession } from "./pretest-session.js";
 import {
@@ -40,6 +43,7 @@ import {
   appendFinalExamResult,
   applyClozeMaster,
   applyClozeReview,
+  mergeClozeConfirmed,
   applySrsMaster,
   ensureSrsIntroduced,
   applySrsReview,
@@ -110,7 +114,7 @@ let activeTab = "pretest";
 let screen = "pretest-chapters";
 let route = { axisId: null, groupId: null, moduleId: null };
 
-/** @type {null | { mode: "pretest"|"final"|"pretest-cloze", axisId?: string, moduleId?: string, questionId?: string, targetCount: number, queue: string[], index: number, flipped: boolean, revealed?: boolean, revealedBlanks?: Set<string>, errors: object[] }} */
+/** @type {null | { mode: "pretest"|"final"|"pretest-cloze", axisId?: string, moduleId?: string, questionId?: string, targetCount: number, queue: string[], index: number, flipped: boolean, revealedBlanks?: Set<string>, confirmedBlanks?: Set<string>, sessionBlankIds?: Set<string>, errors: object[] }} */
 let cardSession = null;
 
 /** @type {null | "welcome"|"pretest"|"final"} */
@@ -135,20 +139,33 @@ function axisChapterLabel(axis) {
   return `Chapitre ${axis.num}`;
 }
 
-/** Chapitres disponibles (hors Acronymes) pour les textes d'aide. */
-function availableChaptersTitlesHtml() {
-  const chapters = AXES.filter((a) => a.available && a.num != null).map(
-    (a) => `<strong>${escapeHtml(a.title)}</strong>`,
-  );
-  if (!chapters.length) return "les chapitres";
-  if (chapters.length === 1) return chapters[0];
-  return `${chapters.slice(0, -1).join(", ")} et ${chapters[chapters.length - 1]}`;
+function helpAcronymesLineHtml() {
+  return `<p><strong>Acronymes</strong> «&nbsp;carte recto-verso&nbsp;» : après avoir pris connaissance du verso de la carte, cliquez sur «&nbsp;Je maîtrise&nbsp;» ou «&nbsp;À revoir&nbsp;».</p>`;
 }
 
-/** Formulation unique — déverrouillage de l'onglet Examen final. */
+function helpChapitresConsignesLineHtml() {
+  return `<p><strong>Chapitres «&nbsp;Consignes&nbsp;»</strong> (texte à trous) : remplir les trous selon la réponse attendue.</p>`;
+}
+
+function clozeHelpEncartHtml() {
+  return `<div class="help-cloze-box" role="note">
+    <p class="help-cloze-box__label">Principe du texte à trous</p>
+    <p>Touchez un trou pour afficher le mot auquel vous pensiez. Retouchez si vous l’aviez trouvé. Si tous les trous ont été trouvés, passage à la consigne suivante. Sinon, cliquez sur le bouton «&nbsp;Revoir cette consigne plus tard&nbsp;».</p>
+  </div>`;
+}
+
+function helpDailyConsignesHtml() {
+  return `<p>Environ <strong>${CLOZE_DAILY_NEW_TARGET} nouvelles consignes par jour</strong> seront ajoutées. Il vous sera toutefois proposé d’en ajouter vous-même.</p>`;
+}
+
+/** Déverrouillage de l'onglet Examen final. */
 function examFinalGoalText() {
   const pct = Math.round(PRETEST_FINAL_UNLOCK_RATE * 100);
-  return `L'<strong>Examen final</strong> s'ouvre lorsque <strong>Acronymes</strong> et chaque chapitre (${availableChaptersTitlesHtml()}) atteignent au moins <strong>${pct} %</strong> de maîtrise en <strong>Pré-examen</strong> (cartes pour les acronymes, textes à trous pour les consignes).`;
+  return `L’<strong>Examen final</strong> s’ouvre lorsque <strong>Acronymes et tous les chapitres</strong> atteignent au moins <strong>${pct}&nbsp;%</strong> de maîtrise en <strong>Pré-examen</strong>.`;
+}
+
+function examFinalRulesText() {
+  return `Pour réussir l’<strong>Examen final</strong>, vous devrez répondre correctement à <strong>${FINAL_PASS_COUNT} questions sur ${FINAL_EXAM_QUESTION_COUNT}</strong>.`;
 }
 
 function axisCetMeta(axis) {
@@ -161,26 +178,35 @@ const HELP_TEXT = {
     title: "Présentation",
     get body() {
       return `<p><strong>Important :</strong> votre progression est enregistrée sur cet appareil (même lien et même navigateur).</p>
-      <p><strong>Conseil :</strong> commencez par <strong>Acronymes</strong>, puis enchaînez avec les chapitres : ${availableChaptersTitlesHtml()}.</p>
-      <p>Deux modes : <strong>Pré-examen</strong> (entraînement avec répétition espacée) et <strong>Examen final</strong> (${FINAL_EXAM_QUESTION_COUNT} questions tirées au hasard, réussite ${FINAL_PASS_COUNT} / ${FINAL_EXAM_QUESTION_COUNT}).</p>
-      <p><strong>Chapitres consignes :</strong> texte à trous, file automatique, environ <strong>${CLOZE_DAILY_NEW_TARGET} nouvelles consignes par jour</strong>, révisions calées sur la <strong>première fois</strong> où vous les voyez (SRS sur ~3 semaines).</p>
-      <p>${examFinalGoalText()}</p>`;
+      <p><strong>Conseil :</strong> commencez par <strong>Acronymes</strong>, puis les chapitres «&nbsp;Consignes&nbsp;».</p>
+      <p>Le <strong>Pré-examen</strong> propose deux formats :</p>
+      ${helpAcronymesLineHtml()}
+      ${helpChapitresConsignesLineHtml()}
+      ${clozeHelpEncartHtml()}
+      ${helpDailyConsignesHtml()}
+      <p>${examFinalGoalText()}</p>
+      <p>${examFinalRulesText()}</p>`;
     },
   },
   pretest: {
     title: "Mode Pré-examen",
     get body() {
-      return `<p><strong>Acronymes :</strong> cartes recto-verso — indiquez <strong>Je maîtrise</strong> ou <strong>À revoir</strong> après le verso.</p>
-      <p><strong>Chapitres consignes</strong> (${availableChaptersTitlesHtml()}) : chaque consigne est un <strong>texte à trous</strong>. Ouvrez le chapitre : l’application enchaîne automatiquement la prochaine consigne à travailler.</p>
-      <ul class="help-modal__list">
-        <li><strong>${CLOZE_DAILY_NEW_TARGET} nouvelles consignes par jour</strong> mises en route ; à l’objectif atteint, vous pouvez en ajouter (<strong>+5</strong> ou <strong>+10</strong>) ou continuer les révisions seulement.</li>
-        <li><strong>Révisions SRS</strong> depuis la <strong>première apparition</strong> de chaque consigne (5 min, 10 min, 20 min… puis jours sur environ 3 semaines).</li>
-        <li><strong>Je maîtrise :</strong> deux trous en plus au passage suivant ; la consigne reviendra au moment prévu par le calendrier SRS.</li>
-        <li><strong>À revoir :</strong> un trou en moins ; la consigne repasse <strong>plus tard</strong>, après d’autres consignes — pas tout de suite.</li>
-        <li>Quand plus rien n’est disponible selon le SRS, l’application indique <strong>quand revenir</strong> ou propose <strong>5 nouvelles consignes</strong> pour combler l’attente.</li>
-      </ul>
-      <p>Le lendemain, le quota repart à <strong>${CLOZE_DAILY_NEW_TARGET} nouvelles consignes</strong> ; les révisions des consignes déjà vues continuent selon leur calendrier.</p>
-      <p>${examFinalGoalText()}</p>`;
+      return `${helpAcronymesLineHtml()}
+      ${helpChapitresConsignesLineHtml()}
+      ${clozeHelpEncartHtml()}
+      ${helpDailyConsignesHtml()}
+      <p>Objectif <strong>${Math.round(CLOZE_CONSIGNE_MASTERY_RATE * 100)}&nbsp;%</strong> de mots validés par consigne. Révisions espacées depuis la première apparition de chaque consigne.</p>
+      <p>${examFinalGoalText()}</p>
+      <p>${examFinalRulesText()}</p>`;
+    },
+  },
+  guide: {
+    title: "Aide rapide",
+    get body() {
+      return `${helpAcronymesLineHtml()}
+      ${helpChapitresConsignesLineHtml()}
+      ${clozeHelpEncartHtml()}
+      ${helpDailyConsignesHtml()}`;
     },
   },
   final: {
@@ -459,7 +485,10 @@ function renderTabsShell(mainHtml) {
   return `
     <div class="app-top-bar">
       <header class="header header--app">
-        <h1>RCT</h1>
+        <div class="header__title-row">
+          <h1>RCT</h1>
+          <button type="button" class="header__help" data-rct-help aria-label="Aide rapide" title="Aide rapide">?</button>
+        </div>
         <p>Règlement de Circulation Tramway TaM</p>
         ${renderUnlockBanner()}
       </header>
@@ -489,17 +518,21 @@ function renderHelpModal(mode) {
     return;
   }
   const bodyHtml = h.body;
+  const dismissHtml =
+    mode === "guide"
+      ? ""
+      : `<label class="help-modal__dismiss"><input type="checkbox" data-help-dismiss /> ${mode === "welcome" ? "Ne plus afficher au démarrage" : "Ne plus afficher"}</label>`;
   app.innerHTML = `
     <div class="help-backdrop" role="dialog" aria-modal="true">
       <div class="help-modal">
         <h2>${escapeHtml(h.title)}</h2>
         <div class="help-modal__body">${bodyHtml}</div>
-        <label class="help-modal__dismiss"><input type="checkbox" data-help-dismiss /> ${mode === "welcome" ? "Ne plus afficher au démarrage" : "Ne plus afficher"}</label>
+        ${dismissHtml}
         <button type="button" class="btn btn--primary" data-help-close>Compris</button>
       </div>
     </div>`;
   app.querySelector("[data-help-close]").addEventListener("click", () => {
-    if (app.querySelector("[data-help-dismiss]").checked) dismissHelp(mode);
+    if (app.querySelector("[data-help-dismiss]")?.checked) dismissHelp(mode);
     pendingHelp = null;
     render();
     if ((mode === "welcome" || mode === "pretest") && pendingBackupRestore) {
@@ -837,7 +870,7 @@ function consigneBadgeHtml({
     return `<span class="${cls}">Maîtrise de consigne en cours : ${inProgressCount} / ${total} (${pct} %)</span>`;
   }
   if (complete) {
-    return `<span class="${cls}">Consigne maîtrisée : ${mastered} / ${total} (100 %) <span class="badge__celebrate" aria-hidden="true">🥳</span></span>`;
+    return `<span class="${cls}">Consigne maîtrisée : ${mastered} / ${total} (${pct} %) <span class="badge__celebrate" aria-hidden="true">🥳</span></span>`;
   }
   return `<span class="${cls}">Consigne maîtrisée : ${mastered} / ${total} (${pct} %)</span>`;
 }
@@ -988,13 +1021,17 @@ function openClozePretest(axisId, moduleId) {
 
   const start = () => {
     ensureSrsIntroduced(q.questionId);
+    const raw = q.answer ?? "";
+    const { blankCount } = getClozeState(q.questionId);
+    const sessionBlankIds = getClozeSessionBlankIds(raw, blankCount, q.questionId);
     cardSession = {
       mode: "pretest-cloze",
       axisId,
       moduleId,
       questionId: q.questionId,
-      revealed: false,
       revealedBlanks: new Set(),
+      confirmedBlanks: new Set(),
+      sessionBlankIds,
     };
     screen = "pretest-cloze";
     render();
@@ -1020,33 +1057,7 @@ function continueClozeRevision(axisId) {
   render();
 }
 
-function finishClozePretest(mastered) {
-  const { axisId, moduleId, questionId } = cardSession;
-  const q = getQuestionById(questionId);
-  const raw =
-    q?.answer ??
-    getModuleById(axisId, moduleId)?.questions?.find((item) => item.id === questionId)
-      ?.answer ??
-    "";
-  const { segments } = buildClozeSegments(raw);
-  const wasNew = (getSrsRow(questionId).clozeSeed ?? 0) === 0;
-
-  if (mastered) {
-    applyClozeMaster(questionId, segments.length);
-  } else {
-    const others = countClozeAlternatives(questionId, axisId);
-    const defer = others > 0 ? Math.min(3, others) : 0;
-    applyClozeReview(questionId, defer);
-  }
-  if (wasNew) recordClozeDailyIntro();
-  onClozeSessionComplete();
-  recordPretestSessionResult(
-    getPretestScopeKey(axisId, moduleId),
-    mastered ? 1 : 0,
-    1,
-  );
-  cardSession = null;
-
+function continueAfterClozePretest(axisId, wasNew) {
   const tryNext = () => continueClozeRevision(axisId);
   if (wasNew && shouldOfferClozeDailyExtra()) {
     showClozeDailyExtra = true;
@@ -1064,6 +1075,39 @@ function finishClozePretest(mastered) {
   }
   tryNext();
   void writeProgressBackupFile();
+}
+
+function finishClozePretestAsMaster() {
+  const { axisId, moduleId, questionId, confirmedBlanks } = cardSession;
+  const q = getQuestionById(questionId);
+  const raw =
+    q?.answer ??
+    getModuleById(axisId, moduleId)?.questions?.find((item) => item.id === questionId)
+      ?.answer ??
+    "";
+  const { segments } = buildClozeSegments(raw);
+  const wasNew = (getSrsRow(questionId).clozeSeed ?? 0) === 0;
+  const confirmedIds = [...(confirmedBlanks ?? [])];
+
+  applyClozeMaster(questionId, segments.length, confirmedIds);
+  if (wasNew) recordClozeDailyIntro();
+  onClozeSessionComplete();
+  recordPretestSessionResult(getPretestScopeKey(axisId, moduleId), 1, 1);
+  cardSession = null;
+  continueAfterClozePretest(axisId, wasNew);
+}
+
+function finishClozePretestAsReview() {
+  const { axisId, moduleId, questionId, confirmedBlanks } = cardSession;
+  const confirmedIds = [...(confirmedBlanks ?? [])];
+  if (confirmedIds.length) mergeClozeConfirmed(questionId, confirmedIds);
+  const others = countClozeAlternatives(questionId, axisId);
+  const defer = others > 0 ? Math.min(3, others) : 0;
+  applyClozeReview(questionId, defer);
+  onClozeSessionComplete();
+  recordPretestSessionResult(getPretestScopeKey(axisId, moduleId), 0, 1);
+  cardSession = null;
+  continueAfterClozePretest(axisId, false);
 }
 
 function launchPretestSession(axisId, moduleId, count, resumeSession) {
@@ -1540,8 +1584,15 @@ function renderFinalResults() {
 
 /* ─── Texte à trous (pré-examen consignes) ─── */
 
+function tryCompleteClozeSession() {
+  if (cardSession?.mode !== "pretest-cloze") return;
+  const { confirmedBlanks, sessionBlankIds } = cardSession;
+  if (!isClozeSessionComplete(confirmedBlanks, sessionBlankIds)) return;
+  finishClozePretestAsMaster();
+}
+
 function renderClozePretest() {
-  const { axisId, moduleId, questionId, revealed } = cardSession;
+  const { axisId, moduleId, questionId } = cardSession;
   const q = getQuestionById(questionId);
   const mod = getModuleById(axisId, moduleId);
   if (!q || !mod) {
@@ -1555,30 +1606,38 @@ function renderClozePretest() {
 
   const raw = q.answer ?? "";
   const { blankCount } = getClozeState(questionId);
+  const confirmedBlanks = cardSession.confirmedBlanks ?? new Set();
+  const revealedBlanks = cardSession.revealedBlanks ?? new Set();
+  const sessionBlankIds =
+    cardSession.sessionBlankIds ??
+    getClozeSessionBlankIds(raw, blankCount, questionId);
+  cardSession.sessionBlankIds = sessionBlankIds;
+
   const { html, totalSegments, blankCount: shownBlanks } = renderClozeHtml(raw, {
     blankCount,
     questionId,
-    revealedAll: revealed,
-    revealedBlanks: cardSession.revealedBlanks ?? new Set(),
+    revealedBlanks,
+    confirmedBlanks,
   });
 
   const moduleRef = mod.cetPage
     ? `RCT p. ${mod.cetPage} — ${escapeHtml(mod.code)}`
     : escapeHtml(mod.code);
 
-  const revealLabel = revealed
-    ? "Masquer la réponse complète"
-    : "Voir la réponse complète";
+  const sessionDone = confirmedBlanks.size;
+  const sessionTotal = sessionBlankIds.size;
+  const consignePct = getClozeDisplayProgress(questionId, raw).pct;
+  const sessionComplete = sessionDone >= sessionTotal;
+  const reviewBtn = sessionComplete
+    ? ""
+    : `<div class="cloze-actions">
+        <button type="button" class="btn btn--ghost" data-cloze-review>Revoir cette consigne plus tard</button>
+      </div>`;
 
   return `
     <main class="main">
       <button type="button" class="link-back" data-cloze-abort>${escapeHtml(backLabel)}</button>
-      <p class="quiz-meta">Texte à trous · ${shownBlanks} / ${totalSegments} mots masqués</p>
-      <p class="cloze-hint">${
-        revealed
-          ? "Les mots <strong class=\"cloze-hint__mark\">en bleu</strong> étaient masqués."
-          : "Retrouvez les mots masqués, puis touchez un <strong class=\"cloze-hint__mark\">trou</strong> pour vérifier."
-      }</p>
+      <p class="quiz-meta">${sessionDone} / ${sessionTotal} trous validés · consigne ${consignePct} %</p>
       <article class="cloze-card">
         <div class="module-card__banner">
           <span class="module-card__name">${escapeHtml(mod.title)}</span>
@@ -1588,13 +1647,9 @@ function renderClozePretest() {
         <h2 class="cloze-card__prompt">${escapeHtml(promptForCard(q))}</h2>
         <p class="cloze-card__ref">(${moduleRef})</p>
         <div class="cloze-card__body">${html}</div>
-        <button type="button" class="btn btn--ghost btn--small cloze-reveal" data-cloze-reveal>${revealLabel}</button>
         </div>
       </article>
-      <div class="cloze-actions">
-        <button type="button" class="btn btn--primary" data-cloze-master>Je maîtrise</button>
-        <button type="button" class="btn btn--ghost" data-cloze-review>À revoir</button>
-      </div>
+      ${reviewBtn}
     </main>`;
 }
 
@@ -1822,6 +1877,10 @@ function bindClozePretest() {
   app.querySelector("[data-cloze-abort]")?.addEventListener("click", () => {
     const axisId = cardSession?.axisId ?? route.axisId;
     const moduleId = cardSession?.moduleId ?? route.moduleId;
+    if (cardSession?.mode === "pretest-cloze" && cardSession.confirmedBlanks?.size) {
+      mergeClozeConfirmed(cardSession.questionId, [...cardSession.confirmedBlanks]);
+      onClozeSessionComplete();
+    }
     cardSession = null;
     screen = pretestBackAfterModule(axisId, moduleId);
     if (screen === "pretest-chapters") {
@@ -1832,28 +1891,24 @@ function bindClozePretest() {
 
   app.querySelector(".cloze-card__body")?.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-cloze-blank]");
-    if (!btn || cardSession?.mode !== "pretest-cloze" || cardSession.revealed) return;
+    if (!btn || cardSession?.mode !== "pretest-cloze") return;
     const id = btn.dataset.clozeBlank;
     if (!id) return;
     if (!cardSession.revealedBlanks) cardSession.revealedBlanks = new Set();
-    cardSession.revealedBlanks.add(id);
-    render();
-  });
-
-  app.querySelector("[data-cloze-reveal]")?.addEventListener("click", () => {
-    if (cardSession?.mode === "pretest-cloze") {
-      cardSession.revealed = !cardSession.revealed;
-      if (!cardSession.revealed) cardSession.revealedBlanks = new Set();
+    if (!cardSession.confirmedBlanks) cardSession.confirmedBlanks = new Set();
+    if (cardSession.confirmedBlanks.has(id)) return;
+    if (!cardSession.revealedBlanks.has(id)) {
+      cardSession.revealedBlanks.add(id);
       render();
+      return;
     }
-  });
-
-  app.querySelector("[data-cloze-master]")?.addEventListener("click", () => {
-    if (cardSession?.mode === "pretest-cloze") finishClozePretest(true);
+    cardSession.confirmedBlanks.add(id);
+    render();
+    tryCompleteClozeSession();
   });
 
   app.querySelector("[data-cloze-review]")?.addEventListener("click", () => {
-    if (cardSession?.mode === "pretest-cloze") finishClozePretest(false);
+    if (cardSession?.mode === "pretest-cloze") finishClozePretestAsReview();
   });
 }
 
@@ -1990,6 +2045,14 @@ function render() {
   else bindFinal();
 
   bindHiddenResetGesture();
+  bindHeaderHelp();
+}
+
+function bindHeaderHelp() {
+  app.querySelector("[data-rct-help]")?.addEventListener("click", () => {
+    pendingHelp = "guide";
+    render();
+  });
 }
 
 async function requestFullProgressReset() {

@@ -17,6 +17,8 @@ export const CLOZE_MASTER_STEP = 2;
 export const CLOZE_REVIEW_STEP = 1;
 /** Objectif de nouvelles consignes découvertes par jour (file automatique). */
 export const CLOZE_DAILY_NEW_TARGET = 10;
+/** Part des mots masquables validés pour considérer une consigne maîtrisée. */
+export const CLOZE_CONSIGNE_MASTERY_RATE = 0.9;
 
 /** Chapitres consignes (texte à trous) — libellés « consigne », pas « carte » / « session ». */
 export function isClozePretestModule(axisId, moduleId) {
@@ -274,7 +276,7 @@ function escapeHtml(raw) {
     .replace(/"/g, "&quot;");
 }
 
-function renderTokenHtml(tok, blankIds, revealedAll, revealedBlanks) {
+function renderTokenHtml(tok, blankIds, revealedBlanks, confirmedBlanks) {
   if (tok.kind === "space" || tok.kind === "punct") {
     return escapeHtml(tok.text);
   }
@@ -283,23 +285,28 @@ function renderTokenHtml(tok, blankIds, revealedAll, revealedBlanks) {
   }
   if (tok.kind === "blankable") {
     const wasBlank = blankIds.has(tok.blankId);
-    const isOpen =
-      revealedAll || (revealedBlanks && revealedBlanks.has(tok.blankId));
-    if (wasBlank && !isOpen) {
+    const isConfirmed =
+      confirmedBlanks && confirmedBlanks.has(tok.blankId);
+    const isRevealed =
+      isConfirmed || (revealedBlanks && revealedBlanks.has(tok.blankId));
+    if (wasBlank && !isRevealed) {
       const w = Math.max(2.5, Math.min(tok.text.length * 0.55, 6));
-      return `<button type="button" class="cloze-blank" data-cloze-blank="${escapeHtml(tok.blankId)}" style="min-width:${w}rem" aria-label="Toucher pour vérifier ce mot" title="Toucher pour vérifier">···</button>`;
+      return `<button type="button" class="cloze-blank" data-cloze-blank="${escapeHtml(tok.blankId)}" style="min-width:${w}rem" aria-label="1er toucher : afficher le mot" title="1er toucher : afficher · 2e toucher : valider">···</button>`;
     }
-    if (wasBlank && isOpen) {
-      return `<span class="cloze-filled">${escapeHtml(tok.text)}</span>`;
+    if (wasBlank && isConfirmed) {
+      return `<span class="cloze-confirmed">${escapeHtml(tok.text)}</span>`;
+    }
+    if (wasBlank && isRevealed) {
+      return `<button type="button" class="cloze-filled cloze-filled--pending" data-cloze-blank="${escapeHtml(tok.blankId)}" aria-label="2e toucher : valider ce mot" title="Toucher à nouveau pour valider">${escapeHtml(tok.text)}</button>`;
     }
     return escapeHtml(tok.text);
   }
   return escapeHtml(tok.text ?? "");
 }
 
-function renderRowHtml(row, blankIds, revealedAll, revealedBlanks, tone) {
+function renderRowHtml(row, blankIds, revealedBlanks, confirmedBlanks, tone) {
   const inner = row.tokens
-    .map((t) => renderTokenHtml(t, blankIds, revealedAll, revealedBlanks))
+    .map((t) => renderTokenHtml(t, blankIds, revealedBlanks, confirmedBlanks))
     .join("");
   const cls = row.sub
     ? "cloze-point cloze-point--sub"
@@ -307,9 +314,23 @@ function renderRowHtml(row, blankIds, revealedAll, revealedBlanks, tone) {
   return `<div class="${cls}">${escapeHtml(row.prefix)}${inner}</div>`;
 }
 
+/** Ids des trous actifs pour une session. */
+export function getClozeSessionBlankIds(answerRaw, blankCount, questionId) {
+  const { segments } = buildClozeSegments(answerRaw);
+  return pickBlankSegmentIds(segments, blankCount, questionId);
+}
+
+export function isClozeSessionComplete(confirmedBlanks, sessionBlankIds) {
+  if (!sessionBlankIds?.size) return false;
+  for (const id of sessionBlankIds) {
+    if (!confirmedBlanks?.has(id)) return false;
+  }
+  return true;
+}
+
 /**
  * @param {string} raw
- * @param {{ blankCount: number, questionId: string, revealedAll?: boolean, revealedBlanks?: Set<string> }} opts
+ * @param {{ blankCount: number, questionId: string, revealedBlanks?: Set<string>, confirmedBlanks?: Set<string> }} opts
  */
 export function renderClozeHtml(raw, opts) {
   const { segments, blocks } = buildClozeSegments(raw);
@@ -318,8 +339,8 @@ export function renderClozeHtml(raw, opts) {
     opts.blankCount,
     opts.questionId,
   );
-  const revealedAll = !!opts.revealedAll;
   const revealedBlanks = opts.revealedBlanks ?? new Set();
+  const confirmedBlanks = opts.confirmedBlanks ?? new Set();
 
   let mainIndex = 0;
   const bodyHtml = blocks
@@ -327,7 +348,7 @@ export function renderClozeHtml(raw, opts) {
     .map((block) => {
       mainIndex += 1;
       const tone = mainIndex % 2 === 0 ? "a" : "b";
-      return renderRowHtml(block.row, blankIds, revealedAll, revealedBlanks, tone);
+      return renderRowHtml(block.row, blankIds, revealedBlanks, confirmedBlanks, tone);
     })
     .join("");
 
@@ -336,7 +357,7 @@ export function renderClozeHtml(raw, opts) {
     .map((block) => {
       const inner = block.rows
         .map((row) =>
-          renderRowHtml(row, blankIds, revealedAll, revealedBlanks, "encart"),
+          renderRowHtml(row, blankIds, revealedBlanks, confirmedBlanks, "encart"),
         )
         .join("");
       const cls =
@@ -356,8 +377,7 @@ export function renderClozeHtml(raw, opts) {
 }
 
 /**
- * Progression affichée (niveau de trous / mots masquables).
- * 0 % tant qu'aucun passage enregistré ; ensuite proportion des trous actifs.
+ * Progression affichée : part des mots masquables validés (double toucher).
  */
 export function getClozeDisplayProgress(questionId, answerRaw) {
   const { segments } = buildClozeSegments(answerRaw);
@@ -366,13 +386,12 @@ export function getClozeDisplayProgress(questionId, answerRaw) {
     return { pct: 0, inProgress: false, complete: false };
   }
   const row = getSrsRow(questionId);
-  const blanks = row.clozeBlanks ?? CLOZE_INITIAL_BLANKS;
-  const touched = (row.clozeSeed ?? 0) > 0;
-  const pct = touched ? Math.min(100, Math.round((blanks / total) * 100)) : 0;
-  const complete = touched && blanks >= total;
+  const confirmed = new Set(row.clozeConfirmedIds ?? []);
+  const pct = Math.min(100, Math.round((confirmed.size / total) * 100));
+  const complete = confirmed.size / total >= CLOZE_CONSIGNE_MASTERY_RATE;
   return {
     pct,
-    inProgress: touched && !complete,
+    inProgress: confirmed.size > 0 && !complete,
     complete,
   };
 }

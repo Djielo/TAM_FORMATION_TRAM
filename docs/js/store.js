@@ -273,7 +273,7 @@ export function migrateStorage() {
 
 /** Réaffiche l’aide présentation / pré-examen après une mise à jour des consignes SRS. */
 function migrateHelpContentRefresh() {
-  const flag = "tam-rct-help-content-srs-v2";
+  const flag = "tam-rct-help-content-srs-v5";
   if (localStorage.getItem(flag)) return false;
   const h = readJson(KEYS.helpDismissed, {});
   delete h.welcome;
@@ -585,8 +585,10 @@ function defaultSrsRow() {
     everMastered: false,
     /** Nombre de trous actifs (texte à trous). */
     clozeBlanks: 5,
-    /** Passages enregistrés (Je maîtrise / À revoir) — ne change pas les positions de trous. */
+    /** Passages enregistrés — ne change pas les positions de trous. */
     clozeSeed: 0,
+    /** Ids des mots validés (2e toucher) — cumul entre sessions. */
+    clozeConfirmedIds: [],
   };
 }
 
@@ -599,12 +601,28 @@ export function getClozeState(questionId) {
   };
 }
 
-/** « Je maîtrise » — SRS + 2 trous fixes en plus (mêmes mots qu'avant + 2 nouveaux). */
-export function applyClozeMaster(questionId, maxSegments) {
+/** Enregistre les mots validés sans avancer le SRS (session interrompue). */
+export function mergeClozeConfirmed(questionId, confirmedIds = []) {
+  if (!confirmedIds.length) return;
+  const all = loadSrs();
+  const row = { ...defaultSrsRow(), ...all[questionId] };
+  const set = new Set(row.clozeConfirmedIds ?? []);
+  for (const id of confirmedIds) set.add(id);
+  row.clozeConfirmedIds = [...set];
+  if (set.size > 0) row.clozeSeed = Math.max(row.clozeSeed ?? 0, 1);
+  all[questionId] = row;
+  saveSrs(all);
+}
+
+/** Tous les trous de la session validés — SRS + 2 trous + mots confirmés. */
+export function applyClozeMaster(questionId, maxSegments, confirmedIds = []) {
   applySrsMaster(questionId);
   const all = loadSrs();
   const row = all[questionId];
   if (!row) return;
+  const set = new Set(row.clozeConfirmedIds ?? []);
+  for (const id of confirmedIds) set.add(id);
+  row.clozeConfirmedIds = [...set];
   const current = row.clozeBlanks ?? 5;
   row.clozeBlanks = Math.min(current + 2, Math.max(1, maxSegments));
   row.clozeSeed = (row.clozeSeed ?? 0) + 1;
