@@ -1,5 +1,5 @@
 /**
- * RCT EXP-CSG-01-17 — consultation (pages 1–9, § 1.1).
+ * RCT EXP-CSG-01-17 — consultation (pages 1–19, chapitre 1).
  * Texte mot pour mot depuis source/images/RCT/00X.jpg
  */
 
@@ -506,6 +506,659 @@ export const RCT_LECTURE_SECTIONS = [
       },
     ],
   },
+  {
+    id: "s-1-2",
+    level: 2,
+    code: "1.2",
+    page: 10,
+    title: "DE-PREPARATION DE LA RAME",
+    blocks: [
+      { type: "page-scan", src: "010.jpg", caption: "Page 10/76 — § 1.2.1" },
+      { type: "anchor", id: "s-1-2-1" },
+      { type: "rct-section", text: "1.2.1 - DE-PREPARATION DE LA RAME EN LIGNE" },
+      {
+        type: "warning",
+        parts: [
+          { t: "La dé-préparation d'une rame en ligne, hors dépôt, est possible " },
+          { t: "uniquement sur autorisation du PCC", red: true, bold: true, underline: true },
+          { t: ", et " },
+          { t: "après évacuation de la clientèle", red: true, bold: true, underline: true },
+          { t: " " },
+          { t: "(les portes ne sont alors plus contrôlées)", italic: true },
+        ],
+      },
+      {
+        type: "p",
+        parts: [
+          { t: "En toutes circonstances, respectez scrupuleusement et dans l'ordre les consignes ci-dessous (" },
+          { t: "risque de recul de la rame !", purple: true, bold: true },
+          { t: ")" },
+        ],
+      },
+      { type: "rct-sub", text: "Mise hors service en ligne :" },
+      {
+        type: "steps",
+        items: [
+          "Mettre le manipulateur sur Neutre",
+          "Mettre la clé KC sur N",
+          {
+            text: "Actionner le FS",
+            tail: {
+              text: " (facultatif sur Citadis 302/402. Sur 302, ré-enclencher le DJ FS , y/c dans l'autre loge au changement suivant)",
+              blue: true,
+            },
+          },
+          "Appuyer sur le bouton poussoir à impulsion : Mise Hors Service.",
+        ],
+      },
+      { type: "rct-sub", text: "Dé-préparation complète" },
+      {
+        type: "steps",
+        items: ["Descente du pantographe", "Coupure batterie"],
+      },
+      {
+        type: "warning",
+        parts: [
+          { t: "Le PCC ne peut l'autoriser qu'" },
+          { t: "en terminus", bold: true, underline: true },
+          { t: " (sauf impératif lié à une coupure de l'énergie sur la LAC), ceci afin d'" },
+          { t: "éviter tout blocage de la ligne", bold: true, underline: true },
+          { t: " en cas d'incident à la remise en service de la rame." },
+        ],
+      },
+      { type: "page-scan", src: "011.jpg", caption: "Page 11/76 — § 1.2.2" },
+      { type: "anchor", id: "s-1-2-2" },
+      { type: "rct-section", text: "1.2.2 - DE-PREPARATION DE LA RAME POUR REMISAGE" },
+      {
+        type: "steps",
+        items: [
+          "Mettre le manipulateur sur Neutre",
+          "Mettre la clé sur N (au dépôt, la clé KC reste dans la rame).",
+          {
+            text: "Appuyer sur le bouton poussoir : Descente Pantographe.",
+            tail: {
+              text: "Sur le Citadis 402, la commande peut être temporisée (refroidissement des moteurs de traction).",
+              blue: true,
+            },
+          },
+          "Compléter la feuille de route, kilomètres (et horaires).",
+          "Appuyer sur le bouton poussoir à impulsion : Mise Hors Service.",
+          "Fermer la porte de la loge.",
+          {
+            text: "Couper la batterie en actionnant le commutateur situé dans le voussoir (sauf en cas de nettoyage de la rame le soir, ce qui est le cas le plus fréquent).",
+            tail: {
+              text: "Sur le Citadis 402, la commande s'effectue depuis la loge (action temporisée, environ 2 mn)",
+              blue: true,
+            },
+          },
+          "Déverrouiller la porte simple d'accès voyageurs côté droit et ouvrir la porte, puis verrouiller et fermer.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "s-1-3",
+    level: 2,
+    code: "1.3",
+    page: 12,
+    title: "UTILISATION DU SIE (SYSTEME INFORMATIQUE EMBARQUE)",
+    blocks: [
+      { type: "page-scan", src: "012.jpg", caption: "Page 12/76 — § 1.3" },
+      { type: "rct-section", text: "1.3- UTILISATION DU SIE (SYSTEME INFORMATIQUE EMBARQUE)" },
+      {
+        type: "p",
+        text: "Un écran tactile situé sur le pupitre de chaque cabine de conduite, permet d'aider le conducteur dans sa mission de conduite en lui apportant les informations nécessaires à la conduite liées à l'état de la rame, notamment :",
+      },
+      {
+        type: "sie-cycle",
+        items: [
+          "Présence ou absence tension ligne",
+          "Etat du dispositif de protection et d'isolement HT",
+          "Etat des portes et côté de service sélectionné",
+          "Action voyageur (appel phonie et poignée d'alarme)",
+          "Etat d'affichage de la girouette",
+        ],
+      },
+      {
+        type: "p",
+        text: "L'écran SIE indique au conducteur les défaillances de la rame, leurs origines, leurs localisations en le guidant dans les actions curatives nécessaires à la poursuite de la mission, et en lui signalant des limitations de vitesse spécifiques à appliquer.",
+      },
+      {
+        type: "warning",
+        lines: [
+          {
+            parts: [{ t: "En cas d'alerte :", red: true, bold: true, underline: true }],
+          },
+          {
+            text: "Le conducteur doit agir conformément aux prescriptions du SIE et aux consignes (voir chapitre 1.8), en accord avec les instructions transmises par le PCC.",
+            italic: true,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "s-1-4",
+    level: 2,
+    code: "1.4",
+    page: 13,
+    title: "UTILISATION DES SYSTEMES DE FREINAGE",
+    blocks: [
+      { type: "page-scan", src: "013.jpg", caption: "Page 13/76 — § 1.4" },
+      { type: "rct-section", text: "1.4 - UTILISATION DES SYSTEMES DE FREINAGE" },
+      {
+        type: "p",
+        parts: [
+          { t: "On distingue " },
+          { t: "5 modes de freinage", underline: true },
+          { t: " :" },
+        ],
+      },
+      {
+        type: "freinage-modes",
+        items: [
+          "1. Le freinage normal de service (FNS) qui assure les décélérations courantes.",
+          "2. Le freinage d'urgence (FU) qui correspond à un effort calculé pour une décélération d'urgence. Il est commandé automatiquement par l'ouverture d'une boucle de sécurité ou manuellement par le conducteur (fin de course du manipulateur). Ce frein est non modulable par l'agent de conduite.",
+          "3. Le frein de secours (FS), qui est commandé par un bouton poussoir à disposition de l'agent de conduite. L'action sur ce frein (appui de type « coup de poing ») est non modulable, sans antipatinage, et provoque l'ouverture du disjoncteur.",
+          "4. Le frein d'immobilisation est assuré par le frein de service. Il garantit l'immobilisation du véhicule en station, lors des arrêts dans les rampes et lors des abandons de cabine.",
+          "5. Le frein de parking, appliqué lorsque le véhicule est dé-préparé. Ce frein inépuisable est capable de maintenir un véhicule en charge et en pente.",
+        ],
+      },
+      {
+        type: "p",
+        parts: [
+          { t: "Les trois premiers modes sont à la disposition de l'agent de conduite.", purple: true, bold: true, italic: true },
+        ],
+      },
+      {
+        type: "p",
+        parts: [{ t: "Les modes 4 et 5 sont automatiques.", purple: true, bold: true, italic: true }],
+      },
+      { type: "page-scan", src: "014.jpg", caption: "Page 14/76 — § 1.4 A–C" },
+      { type: "anchor", id: "s-1-4-a" },
+      { type: "rct-sub", text: "A - Utilisation du freinage d'urgence (FU) :" },
+      {
+        type: "p",
+        parts: [
+          { t: "Le freinage d'urgence doit être employé dans toute situation de " },
+          { t: "danger immédiat", bold: true },
+          { t: ", mais " },
+          { t: "uniquement dans ce cas", italic: true },
+          { t: " car les conséquences d'un freinage d'urgence peuvent être la chute de voyageurs à l'intérieur de la rame (surtout à basse vitesse) et l'usure anormale des roues." },
+        ],
+      },
+      {
+        type: "p",
+        text: "La procédure de freinage d'urgence déclenche la mise en œuvre simultanée des trois systèmes de freinage : électrique, mécanique et électromagnétique, et ce jusqu'à l'arrêt complet du tramway.",
+        italic: true,
+      },
+      {
+        type: "p",
+        text: "En cas d'utilisation d'un freinage d'urgence (FU), le conducteur doit le signaler au PCC en indiquant le motif et le noter sur sa feuille de route. Il doit s'assurer avant de repartir qu'aucun voyageur n'a été blessé lors du freinage (annonce salle).",
+      },
+      {
+        type: "warning",
+        tone: "red",
+        text: "L'utilisation du FU n'entraine pas la chute du chasse-corps, celui-ci fonctionne seulement sur détection de la barre.",
+      },
+      { type: "anchor", id: "s-1-4-b" },
+      { type: "rct-sub", text: "B - Utilisation du frein électromagnétique (patins)" },
+      {
+        type: "p",
+        text: "En cas de mauvaise adhérence, pour faciliter le démarrage en côte, il est autorisé d'utiliser ponctuellement la commande des patins",
+      },
+      {
+        type: "p",
+        parts: [
+          {
+            t: "Cette recommandation ne s'applique pas en phase de freinage, car l'usage des patins peut provoquer un arrêt brutal de la rame dangereux pour les passagers.",
+            purple: true,
+            bold: true,
+          },
+        ],
+      },
+      { type: "anchor", id: "s-1-4-c" },
+      { type: "rct-sub", text: "C - Utilisation du frein de secours (FS) :" },
+      {
+        type: "p",
+        text: "La procédure par coup de poing déclenche les systèmes de freinage mécanique et électromagnétique (patins magnétiques), le frein de secours ne doit être utilisé :",
+      },
+      {
+        type: "ul",
+        items: [
+          "Qu'en cas de défaillance des autres systèmes de freinage.",
+          "Lorsque la rame est déjà arrêtée.",
+          "Lorsqu'une personne est engagée sous la rame",
+          "Dans toute situation d'arrêt d'urgence où le conducteur ne maitrise pas le comportement de la rame.",
+        ],
+      },
+      {
+        type: "p",
+        text: "En situation d'urgence, une fois le frein d'urgence utilisé (FU), il est interdit d'avoir recours au frein de secours (FS) qui annule le freinage électrique et l'anti-patinage (risque de blocage des roues).",
+      },
+      {
+        type: "p",
+        text: "En cas d'utilisation du frein de secours pour stopper la rame, le conducteur doit le signaler au PCC et le noter sur sa feuille de route.",
+      },
+      {
+        type: "p",
+        parts: [
+          { t: "En cas d'utilisation du FS à une vitesse de 70 Km/h, " },
+          { t: "respecter impérativement une vitesse maximale de 40 Km/h pendant 10 mn après le déclenchement du FS.", purple: true, bold: true },
+        ],
+      },
+    ],
+  },
+  {
+    id: "s-1-5",
+    level: 2,
+    code: "1.5",
+    page: 15,
+    title: "UTILISATION DES SABLIERES",
+    blocks: [
+      { type: "page-scan", src: "015.jpg", caption: "Page 15/76 — § 1.5 et 1.6" },
+      { type: "rct-section", text: "1.5 - UTILISATION DES SABLIERES" },
+      {
+        type: "p",
+        parts: [
+          {
+            t: "Les bogies moteurs sont équipés de dispositifs de sablage destinés à augmenter l'adhérence des roues sur le rail de façon à limiter les risques d'enrayage. La fonction est automatique en phase de freinage.",
+            purple: true,
+          },
+        ],
+      },
+      {
+        type: "p",
+        text: "Quand les circonstances l'exigent, l'utilisation des sablières (action sur le bouton poussoir) est recommandée, notamment en cas de manque d'adhérence -> rail glissant et gras, chutes de feuilles, verglas, neige, pluie fine.",
+      },
+      { type: "anchor", id: "s-1-6" },
+      { type: "rct-section", text: "1.6 - UTILISATION DE LA VEILLE AUTOMATIQUE" },
+      {
+        type: "p",
+        parts: [
+          {
+            t: "La veille automatique vise à prévenir tout danger en cas de malaise du conducteur, en provoquant l'arrêt de la rame.",
+            purple: true,
+          },
+        ],
+      },
+      {
+        type: "p",
+        text: "Lors de la marche, le conducteur est tenu d'actionner régulièrement par appui / relâchement la veille du manipulateur de conduite sur les rames de type 401.",
+      },
+      {
+        type: "note-red",
+        text: "Sur les rames dotées de la veille à appui continu 302 et 402 (au 06/11/2019, toutes les rames de type 302), l'action de relâchement n'est plus impérative pour l'acquittement de la veille, entre 2 stations.",
+      },
+      {
+        type: "p",
+        text: "En cas de disfonctionnement, la consigne est l'arrêt à la station la plus proche.",
+      },
+      {
+        type: "p",
+        text: "Le conducteur doit alors mettre les feux de détresse, informer le PCC et informer la clientèle.",
+      },
+      {
+        type: "warning",
+        tone: "red",
+        lines: [
+          {
+            text: "S'il y a lieu d'isoler la veille, cela ne peut se faire qu'en présence d'une personne autorisée à actionner le frein de secours d'un tramway au côté du conducteur, et après accord du PCC.",
+          },
+          {
+            text: "Dans ce cas, la circulation en ligne doit se faire à une vitesse maximale de 40 km/h.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "s-1-7",
+    level: 2,
+    code: "1.7",
+    page: 16,
+    title: "CONSTAT D'ANOMALIES SUR LE MATERIEL ROULANT",
+    blocks: [
+      { type: "page-scan", src: "016.jpg", caption: "Page 16/76 — § 1.7 et 1.8" },
+      { type: "rct-section", text: "1.7 - CONSTAT D'ANOMALIES SUR LE MATERIEL ROULANT" },
+      { type: "p", text: "En cas de :" },
+      {
+        type: "ul",
+        items: [
+          "Vibrations anormales au niveau d'un bogie ou des articulations",
+          "Cache bogie ouvert",
+          "Pantographe détérioré",
+        ],
+      },
+      {
+        type: "warning",
+        tone: "red",
+        text: "Le conducteur doit impérativement arrêter sa rame et appeler le PCC qui lui donnera la consigne à suivre.",
+      },
+      { type: "p", text: "En cas de :" },
+      {
+        type: "ul",
+        items: ["Perte de tension (à ne pas confondre avec de simples micro-coupures)"],
+      },
+      {
+        type: "warning",
+        tone: "red",
+        lines: [
+          {
+            parts: [
+              { t: "Le conducteur doit impérativement sortir pour " },
+              { t: "contrôler visuellement l'état du pantographe", bold: true },
+              { t: ", arrêt immédiat en toute sécurité." },
+            ],
+          },
+          { text: "Appel du PCC pour rendre compte." },
+          { text: "Risque d'accrochage de la LAC !", italic: true, blue: true },
+        ],
+      },
+    ],
+  },
+  {
+    id: "s-1-8",
+    level: 2,
+    code: "1.8",
+    page: 16,
+    title: "PANNES DU MATERIEL ROULANT",
+    blocks: [
+      { type: "rct-section", text: "1.8 - PANNES DU MATERIEL ROULANT & SIGNALEMENTS" },
+      {
+        type: "p",
+        text: "(voir ci-dessous le tableau des consignes liées à chaque type de panne)",
+        italic: true,
+      },
+      {
+        type: "p",
+        text: "Selon les différents cas de panne auxquels le conducteur peut être confronté, il doit :",
+      },
+      {
+        type: "steps",
+        items: [
+          "Appliquer les consignes adaptées à chaque configuration de la rame.",
+          "Agir en concertation avec le PCC qui peut adapter la consigne à suivre si nécessaire.",
+          {
+            text: "Se préparer au remorquage ou au poussage de la rame défaillante, dans le cas ou toutes les tentatives de remise en service ont échoué (",
+            tail: { text: "voir consigne 1.9).", blue: true },
+          },
+        ],
+      },
+      {
+        type: "warning",
+        tone: "red",
+        parts: [
+          { t: "En cas de panne de la signalisation extérieure de la rame lors d'une immobilisation, y compris les feux de détresse, " },
+          { t: "mettre le triangle de pré-signalisation", bold: true, underline: true },
+          { t: " (agrès) environ 40 m avant la rame." },
+        ],
+      },
+      {
+        type: "page-scan",
+        src: "017.jpg",
+        caption: "Page 17/76 — Tableau pannes (format paysage)",
+        landscape: true,
+      },
+      { type: "anchor", id: "s-1-8-a" },
+      { type: "anchor", id: "s-1-8-b" },
+      { type: "anchor", id: "s-1-8-c" },
+      { type: "anchor", id: "s-1-8-d" },
+      {
+        type: "pannes-table",
+        headers: [
+          { title: "A- Remorquage/ Poussage", speed: "Vitesse max 20 Km/h" },
+          { title: "B- Haut Le Pied" },
+          { title: "C- Fin de Tour" },
+          { title: "D- Fin de Journée" },
+        ],
+        rows: [
+          [
+            null,
+            { text: "Défaillance de la console : SIE non opérationnel" },
+            null,
+            null,
+          ],
+          [
+            { text: "Deux freins isolés", bold: true },
+            null,
+            {
+              text: "Un frein isolé, ou défaut de mesure de charge :",
+              speed: "Vitesse max 40 Km/h",
+            },
+            null,
+          ],
+          [
+            { text: "ETF : Défaut ordre de marche M1, M2 et NM = ? ou isolé" },
+            {
+              text: "Défaut ETF Ou défaut manipulateur : 302 = M1 ou M2 isolé",
+              speed: "Vitesse max 40 Km/h",
+            },
+            {
+              text: "Défaut ETF : 401, 402 = M1, M2 ou NM isolé",
+              speed: "Vitesse max 40 Km/h",
+            },
+            null,
+          ],
+          [
+            null,
+            {
+              text: "Défaut boucle de sécurité (FU ou FS permanent) = Alimentation Directe",
+              speed: "Vitesse max 25 Km/h",
+            },
+            {
+              text: "Sablière vide, ou Défaut Roll Back",
+              speed: "Vitesse max 40 Km/h",
+            },
+            null,
+          ],
+          [
+            null,
+            { text: "Portes impossible à condamner : « contrôle portes »" },
+            { text: "Deux portes condamnées même côté" },
+            null,
+          ],
+          [
+            null,
+            { text: "Défaut CVS : Perte 24V, batterie" },
+            { text: "Défaut CVS : Perte 400V, climatisation", marker: "(*)" },
+            null,
+          ],
+          [{ text: "Défaut ordre de marche" }, null, null, null],
+          [
+            null,
+            { text: "Défaut porte cabine opposée" },
+            { text: "Défaut porte cabine opposée : avec présence agent TaM" },
+            null,
+          ],
+          [null, null, { text: "Défaut porte cabine sens de la marche" }, null],
+          [
+            null,
+            {
+              text: "Indicateur de vitesse hors service ou défaut centrale tachymétrique",
+              speed: "Vitesse réduite",
+            },
+            {
+              text: "Panne totale de phonie sur la rame et du tel. GSM de secours",
+            },
+            {
+              text: "Discordance d'affichage de vitesse",
+              speed: "(se référer au tachymètre)",
+            },
+          ],
+        ],
+      },
+      {
+        type: "page-scan",
+        src: "018.jpg",
+        caption: "Page 18/76 — Tableau pannes (suite, format paysage)",
+        landscape: true,
+      },
+      {
+        type: "pannes-table",
+        headers: [
+          { title: "A- Remorquage/ Poussage", speed: "Vitesse max 20 Km/h" },
+          { title: "B- Haut Le Pied" },
+          { title: "C- Fin de Tour" },
+          { title: "D- Fin de Journée" },
+        ],
+        rows: [
+          [
+            null,
+            null,
+            { text: "Défaut de Gong", speed: "Vitesse max 20 Km/h" },
+            null,
+          ],
+          [
+            null,
+            null,
+            {
+              text: "Défaut veille automatique : avec présence agent TaM",
+              speed: "Vitesse max 40 Km/h",
+            },
+            null,
+          ],
+          [
+            null,
+            { text: "Défaut rétro-vision en quai" },
+            { text: "Défaut rétro-vision en mode conduite" },
+            null,
+          ],
+          [
+            null,
+            { text: "Défaut « Zone de dégagement de quai »" },
+            { text: "Défaut interphonie voyageur (appel d'urgence)" },
+            null,
+          ],
+          [
+            null,
+            null,
+            { text: "Défaut signalisation sonore et lumineuse extérieure" },
+            null,
+          ],
+          [
+            null,
+            { text: "Défaut essuie-glace", marker: "(*)" },
+            { text: "Défaut essuie-glace", marker: "(*)" },
+            { text: "Défaut essuie-glace", marker: "(*)" },
+          ],
+          [
+            null,
+            { text: "Défaut du dégivrage", marker: "(*)" },
+            { text: "Défaut du dégivrage", marker: "(*)" },
+            { text: "Défaut du dégivrage", marker: "(*)" },
+          ],
+          [
+            null,
+            {
+              lines: [
+                { text: "Bruit anormal au niveau du bogie ou de l'articulation", marker: "(**)" },
+                { speed: "Vitesse réduite" },
+              ],
+            },
+            {
+              lines: [
+                { text: "Bruit anormal au niveau du bogie ou de l'articulation", marker: "(**)" },
+                { speed: "Vitesse réduite" },
+              ],
+            },
+            null,
+          ],
+        ],
+        footnotes: [
+          "(*) Selon conditions climatiques",
+          "(**) selon appréciation de la situation (dialogue CR/PCC)",
+        ],
+      },
+    ],
+  },
+  {
+    id: "s-1-9",
+    level: 2,
+    code: "1.9",
+    page: 19,
+    title: "PROCEDURE DE REMORQUAGE – POUSSAGE",
+    blocks: [
+      { type: "page-scan", src: "019.jpg", caption: "Page 19/76 — § 1.9" },
+      { type: "rct-section", text: "1.9- PROCEDURE DE REMORQUAGE – POUSSAGE" },
+      {
+        type: "p",
+        text: "Toute manœuvre de dépannage d'une rame par poussage ou remorquage doit s'effectuer sous le contrôle :",
+      },
+      {
+        type: "ul",
+        items: [
+          "d'au moins une personne habilitée (Maîtrise Exploitation ou Maintenance), qui supervise l'opération,",
+          "d'au moins un conducteur habilité",
+        ],
+      },
+      {
+        type: "p",
+        text: "Les couplages autorisés sont les suivants : 402-402, 401-401, 302-302",
+      },
+      {
+        type: "highlight",
+        text: "Le couplage 302-402 ou 302-401 est autorisé sous réserve de pente < 5%",
+      },
+      {
+        type: "p",
+        text: "En cas de rame immobilisée en pente, la rame secourante devra se mettre en position de remorquage, c'est-à-dire devant la rame secourue dans le sens de la pente, ceci afin de procéder à la tension des barres d'accouplement sans avoir à effectuer une marche arrière en remontant le pente.",
+      },
+      { type: "rct-sub", text: "PREPARATION DE L'ACCOUPLEMENT" },
+      {
+        type: "p",
+        text: "Le conducteur de la rame en panne est autorisé à faire les manœuvres préparatoires suivantes, dans l'attente de l'arrivée de la rame secourante et du superviseur habilité.",
+      },
+      {
+        type: "prep-box",
+        items: [
+          "Mettre les feux de détresse.",
+          "Fermer les portes (utiliser la porte de service pour descendre).",
+          "Mettre la clé KC au neutre.",
+          "Descendre le pantographe.",
+          "Enclencher le BPI de mise hors service. Isoler la batterie .",
+          { text: "Mettre le FS", underline: true, suffix: " du côté où l'attelage va être effectué." },
+          "Enlever le carénage inférieur du côté où l'attelage va être effectué (cf. PCC).",
+          "Extraire les goupilles.",
+          "Sortir la barre d'accouplement",
+          "Préparer le câblot (câblot dans le voussoir si accouplement 302 / 402 ou 401)",
+          "Mettre le premier axe et sa goupille de sécurité pour immobiliser la barre en position sortie",
+        ],
+      },
+      {
+        type: "p",
+        text: "Les mêmes manœuvres peuvent être effectuées sur la rame secourante dans l'attente de l'arrivée du superviseur habilité.",
+      },
+      {
+        type: "p",
+        parts: [
+          { t: "ATTENTION", purple: true, bold: true },
+          { t: " : ne jamais se positionner entre les deux rames lors des mouvements d'approche ou de tension des barres !", purple: true, bold: true },
+        ],
+      },
+      {
+        type: "warning",
+        bullets: [
+          "Pour la sécurité du convoi, la rame secourante doit être dans son état de fonctionnement nominal (pas de bogie isolé, pas d'avarie de freinage, pas de panne phonie),",
+          "Lors du déplacement du convoi, les deux conducteurs doivent être en mesure de communiquer entre eux (= entre chaque rame), et de stopper le convoi à tout moment.",
+        ],
+        lines: [
+          { text: "Vitesse maxi autorisée en convoi : 20 km/h", red: true },
+          { text: "Il est interdit d'utiliser le FU ou la commande des patins en convoi :", bold: true },
+          { text: "en cas d'urgence, utiliser le mode FMS ou le FS !", bold: true },
+          {
+            parts: [
+              { t: "Attention", red: true, bold: true, underline: true },
+              {
+                t: " : sur une rame remorquée dont les freins ont été isolés mécaniquement à la pompe, l'action sur le FS sera inopérante !",
+                red: true,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 /** Sommaire de navigation (ancres A–H sans article séparé). */
@@ -586,5 +1239,132 @@ export const RCT_LECTURE_TOC = [
     title: "Préparation de la sortie",
     anchorOnly: true,
     parentId: "s-1-1",
+  },
+  { id: "s-1-2", level: 2, code: "1.2", page: 10, title: "DE-PREPARATION DE LA RAME" },
+  {
+    id: "s-1-2-1",
+    level: 3,
+    code: "1.2.1",
+    page: null,
+    title: "Dé-préparation de la rame en ligne",
+    anchorOnly: true,
+    parentId: "s-1-2",
+  },
+  {
+    id: "s-1-2-2",
+    level: 3,
+    code: "1.2.2",
+    page: 11,
+    title: "Dé-préparation pour remisage",
+    anchorOnly: true,
+    parentId: "s-1-2",
+  },
+  {
+    id: "s-1-3",
+    level: 2,
+    code: "1.3",
+    page: 12,
+    title: "UTILISATION DU SIE (SYSTEME INFORMATIQUE EMBARQUE)",
+  },
+  {
+    id: "s-1-4",
+    level: 2,
+    code: "1.4",
+    page: 13,
+    title: "UTILISATION DES SYSTEMES DE FREINAGE",
+  },
+  {
+    id: "s-1-4-a",
+    level: 3,
+    code: "A",
+    page: null,
+    title: "Utilisation du freinage d'urgence (FU)",
+    anchorOnly: true,
+    parentId: "s-1-4",
+  },
+  {
+    id: "s-1-4-b",
+    level: 3,
+    code: "B",
+    page: null,
+    title: "Utilisation du frein électromagnétique (patins)",
+    anchorOnly: true,
+    parentId: "s-1-4",
+  },
+  {
+    id: "s-1-4-c",
+    level: 3,
+    code: "C",
+    page: null,
+    title: "Utilisation du frein de secours (FS)",
+    anchorOnly: true,
+    parentId: "s-1-4",
+  },
+  { id: "s-1-5", level: 2, code: "1.5", page: 15, title: "UTILISATION DES SABLIERES" },
+  {
+    id: "s-1-6",
+    level: 3,
+    code: "1.6",
+    page: null,
+    title: "UTILISATION DE LA VEILLE AUTOMATIQUE",
+    anchorOnly: true,
+    parentId: "s-1-5",
+  },
+  {
+    id: "s-1-7",
+    level: 2,
+    code: "1.7",
+    page: 16,
+    title: "CONSTAT D'ANOMALIES SUR LE MATERIEL ROULANT",
+  },
+  {
+    id: "s-1-8",
+    level: 2,
+    code: "1.8",
+    page: 16,
+    title: "PANNES DU MATERIEL ROULANT",
+  },
+  {
+    id: "s-1-8-a",
+    level: 3,
+    code: "A",
+    page: 17,
+    title: "Remorquage / Poussage (tableau)",
+    anchorOnly: true,
+    parentId: "s-1-8",
+  },
+  {
+    id: "s-1-8-b",
+    level: 3,
+    code: "B",
+    page: 17,
+    title: "Haut Le Pied (tableau)",
+    anchorOnly: true,
+    parentId: "s-1-8",
+  },
+  {
+    id: "s-1-8-c",
+    level: 3,
+    code: "C",
+    page: 17,
+    title: "Fin de Tour (tableau)",
+    anchorOnly: true,
+    parentId: "s-1-8",
+  },
+  {
+    id: "s-1-8-d",
+    level: 3,
+    code: "D",
+    page: 17,
+    title: "Fin de Journée (tableau)",
+    anchorOnly: true,
+    parentId: "s-1-8",
+  },
+  {
+    id: "s-1-9",
+    level: 2,
+    code: "1.9",
+    page: 19,
+    title: "PROCEDURE DE REMORQUAGE – POUSSAGE",
   },
 ];

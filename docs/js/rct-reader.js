@@ -86,8 +86,82 @@ function sectionPlainText(section) {
     if (block.rows) {
       for (const row of block.rows) parts.push(...row);
     }
+    if (block.type === "pannes-table") {
+      for (const h of block.headers || []) {
+        parts.push(h.title || "", h.speed || "");
+      }
+      for (const row of block.rows || []) {
+        for (const cell of row) {
+          if (!cell) continue;
+          parts.push(cell.text || "");
+          if (cell.speed) parts.push(cell.speed);
+          for (const line of cell.lines || []) {
+            parts.push(line.text || "", line.speed || "");
+          }
+        }
+      }
+      parts.push(...(block.footnotes || []));
+    }
+    if (block.bullets) parts.push(...block.bullets);
+    if (block.lines) {
+      for (const line of block.lines) {
+        if (line.text) parts.push(line.text);
+        if (line.parts) parts.push(...line.parts.map((p) => p.t || ""));
+      }
+    }
   }
   return parts.join(" ");
+}
+
+function renderInlineParts(parts, queryNorm) {
+  return (parts || [])
+    .map((part) => {
+      const classes = [];
+      if (part.red) classes.push("lecture-inline--red");
+      if (part.purple) classes.push("lecture-inline--purple");
+      if (part.bold) classes.push("lecture-inline--bold");
+      if (part.underline) classes.push("lecture-inline--underline");
+      if (part.italic) classes.push("lecture-inline--italic");
+      const chunk = highlightText(part.t, queryNorm);
+      return classes.length ? `<span class="${classes.join(" ")}">${chunk}</span>` : chunk;
+    })
+    .join("");
+}
+
+function renderPannesCell(cell, queryNorm) {
+  if (!cell) return "";
+  const chunks = [];
+  if (cell.text) {
+    const inner = cell.bold
+      ? `<strong>${highlightText(cell.text, queryNorm)}</strong>`
+      : highlightText(cell.text, queryNorm);
+    chunks.push(`<span class="lecture-pannes__text">${inner}</span>`);
+  }
+  if (cell.marker) {
+    chunks.push(
+      `<span class="lecture-pannes__marker">${highlightText(cell.marker, queryNorm)}</span>`,
+    );
+  }
+  if (cell.speed) {
+    chunks.push(
+      `<span class="lecture-pannes__speed">${highlightText(cell.speed, queryNorm)}</span>`,
+    );
+  }
+  for (const line of cell.lines || []) {
+    if (line.text) {
+      const inner = highlightText(line.text, queryNorm);
+      const marker = line.marker
+        ? ` <span class="lecture-pannes__marker">${highlightText(line.marker, queryNorm)}</span>`
+        : "";
+      chunks.push(`<div class="lecture-pannes__line">${inner}${marker}</div>`);
+    }
+    if (line.speed) {
+      chunks.push(
+        `<div class="lecture-pannes__speed">${highlightText(line.speed, queryNorm)}</div>`,
+      );
+    }
+  }
+  return chunks.join("");
 }
 
 function anchorSearchText(anchorId) {
@@ -190,9 +264,21 @@ function renderStepItem(item, num, queryNorm) {
   if (typeof item === "string") {
     return `<li class="lecture-steps__item" value="${num}"><p>${highlightText(item, queryNorm)}</p></li>`;
   }
+  if (item?.text && !item?.tail && !item?.lines) {
+    const lead = item.bold
+      ? `<strong>${highlightText(item.text, queryNorm)}</strong>`
+      : highlightText(item.text, queryNorm);
+    return `<li class="lecture-steps__item" value="${num}"><p>${lead}</p></li>`;
+  }
   if (item?.text && item?.tail && !item?.lines) {
-    const tail = `<span class="lecture-note lecture-note--purple">${highlightText(item.tail.text, queryNorm)}</span>`;
-    return `<li class="lecture-steps__item" value="${num}"><p>${highlightText(item.text, queryNorm)}${tail}</p></li>`;
+    const tailCls = item.tail.blue
+      ? "lecture-note lecture-note--blue lecture-note--italic"
+      : "lecture-note lecture-note--purple";
+    const tail = `<span class="${tailCls}">${highlightText(item.tail.text, queryNorm)}</span>`;
+    const lead = item.bold
+      ? `<strong>${highlightText(item.text, queryNorm)}</strong>`
+      : highlightText(item.text, queryNorm);
+    return `<li class="lecture-steps__item" value="${num}"><p>${lead}${tail}</p></li>`;
   }
   if (item?.text && item?.lines) {
     const lead = `<p class="lecture-steps__part">${highlightText(item.text, queryNorm)}</p>`;
@@ -222,7 +308,8 @@ function renderBlock(block, queryNorm) {
     case "page-scan": {
       const src = `${RCT_IMAGE_BASE}${escapeHtml(block.src || "")}`;
       const cap = block.caption || "Page RCT";
-      return `<figure class="lecture-page-scan">
+      const landscape = block.landscape ? " lecture-page-scan--landscape" : "";
+      return `<figure class="lecture-page-scan${landscape}">
         <img src="${src}" alt="${escapeHtml(cap)}" loading="lazy" decoding="async" />
         <figcaption>${highlightText(cap, queryNorm)}</figcaption>
       </figure>`;
@@ -265,14 +352,10 @@ function renderBlock(block, queryNorm) {
     }
     case "p":
       if (block.parts?.length) {
-        const inner = block.parts
-          .map((part) => {
-            const cls = part.red ? "lecture-inline--red" : "";
-            const chunk = highlightText(part.t, queryNorm);
-            return cls ? `<span class="${cls}">${chunk}</span>` : chunk;
-          })
-          .join("");
-        return `<p class="lecture-p">${inner}</p>`;
+        return `<p class="lecture-p">${renderInlineParts(block.parts, queryNorm)}</p>`;
+      }
+      if (block.italic) {
+        return `<p class="lecture-p lecture-p--italic">${highlightText(block.text, queryNorm)}</p>`;
       }
       return `<p class="lecture-p">${highlightText(block.text, queryNorm)}</p>`;
     case "note":
@@ -286,6 +369,45 @@ function renderBlock(block, queryNorm) {
     case "note-blue-italic":
       return `<p class="lecture-note lecture-note--blue lecture-note--italic">${highlightText(block.text, queryNorm)}</p>`;
     case "warning": {
+      const toneCls = block.tone === "red" ? " lecture-warning--red-text" : "";
+      if (block.parts?.length) {
+        return `<aside class="lecture-warning${toneCls}" role="note">${renderInlineParts(block.parts, queryNorm)}</aside>`;
+      }
+      if (block.bullets?.length || block.lines?.length) {
+        const bullets = (block.bullets || [])
+          .map(
+            (item) =>
+              `<li>${highlightText(item, queryNorm)}</li>`,
+          )
+          .join("");
+        const lines = (block.lines || [])
+          .map((line) => {
+            if (line.parts?.length) {
+              return `<p class="lecture-warning__line">${renderInlineParts(line.parts, queryNorm)}</p>`;
+            }
+            const classes = ["lecture-warning__line"];
+            if (line.red) classes.push("lecture-warning__line--red");
+            if (line.blue) classes.push("lecture-warning__line--blue");
+            if (line.bold) classes.push("lecture-warning__line--bold");
+            if (line.italic) classes.push("lecture-warning__line--italic");
+            return `<p class="${classes.join(" ")}">${highlightText(line.text, queryNorm)}</p>`;
+          })
+          .join("");
+        const list = bullets ? `<ul class="lecture-warning__bullets">${bullets}</ul>` : "";
+        return `<aside class="lecture-warning${toneCls}" role="note">${list}${lines}</aside>`;
+      }
+      if (block.lines?.length && !block.bullets) {
+        const body = block.lines
+          .map((line) => {
+            if (line.parts?.length) {
+              return `<p class="lecture-warning__line">${renderInlineParts(line.parts, queryNorm)}</p>`;
+            }
+            const cls = line.italic ? " lecture-warning__line--italic" : "";
+            return `<p class="lecture-warning__line${cls}">${highlightText(line.text, queryNorm)}</p>`;
+          })
+          .join("");
+        return `<aside class="lecture-warning${toneCls}" role="note">${body}</aside>`;
+      }
       const prefix = block.prefix
         ? `<span class="lecture-warning__prefix">${highlightText(block.prefix, queryNorm)}</span> `
         : "";
@@ -293,7 +415,59 @@ function renderBlock(block, queryNorm) {
       const suffix = block.suffix
         ? `<span class="lecture-warning__suffix">${highlightText(block.suffix, queryNorm)}</span>`
         : "";
-      return `<aside class="lecture-warning" role="note">${prefix}${body}${suffix}</aside>`;
+      return `<aside class="lecture-warning${toneCls}" role="note">${prefix}${body}${suffix}</aside>`;
+    }
+    case "highlight":
+      return `<p class="lecture-highlight">${highlightText(block.text, queryNorm)}</p>`;
+    case "prep-box":
+      return `<ol class="lecture-prep-box">${(block.items || [])
+        .map((item) => {
+          if (typeof item === "string") {
+            return `<li>${highlightText(item, queryNorm)}</li>`;
+          }
+          const lead = item.underline
+            ? `<span class="lecture-inline--underline">${highlightText(item.text, queryNorm)}</span>`
+            : highlightText(item.text, queryNorm);
+          const suffix = item.suffix ? highlightText(item.suffix, queryNorm) : "";
+          return `<li>${lead}${suffix}</li>`;
+        })
+        .join("")}</ol>`;
+    case "sie-cycle":
+      return `<ol class="lecture-sie-cycle">${(block.items || [])
+        .map((item) => `<li>${highlightText(item, queryNorm)}</li>`)
+        .join("")}</ol>`;
+    case "freinage-modes":
+      return `<ol class="lecture-freinage-modes">${(block.items || [])
+        .map((item) => `<li>${highlightText(item, queryNorm)}</li>`)
+        .join("")}</ol>`;
+    case "pannes-table": {
+      const headers = (block.headers || [])
+        .map((h) => {
+          const speed = h.speed
+            ? `<span class="lecture-pannes__head-speed">${highlightText(h.speed, queryNorm)}</span>`
+            : "";
+          return `<th scope="col"><span class="lecture-pannes__head-title">${highlightText(h.title, queryNorm)}</span>${speed}</th>`;
+        })
+        .join("");
+      const rows = (block.rows || [])
+        .map((row, idx) => {
+          const cells = row
+            .map((cell) => `<td>${renderPannesCell(cell, queryNorm)}</td>`)
+            .join("");
+          const stripe = idx % 2 === 0 ? " lecture-pannes__row--alt" : "";
+          return `<tr class="lecture-pannes__row${stripe}">${cells}</tr>`;
+        })
+        .join("");
+      const footnotes = (block.footnotes || [])
+        .map((note) => `<p class="lecture-pannes__footnote">${highlightText(note, queryNorm)}</p>`)
+        .join("");
+      return `<div class="lecture-table-wrap lecture-table-wrap--pannes">
+        <table class="lecture-table lecture-table--pannes">
+          <thead><tr>${headers}</tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        ${footnotes}
+      </div>`;
     }
     case "steps":
       return `<ol class="lecture-steps">${(block.items || [])

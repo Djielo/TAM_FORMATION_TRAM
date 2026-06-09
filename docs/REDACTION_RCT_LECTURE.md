@@ -43,9 +43,11 @@ Un scan `page-scan` n’apparaît qu’au **changement de page** RCT (005.jpg, 0
 | `A - Entrée…` (corps) | `rct-sub` : gras + souligné |
 | Références `art. x.x` (p. 2) | Ligne suivante, **rouge** |
 | Encadré jaune PCC/SAT | `warning` ; « Cf Annexe 5.1… » **dans le même encadré** (`suffix`) |
+| Encadré jaune consigne impérative (ex. p. 16) | `warning` + `tone: "red"` ; annotation bleue : `lines` avec `blue: true` |
 | Texte rouge / violet / bleu | `note-red`, `note-purple`, `note-blue` selon le scan |
 | Parenthèse rouge **dans la même phrase** | `p` avec `parts` (pas de bloc séparé — pas de saut de ligne) |
 | Note violette **dans le même point** (ex. étape 3 § 1.1-A) | `steps` avec `tail` sur l’item — pas de `note-purple` après l’étape suivante |
+| Étapes numérotées (`steps`) | Texte **normal** (comme § 1.1) — **pas de gras** sur un item, sauf si le scan le montre explicitement |
 
 ## Types de blocs
 
@@ -54,6 +56,10 @@ Un scan `page-scan` n’apparaît qu’au **changement de page** RCT (005.jpg, 0
 - `p`, `ul`, `ol`, `steps` — corps de texte
 - `warning` (+ `suffix` optionnel) — encadré jaune
 - `version-table` — tableau p. 2 (lignes + `art.` en rouge)
+- `pannes-table` — tableaux pannes § 1.8 p. 17–18 (4 colonnes A–D, vitesses en rouge)
+- `page-scan` + `landscape: true` — scan paysage (p. 17–18) avec défilement horizontal
+- `freinage-modes`, `sie-cycle` — listes structurées § 1.3–1.4
+- `highlight`, `prep-box` — encadrés jaunes § 1.9
 - `sommaire-ch1` — sommaire détaillé p. 3
 - `anchor` — point d’ancrage sommaire (invisible à l’écran)
 
