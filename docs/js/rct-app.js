@@ -38,6 +38,7 @@ import {
   isClozeSessionComplete,
 } from "./cloze.js";
 import { createPretestSession } from "./pretest-session.js";
+import { openReader } from "./rct-reader.js";
 import {
   FINAL_EXAM_PASS_RATE,
   FINAL_EXAM_QUESTION_COUNT,
@@ -496,7 +497,10 @@ function renderTabsShell(mainHtml) {
   return `
     <div class="app-top-bar">
       <header class="header header--app">
-        <h1>RCT</h1>
+        <div class="header__title-row">
+          <h1>RCT</h1>
+          <button type="button" class="header__reader-link" data-open-reader>Consultation et recherche</button>
+        </div>
         <p>Règlement de Circulation Tramway TaM</p>
         ${renderUnlockBanner()}
       </header>
@@ -2222,6 +2226,13 @@ function render() {
   else bindFinal();
 
   bindHiddenResetGesture();
+  bindReaderLink();
+}
+
+function bindReaderLink() {
+  app.querySelector("[data-open-reader]")?.addEventListener("click", () => {
+    openReader();
+  });
 }
 
 async function requestFullProgressReset() {
