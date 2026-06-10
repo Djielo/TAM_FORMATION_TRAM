@@ -51,6 +51,8 @@ export const KEYS = {
   schema: "tam-rct-storage-schema-v2",
   /** Conservé après reset volontaire (5 × RCT) pour ne pas proposer une reprise. */
   voluntaryReset: "tam-rct-voluntary-reset-v1",
+  /** Surlignages manuel RCT — hors reset formation ; fichier tam-rct-manuel.json */
+  lectureMarks: "tam-rct-lecture-marks-v1",
 };
 
 /** Anciennes clés localStorage (renommage CET → RCT, v2025). */

@@ -7,6 +7,11 @@ import {
   RCT_LECTURE_SECTIONS,
   RCT_LECTURE_TOC,
 } from "./data-rct-lecture.js";
+import {
+  LECTURE_MARKS_KEY,
+  maybeOfferManuelRestore,
+  scheduleManuelBackupWrite,
+} from "./manuel-backup.js";
 
 const READER_STATE = {
   open: false,
@@ -516,7 +521,7 @@ function highlightText(text, queryNorm) {
   return html;
 }
 
-const USER_MARKS_KEY = "tam-rct-lecture-marks-v1";
+const USER_MARKS_KEY = LECTURE_MARKS_KEY;
 const USER_MARKS_KEY_LEGACY = "rct-lecture-user-marks";
 const USER_MARK_COLORS = [
   { id: "yellow", label: "Jaune" },
@@ -543,9 +548,17 @@ function saveUserMarks(marks) {
     if (localStorage.getItem(USER_MARKS_KEY_LEGACY)) {
       localStorage.removeItem(USER_MARKS_KEY_LEGACY);
     }
+    scheduleManuelBackupWrite();
   } catch (err) {
     console.warn("Sauvegarde des surlignages RCT impossible :", err);
   }
+}
+
+function reapplyMarksInPlace() {
+  const content = overlayEl?.querySelector(".rct-reader__content");
+  if (!content) return;
+  applyUserMarks(content);
+  syncAllUserMarksFromDom(content);
 }
 
 function newMarkId() {
@@ -2117,6 +2130,7 @@ export function openReader(sectionId = null) {
   if (sectionId) READER_STATE.activeSectionId = sectionId;
   searchIndex = null;
   mountOverlay();
+  void maybeOfferManuelRestore(reapplyMarksInPlace);
 }
 
 export function closeReader() {

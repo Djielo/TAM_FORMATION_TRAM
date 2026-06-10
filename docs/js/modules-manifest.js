@@ -10,6 +10,7 @@ globalThis.__RCT_JS_MODULES__ = [
   "store.js",
   "pretest-session.js",
   "backup.js",
+  "manuel-backup.js",
   "dialog.js",
   "cloze.js",
   "data-rct-lecture.js",
