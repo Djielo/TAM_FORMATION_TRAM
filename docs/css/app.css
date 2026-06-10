@@ -2274,6 +2274,18 @@ body.rct-reader-open {
   font-weight: 400;
 }
 
+.lecture-arrow-ul--plain li {
+  font-weight: 400;
+  margin-top: 0.45rem;
+}
+
+.lecture-arrow-ul--plain li::before {
+  content: "➢";
+  top: 0;
+  color: #666;
+  font-size: 0.85rem;
+}
+
 .lecture-blue-callout {
   position: relative;
   margin: 0.35rem 0 0.75rem;
@@ -2889,27 +2901,6 @@ body.rct-reader-open {
   line-height: 1;
 }
 
-.lecture-arrow-ul {
-  margin: 0.35rem 0 0.65rem;
-  padding-left: 0;
-  list-style: none;
-}
-
-.lecture-arrow-ul li {
-  position: relative;
-  padding-left: 1.15rem;
-  margin-bottom: 0.45rem;
-  line-height: 1.45;
-}
-
-.lecture-arrow-ul li::before {
-  content: "➢";
-  position: absolute;
-  left: 0;
-  top: 0;
-  color: #666;
-}
-
 .lecture-boxed--plain {
   margin: 0.65rem 0 0.85rem;
   padding: 0.55rem 0.65rem;
@@ -2932,6 +2923,24 @@ body.rct-reader-open {
   margin-top: 0.55rem;
   padding-top: 0.45rem;
   border-top: 1px dashed var(--border);
+  font-weight: 400;
+}
+
+.lecture-chevron-p {
+  position: relative;
+  margin: 0.45rem 0 0;
+  padding-left: 1.15rem;
+  line-height: 1.45;
+  font-weight: 400;
+}
+
+.lecture-chevron-p::before {
+  content: "➢";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #666;
+  font-size: 0.85rem;
 }
 
 .lecture-prio-box {

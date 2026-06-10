@@ -198,14 +198,7 @@ export const RCT_LECTURE_CH3_SECTIONS = [
             "extra": {
               "parts": [
                 {
-                  "t": "Rappel : toute habilitation est suspendue de fait si le titulaire est resté "
-                },
-                {
-                  "t": "plus de 70 jours",
-                  "bold": true
-                },
-                {
-                  "t": " sans conduire en service commercial, sur au moins une des lignes autorisées. Une remise en main doit alors être programmée.",
+                  "t": "Rappel : toute habilitation est suspendue de fait si le titulaire est resté plus de 70 jours sans conduire en service commercial, sur au moins une des lignes autorisées. Une remise en main doit alors être programmée.",
                   "blue": true
                 }
               ]
@@ -258,26 +251,31 @@ export const RCT_LECTURE_CH3_SECTIONS = [
             ]
           },
           {
-            "type": "arrow-ul",
-            "items": [
-              "Le conducteur relevant est à son lieu de relève au moins deux minutes avant l'heure prévue (trajet à pied jusqu'à la station St Paul, ou en rame jusqu'à Mosson pour la ligne 3) ou en voiture jusqu'à Sabines ou G.Lorca (Ligne 2 & 4).",
-              "Dans le cas où le conducteur relevant ne serait pas présent, le conducteur en service prévient le PCC, poursuit son service et attend les consignes du régulateur.",
+            "type": "chevron-p",
+            "text": "Le conducteur relevant est à son lieu de relève au moins deux minutes avant l'heure prévue (trajet à pied jusqu'à la station St Paul, ou en rame jusqu'à Mosson pour la ligne 3) ou en voiture jusqu'à Sabines ou G.Lorca (Ligne 2 & 4)."
+          },
+          {
+            "type": "chevron-p",
+            "text": "Dans le cas où le conducteur relevant ne serait pas présent, le conducteur en service prévient le PCC, poursuit son service et attend les consignes du régulateur."
+          },
+          {
+            "type": "chevron-p",
+            "parts": [
               {
-                "parts": [
-                  {
-                    "t": "En l'absence de la rame à relever, "
-                  },
-                  {
-                    "t": "le CR relevant appelle le PCC",
-                    "bold": true
-                  },
-                  {
-                    "t": " (dans un délai maxi de 5 mn par rapport à l'heure de sa relève théorique) et se conforme à ses instructions."
-                  }
-                ]
+                "t": "En l'absence de la rame à relever, "
               },
-              "Respecter les consignes planchettes pour les déplacements, les pauses et ne pas utiliser son véhicule personnel."
+              {
+                "t": "le CR relevant appelle le PCC",
+                "bold": true
+              },
+              {
+                "t": " (dans un délai maxi de 5 mn par rapport à l'heure de sa relève théorique) et se conforme à ses instructions."
+              }
             ]
+          },
+          {
+            "type": "chevron-p",
+            "text": "Respecter les consignes planchettes pour les déplacements, les pauses et ne pas utiliser son véhicule personnel."
           }
         ]
       },
@@ -297,6 +295,7 @@ export const RCT_LECTURE_CH3_SECTIONS = [
       {
         "type": "warning",
         "icon": true,
+        "tone": "red",
         "text": "Toute prise de rame au dépôt doit commencer par une préparation de la rame sur le remisage, conformément à la procédure décrite dans la partie 1."
       },
       {
@@ -920,19 +919,16 @@ export const RCT_LECTURE_CH3_SECTIONS = [
         ]
       },
       {
-        "type": "p",
-        "parts": [
-          {
-            "t": "La vitesse est limitée à 40 km/h maximum.",
-            "italic": true
-          }
-        ]
-      },
-      {
         "type": "arrow-p",
         "parts": [
           {
-            "t": "Le conducteur contrôle la position des appareils de voie. Il arrête sa rame avant l'appareil de voie si la position des aiguilles n'est pas visible (neige, .../...)",
+            "t": "La vitesse est limitée à 40 km/h maximum.",
+            "blue": true,
+            "italic": true
+          },
+          {
+            "t": " Le conducteur contrôle la position des appareils de voie. Il arrête sa rame avant l'appareil de voie si la position des aiguilles n'est pas visible (neige, .../...)",
+            "blue": true,
             "italic": true
           }
         ]
@@ -1241,19 +1237,17 @@ export const RCT_LECTURE_CH3_SECTIONS = [
       {
         "type": "warning",
         "icon": true,
+        "tone": "red",
         "lines": [
           {
             "text": "TRES IMPORTANT SUR LES SECTIONS A VOIE UNIQUE !",
-            "red": true,
             "bold": true
           },
           {
-            "text": "Le contrôle de l'INDIR en entrée d'évitement -comme pour toute aiguille prise par la pointe-",
-            "red": true
+            "text": "Contrôler les INDIR en entrée d'évitement, comme pour toute aiguille prise par la pointe."
           },
           {
-            "text": "Le respect de la vitesse maxi 15 Km/h en sortie d'évitement -aiguille en voie déviée-",
-            "red": true
+            "text": "Respecter la vitesse maxi de 15 km/h en sortie d'évitement, comme pour toute aiguille en voie déviée."
           }
         ]
       },
@@ -1279,9 +1273,11 @@ export const RCT_LECTURE_CH3_SECTIONS = [
         ]
       },
       {
-        "type": "arrow-ul",
-        "items": [
-          "La V.U.T. n'est autorisée que sur ordre du PCC ou par consignes spécifiques, à une vitesse de 30 km/h."
+        "type": "arrow-p",
+        "parts": [
+          {
+            "t": "La V.U.T. n'est autorisée que sur ordre du PCC ou par consignes spécifiques, à une vitesse de 30 km/h."
+          }
         ]
       },
       {
@@ -1310,7 +1306,7 @@ export const RCT_LECTURE_CH3_SECTIONS = [
             "color": "blue",
             "parts": [
               {
-                "t": "Il donne l'ordre à la première rame de s'engage sur la VUT libre en désignant le numéro du bâton pilote (chaque conducteur étant en possession d'un bâton pilote numéroté).",
+                "t": "Il donne l'ordre à la première rame de s'engager sur la VUT libre en désignant le numéro du bâton pilote (chaque conducteur étant en possession d'un bâton pilote numéroté).",
                 "bold": true
               }
             ]
@@ -1346,9 +1342,11 @@ export const RCT_LECTURE_CH3_SECTIONS = [
         ]
       },
       {
-        "type": "arrow-ul",
-        "items": [
-          "La procédure est identique à celle ci-dessus mais les fonctions dévolues au régulateur du PCC sont déléguées aux agents de maîtrise sur place, ou à toute personne dument habilitée, qui gèrent l'autorisation d'engagement des rames sur le tronçon en VUT."
+        "type": "arrow-p",
+        "parts": [
+          {
+            "t": "La procédure est identique à celle ci-dessus mais les fonctions dévolues au régulateur du PCC sont déléguées aux agents de maîtrise sur place, ou à toute personne dument habilitée, qui gèrent l'autorisation d'engagement des rames sur le tronçon en VUT."
+          }
         ]
       }
     ]

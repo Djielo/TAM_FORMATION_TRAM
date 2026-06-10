@@ -248,19 +248,21 @@ function renderInlineParts(parts, queryNorm) {
 }
 
 function renderZoneTableBody(item, queryNorm) {
+  let body = "";
   if (item.bullets?.length) {
-    return item.bullets
+    body = item.bullets
       .map((bullet) => {
-        const body = bullet.parts?.length
+        const chunk = bullet.parts?.length
           ? renderInlineParts(bullet.parts, queryNorm)
           : highlightText(bullet.text || (typeof bullet === "string" ? bullet : ""), queryNorm);
-        return `<div class="lecture-zone-table__bullet">${body.startsWith("•") ? body : `• ${body}`}</div>`;
+        return `<div class="lecture-zone-table__bullet">${chunk.startsWith("•") ? chunk : `• ${chunk}`}</div>`;
       })
       .join("");
+  } else {
+    body = item.parts?.length
+      ? renderInlineParts(item.parts, queryNorm)
+      : highlightText(item.text || "", queryNorm);
   }
-  let body = item.parts?.length
-    ? renderInlineParts(item.parts, queryNorm)
-    : highlightText(item.text || "", queryNorm);
   const extras = item.extra ? [item.extra] : item.extras || [];
   for (const chunk of extras) {
     if (chunk.parts?.length) {
@@ -943,7 +945,11 @@ function renderBlock(block, queryNorm) {
         return `<aside class="lecture-warning${toneCls}" role="note">${inner}</aside>`;
       }
       if (block.text || block.suffix) {
-        return `<aside class="lecture-warning${toneCls}" role="note">${body}${suffix}</aside>`;
+        const inner = `${body}${suffix}`;
+        if (block.icon) {
+          return `<aside class="lecture-warning lecture-warning--icon${toneCls}" role="note"><span class="lecture-warning__icon" aria-hidden="true">⚠</span><div class="lecture-warning__content">${inner}</div></aside>`;
+        }
+        return `<aside class="lecture-warning${toneCls}" role="note">${inner}</aside>`;
       }
       return "";
     }
@@ -1063,8 +1069,15 @@ function renderBlock(block, queryNorm) {
         : highlightText(block.text || "", queryNorm);
       return `<p class="lecture-hand-p">${body}</p>`;
     }
-    case "arrow-ul":
-      return `<ul class="lecture-arrow-ul">${(block.items || [])
+    case "chevron-p": {
+      const body = block.parts?.length
+        ? renderInlineParts(block.parts, queryNorm)
+        : highlightText(block.text || "", queryNorm);
+      return `<p class="lecture-chevron-p">${body}</p>`;
+    }
+    case "arrow-ul": {
+      const plain = block.tone === "plain" ? " lecture-arrow-ul--plain" : "";
+      return `<ul class="lecture-arrow-ul${plain}">${(block.items || [])
         .map((item) => {
           const body = item.parts?.length
             ? renderInlineParts(item.parts, queryNorm)
@@ -1074,6 +1087,7 @@ function renderBlock(block, queryNorm) {
           return `<li>${body}</li>`;
         })
         .join("")}</ul>`;
+    }
     case "blue-callout": {
       const body = block.parts?.length
         ? renderInlineParts(block.parts, queryNorm)

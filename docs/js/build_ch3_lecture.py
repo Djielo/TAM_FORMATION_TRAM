@@ -144,9 +144,10 @@ def blocks_p39():
                 ],
                 extra={
                     "parts": [
-                        {"t": "Rappel : toute habilitation est suspendue de fait si le titulaire est resté "},
-                        {"t": "plus de 70 jours", "bold": True},
-                        {"t": " sans conduire en service commercial, sur au moins une des lignes autorisées. Une remise en main doit alors être programmée.", "blue": True},
+                        {
+                            "t": "Rappel : toute habilitation est suspendue de fait si le titulaire est resté plus de 70 jours sans conduire en service commercial, sur au moins une des lignes autorisées. Une remise en main doit alors être programmée.",
+                            "blue": True,
+                        },
                     ]
                 },
             ),
@@ -174,21 +175,17 @@ def blocks_p39():
             "tone": "plain",
             "blocks": [
                 p(parts=[{"t": "Cas particulier de la Relève en ligne :", "bold": True, "underline": True}]),
+                {"type": "chevron-p", "text": "Le conducteur relevant est à son lieu de relève au moins deux minutes avant l'heure prévue (trajet à pied jusqu'à la station St Paul, ou en rame jusqu'à Mosson pour la ligne 3) ou en voiture jusqu'à Sabines ou G.Lorca (Ligne 2 & 4)."},
+                {"type": "chevron-p", "text": "Dans le cas où le conducteur relevant ne serait pas présent, le conducteur en service prévient le PCC, poursuit son service et attend les consignes du régulateur."},
                 {
-                    "type": "arrow-ul",
-                    "items": [
-                        "Le conducteur relevant est à son lieu de relève au moins deux minutes avant l'heure prévue (trajet à pied jusqu'à la station St Paul, ou en rame jusqu'à Mosson pour la ligne 3) ou en voiture jusqu'à Sabines ou G.Lorca (Ligne 2 & 4).",
-                        "Dans le cas où le conducteur relevant ne serait pas présent, le conducteur en service prévient le PCC, poursuit son service et attend les consignes du régulateur.",
-                        {
-                            "parts": [
-                                {"t": "En l'absence de la rame à relever, "},
-                                {"t": "le CR relevant appelle le PCC", "bold": True},
-                                {"t": " (dans un délai maxi de 5 mn par rapport à l'heure de sa relève théorique) et se conforme à ses instructions."},
-                            ]
-                        },
-                        "Respecter les consignes planchettes pour les déplacements, les pauses et ne pas utiliser son véhicule personnel.",
+                    "type": "chevron-p",
+                    "parts": [
+                        {"t": "En l'absence de la rame à relever, "},
+                        {"t": "le CR relevant appelle le PCC", "bold": True},
+                        {"t": " (dans un délai maxi de 5 mn par rapport à l'heure de sa relève théorique) et se conforme à ses instructions."},
                     ],
                 },
+                {"type": "chevron-p", "text": "Respecter les consignes planchettes pour les déplacements, les pauses et ne pas utiliser son véhicule personnel."},
             ],
         },
     ]
@@ -202,6 +199,7 @@ def blocks_p40():
         {
             "type": "warning",
             "icon": True,
+            "tone": "red",
             "text": "Toute prise de rame au dépôt doit commencer par une préparation de la rame sur le remisage, conformément à la procédure décrite dans la partie 1.",
         },
         p(parts=[{"t": "Sortie du dépôt et mise en ligne", "bold": True, "underline": True}]),
@@ -351,8 +349,13 @@ def blocks_p43():
         {"type": "anchor", "id": "s-3-2-a"},
         {"type": "rct-sub", "text": "A - Ouverture de la voie sur voie double ou voie unique :"},
         {"type": "arrow-p", "parts": [{"t": "Les consignes spécifiques à l'ouverture de voie sont les suivantes :"}]},
-        p(parts=[{"t": "La vitesse est limitée à 40 km/h maximum.", "italic": True}]),
-        {"type": "arrow-p", "parts": [{"t": "Le conducteur contrôle la position des appareils de voie. Il arrête sa rame avant l'appareil de voie si la position des aiguilles n'est pas visible (neige, .../...)", "italic": True}]},
+        {
+            "type": "arrow-p",
+            "parts": [
+                {"t": "La vitesse est limitée à 40 km/h maximum.", "blue": True, "italic": True},
+                {"t": " Le conducteur contrôle la position des appareils de voie. Il arrête sa rame avant l'appareil de voie si la position des aiguilles n'est pas visible (neige, .../...)", "blue": True, "italic": True},
+            ],
+        },
         {"type": "arrow-p", "parts": [{"t": "Le conducteur signale :"}]},
         z(
             zc("purple", bullets=[blt("La présence d'objets éventuels sur la voie.")]),
@@ -409,10 +412,10 @@ def blocks_p44():
                 ],
             }]),
         ),
-        {"type": "warning", "icon": True, "lines": [
-            {"text": "TRES IMPORTANT SUR LES SECTIONS A VOIE UNIQUE !", "red": True, "bold": True},
-            {"text": "Le contrôle de l'INDIR en entrée d'évitement -comme pour toute aiguille prise par la pointe-", "red": True},
-            {"text": "Le respect de la vitesse maxi 15 Km/h en sortie d'évitement -aiguille en voie déviée-", "red": True},
+        {"type": "warning", "icon": True, "tone": "red", "lines": [
+            {"text": "TRES IMPORTANT SUR LES SECTIONS A VOIE UNIQUE !", "bold": True},
+            {"text": "Contrôler les INDIR en entrée d'évitement, comme pour toute aiguille prise par la pointe."},
+            {"text": "Respecter la vitesse maxi de 15 km/h en sortie d'évitement, comme pour toute aiguille en voie déviée."},
         ]},
     ]
 
@@ -423,16 +426,16 @@ def blocks_p45():
         {"type": "anchor", "id": "s-3-2-d"},
         {"type": "rct-sub", "text": "D - Circulation en voie unique temporaire (VUT) :"},
         {"type": "arrow-p", "parts": [{"t": "La voie unique temporaire correspond à la circulation d'une ou de plusieurs rames sur une seule voie, dans les deux sens, sans recours à la signalisation de cantonnement."}]},
-        {"type": "arrow-ul", "items": ["La V.U.T. n'est autorisée que sur ordre du PCC ou par consignes spécifiques, à une vitesse de 30 km/h."]},
+        {"type": "arrow-p", "parts": [{"t": "La V.U.T. n'est autorisée que sur ordre du PCC ou par consignes spécifiques, à une vitesse de 30 km/h."}]},
         p(parts=[{"t": "Manœuvre effectuée par radio et bâton pilote numéroté", "bold": True, "underline": True}]),
         ft(
             {"color": "teal", "parts": [{"t": "Le régulateur donne l'ordre aux rames de stopper aux extrémités de la VUT et il s'assure de la bonne réception de son message par les conducteurs.", "bold": True}]},
-            {"color": "blue", "parts": [{"t": "Il donne l'ordre à la première rame de s'engage sur la VUT libre en désignant le numéro du bâton pilote (chaque conducteur étant en possession d'un bâton pilote numéroté).", "bold": True}]},
+            {"color": "blue", "parts": [{"t": "Il donne l'ordre à la première rame de s'engager sur la VUT libre en désignant le numéro du bâton pilote (chaque conducteur étant en possession d'un bâton pilote numéroté).", "bold": True}]},
             {"color": "purple", "parts": [{"t": "Lorsque la rame est sortie de la VUT, elle appelle le PCC qui lui donne les instructions pour la transmission du bâton pilote à une rame en attente dans le sens inverse.", "bold": True}]},
             {"color": "purple", "parts": [{"t": "La rame en sens inverse avant de s'engager sur la VUT demande l'autorisation au P.C.C en annonçant le numéro du bâton pilote.", "bold": True}]},
         ),
         p(parts=[{"t": "Manœuvre effectuée avec la présence d'un ou plusieurs agents de maîtrise", "bold": True, "underline": True}]),
-        {"type": "arrow-ul", "items": ["La procédure est identique à celle ci-dessus mais les fonctions dévolues au régulateur du PCC sont déléguées aux agents de maîtrise sur place, ou à toute personne dument habilitée, qui gèrent l'autorisation d'engagement des rames sur le tronçon en VUT."]},
+        {"type": "arrow-p", "parts": [{"t": "La procédure est identique à celle ci-dessus mais les fonctions dévolues au régulateur du PCC sont déléguées aux agents de maîtrise sur place, ou à toute personne dument habilitée, qui gèrent l'autorisation d'engagement des rames sur le tronçon en VUT."}]},
     ]
 
 
