@@ -117,6 +117,7 @@ def blocks_p38():
                         "B - En cas de panne de phonie",
                         "C - Rentrée et circulation dans le dépôt",
                         "D - Signalements par écrit",
+                        "E - Signalements par rapport interne",
                     ],
                 },
             ],
@@ -566,6 +567,7 @@ TOC = [
     {"id": "s-3-9-b", "level": 3, "code": "B", "page": 57, "title": "En cas de panne de phonie", "anchorOnly": True, "parentId": "s-3-9"},
     {"id": "s-3-9-c", "level": 3, "code": "C", "page": 57, "title": "Rentrée et circulation dans le dépôt", "anchorOnly": True, "parentId": "s-3-9"},
     {"id": "s-3-9-d", "level": 3, "code": "D", "page": 58, "title": "Signalements par feuille de route", "anchorOnly": True, "parentId": "s-3-9"},
+    {"id": "s-3-9-e", "level": 3, "code": "E", "page": 58, "title": "Signalements par rapport interne", "anchorOnly": True, "parentId": "s-3-9"},
 ]
 
 OUT.write_text(

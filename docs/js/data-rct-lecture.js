@@ -1,5 +1,5 @@
 /**
- * RCT EXP-CSG-01-17 — consultation (pages 1–58, chapitres 1–3).
+ * RCT EXP-CSG-01-17 — consultation intégrale (pages 1–76).
  * Texte mot pour mot depuis les scans RCT (docs/rct-img/00X.jpg)
  */
 
@@ -11,6 +11,10 @@ import {
   RCT_LECTURE_CH3_SECTIONS,
   RCT_LECTURE_CH3_TOC,
 } from "./data-rct-lecture-ch3.js";
+import {
+  RCT_LECTURE_CH4_SECTIONS,
+  RCT_LECTURE_CH4_TOC,
+} from "./data-rct-lecture-ch4.js";
 
 /** @typedef {{ type: string, text?: string, items?: string[], caption?: string, src?: string }} LectureBlock */
 /** @typedef {{ id: string, level: number, code: string | null, page: number | null, title: string, blocks: LectureBlock[] }} LectureSection */
@@ -1179,6 +1183,7 @@ export const RCT_LECTURE_SECTIONS = [
   },
   ...RCT_LECTURE_CH2_SECTIONS,
   ...RCT_LECTURE_CH3_SECTIONS,
+  ...RCT_LECTURE_CH4_SECTIONS,
 ];
 
 /** Sommaire de navigation (ancres A–H sans article séparé). */
@@ -1389,4 +1394,5 @@ export const RCT_LECTURE_TOC = [
   },
   ...RCT_LECTURE_CH2_TOC,
   ...RCT_LECTURE_CH3_TOC,
+  ...RCT_LECTURE_CH4_TOC,
 ];

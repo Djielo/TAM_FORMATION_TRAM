@@ -15,6 +15,7 @@ globalThis.__RCT_JS_MODULES__ = [
   "data-rct-lecture.js",
   "data-rct-lecture-ch2.js",
   "data-rct-lecture-ch3.js",
+  "data-rct-lecture-ch4.js",
   "rct-reader.js",
   "rct-app.js",
   "data-rct-acronymes.js",

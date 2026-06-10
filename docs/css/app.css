@@ -2490,6 +2490,62 @@ body.rct-reader-open {
   margin: 0 0 0.65rem;
 }
 
+.lecture-chapter-banner {
+  margin: 0.5rem 0 0.85rem;
+  padding: 0.45rem 0.75rem;
+  background: #6b3fa0;
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.lecture-sat-codes {
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.lecture-table--sat-codes {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.35rem;
+}
+
+.lecture-table--sat-codes:last-child {
+  margin-bottom: 0;
+}
+
+.lecture-sat-codes__caption {
+  caption-side: top;
+  padding: 0.35rem 0.5rem;
+  background: #e8a87c;
+  color: #fff;
+  font-weight: 700;
+  text-align: left;
+}
+
+.lecture-sat-codes__label {
+  padding: 0.28rem 0.45rem;
+  line-height: 1.35;
+  vertical-align: top;
+}
+
+.lecture-sat-codes__code {
+  padding: 0.28rem 0.45rem;
+  width: 4.5rem;
+  text-align: right;
+  font-weight: 700;
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.lecture-sat-codes__row--alt td {
+  background: #f0f0f0;
+}
+
 .lecture-signal-checks {
   margin: 0.35rem 0 0.75rem;
   padding: 0;

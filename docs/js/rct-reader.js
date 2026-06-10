@@ -173,6 +173,18 @@ function sectionPlainText(section) {
     if (block.type === "boxed" || block.type === "callout-box") {
       parts.push(sectionPlainText({ blocks: block.blocks || [] }));
     }
+    if (block.type === "chapter-banner") {
+      parts.push(block.text || "");
+    }
+    if (block.type === "sat-codes") {
+      for (const table of block.tables || []) {
+        parts.push(table.title || "");
+        for (const row of table.rows || []) {
+          if (row.parts) parts.push(...row.parts.map((p) => p.t || ""));
+          parts.push(row.code || "");
+        }
+      }
+    }
     if (block.type === "client-message-panel") {
       for (const col of block.columns || []) {
         parts.push(col.title || "");
@@ -1172,6 +1184,25 @@ function renderBlock(block, queryNorm) {
         .join("");
       return `<div class="lecture-table-wrap"><table class="lecture-table"><thead><tr>${headers}</tr></thead><tbody>${rows}</tbody></table></div>`;
     }
+    case "chapter-banner":
+      return `<div class="lecture-chapter-banner" role="doc-subtitle">${highlightText(block.text || "", queryNorm)}</div>`;
+    case "sat-codes": {
+      const tables = (block.tables || [])
+        .map((table) => {
+          const title = table.title
+            ? `<caption class="lecture-sat-codes__caption">${highlightText(table.title, queryNorm)}</caption>`
+            : "";
+          const rows = (table.rows || [])
+            .map(
+              (row, idx) =>
+                `<tr class="${idx % 2 ? "lecture-sat-codes__row--alt" : ""}"><td class="lecture-sat-codes__label">${row.parts?.length ? renderInlineParts(row.parts, queryNorm) : highlightText(row.text || "", queryNorm)}</td><td class="lecture-sat-codes__code">${highlightText(row.code || "", queryNorm)}</td></tr>`,
+            )
+            .join("");
+          return `<table class="lecture-table lecture-table--sat-codes">${title}<tbody>${rows}</tbody></table>`;
+        })
+        .join("");
+      return `<div class="lecture-sat-codes">${tables}</div>`;
+    }
     default:
       return "";
   }
@@ -1226,7 +1257,7 @@ function renderReaderMarkup() {
     <div class="rct-reader__chrome">
       <div class="rct-reader__chrome-main">
         <h2 class="rct-reader__title">Consultation et recherche — RCT</h2>
-        <p class="rct-reader__subtitle">Pages 1–58 · chapitres 1–3 — scans RCT</p>
+        <p class="rct-reader__subtitle">Pages 1–76 · RCT intégral — scans RCT</p>
       </div>
       <div class="rct-reader__chrome-actions">
         <button type="button" class="rct-reader__btn-icon" data-reader-minimize title="${READER_STATE.minimized ? "Agrandir" : "Réduire"}" aria-label="${READER_STATE.minimized ? "Agrandir le panneau" : "Réduire le panneau"}">${READER_STATE.minimized ? "▢" : "—"}</button>

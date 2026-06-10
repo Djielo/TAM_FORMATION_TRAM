@@ -1119,6 +1119,7 @@ def blocks_p58(ps):
                 ],
             },
         ),
+        {"type": "anchor", "id": "s-3-9-e"},
         {"type": "rct-sub", "text": "E - Signalements par rapport interne"},
         {
             "type": "arrow-p",
@@ -1130,10 +1131,11 @@ def blocks_p58(ps):
             ],
         },
         {
-            "type": "hand-ul",
+            "type": "arrow-ul",
+            "tone": "plain",
             "items": [
-                "⇨ d'incidents divers susceptibles d'entraîner des plaintes ou des réclamations",
-                "⇨ d'accident corporel ou matériel, et de dégâts divers occasionnés sur le matériel roulant",
+                "d'incidents divers susceptibles d'entraîner des plaintes ou des réclamations",
+                "d'accident corporel ou matériel, et de dégâts divers occasionnés sur le matériel roulant",
             ],
         },
         {

@@ -77,7 +77,8 @@ export const RCT_LECTURE_CH3_SECTIONS = [
               "A - Signalements par radio",
               "B - En cas de panne de phonie",
               "C - Rentrée et circulation dans le dépôt",
-              "D - Signalements par écrit"
+              "D - Signalements par écrit",
+              "E - Signalements par rapport interne"
             ]
           }
         ]
@@ -3609,6 +3610,10 @@ export const RCT_LECTURE_CH3_SECTIONS = [
         ]
       },
       {
+        "type": "anchor",
+        "id": "s-3-9-e"
+      },
+      {
         "type": "rct-sub",
         "text": "E - Signalements par rapport interne"
       },
@@ -3622,10 +3627,11 @@ export const RCT_LECTURE_CH3_SECTIONS = [
         ]
       },
       {
-        "type": "hand-ul",
+        "type": "arrow-ul",
+        "tone": "plain",
         "items": [
-          "⇨ d'incidents divers susceptibles d'entraîner des plaintes ou des réclamations",
-          "⇨ d'accident corporel ou matériel, et de dégâts divers occasionnés sur le matériel roulant"
+          "d'incidents divers susceptibles d'entraîner des plaintes ou des réclamations",
+          "d'accident corporel ou matériel, et de dégâts divers occasionnés sur le matériel roulant"
         ]
       },
       {
@@ -3852,6 +3858,15 @@ export const RCT_LECTURE_CH3_TOC = [
     "code": "D",
     "page": 58,
     "title": "Signalements par feuille de route",
+    "anchorOnly": true,
+    "parentId": "s-3-9"
+  },
+  {
+    "id": "s-3-9-e",
+    "level": 3,
+    "code": "E",
+    "page": 58,
+    "title": "Signalements par rapport interne",
     "anchorOnly": true,
     "parentId": "s-3-9"
   }
