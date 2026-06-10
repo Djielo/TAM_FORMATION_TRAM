@@ -1,6 +1,6 @@
 # Rédaction — consultation RCT intégrale
 
-Document de référence pour `docs/js/data-rct-lecture.js`.  
+Document de référence pour `docs/js/data-rct-lecture.js` et `docs/js/data-rct-lecture-ch2.js`.  
 **Source unique** : scans `source/images/RCT/00X.jpg` (EXP-CSG-01-17).
 
 ## Règle absolue
@@ -15,7 +15,8 @@ Reproduire **mot pour mot**, à la virgule et au point près, le texte du RCT pa
 
 | Fichier | Rôle |
 |---------|------|
-| `data-rct-lecture.js` | Texte + blocs typés |
+| `data-rct-lecture.js` | Ch. 1 (p. 1–19) + fusion ch. 2 |
+| `data-rct-lecture-ch2.js` | Ch. 2 — Respect de la signalisation (p. 20–37) |
 | `RCT_LECTURE_SECTIONS` | Articles affichés (flux continu par page RCT) |
 | `RCT_LECTURE_TOC` | Sommaire cliquable (y compris ancres A, B, C…) |
 
@@ -61,7 +62,25 @@ Un scan `page-scan` n’apparaît qu’au **changement de page** RCT (005.jpg, 0
 - `freinage-modes`, `sie-cycle` — listes structurées § 1.3–1.4
 - `highlight`, `prep-box` — encadrés jaunes § 1.9
 - `sommaire-ch1` — sommaire détaillé p. 3
+- `sommaire-ch2` — sommaire chapitre 2 p. 20
+- `signal-checks` — listes d’états lumineux (INDIR, SM, tension…)
+- `codes-dest` — tableaux de codes destination (zone Dépôt, ligne…)
+- `codes-cas` — cas particuliers Gare / Galerie (2 colonnes)
+- `cas-box` — encadré « Cas particuliers » (lampe flash, sections VU…)
+- `phase-list` — phases carrefour (traversée routière)
+- `prio-box` — génération des priorités aux feux
+- `boxed` — encadré noir § 2.3 (blocs imbriqués)
+- `zone-table` — consignes zone Gare en tableau (1, 2, 3, 4, 5a, 5b — numéros colorés)
+- `arrow-p` — paragraphe avec flèche (bleu ou noir, p. 26–28)
+- `consigne-red` / `consigne-steps` — texte rouge centré / liste numérotée rouge (§ 2.3)
+- `routier-except` — exception avec pictogramme ⚠ sans fond jaune (§ 2.3)
+- `vitesse-table` — tableau limitations de vitesse p. 34 (cellules surlignées = stabilo terrain, rose + texte rouge)
 - `anchor` — point d’ancrage sommaire (invisible à l’écran)
+
+### Annotations manuscrites sur les scans
+
+- **Ne pas retranscrire** les annotations écrites à la main sur les scans.
+- **Exception optionnelle** : tableau des vitesses p. 34 — reprendre les surlignages stabilo (fond rose, vitesses / notes en rouge) via `highlight`, `highlights`, `notes`, `spanNote` dans `vitesse-table`.
 
 ## Procédure d’ajout d’une page
 
