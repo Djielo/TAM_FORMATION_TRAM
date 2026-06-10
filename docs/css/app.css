@@ -1889,8 +1889,11 @@ body.rct-reader-open {
 
 .rct-reader__mark-mode-btn {
   display: none;
-  font-size: 1rem;
-  line-height: 1;
+}
+
+.rct-reader__mark-mode-icon {
+  display: block;
+  pointer-events: none;
 }
 
 @media (hover: none) and (pointer: coarse) {
@@ -1902,9 +1905,9 @@ body.rct-reader-open {
 }
 
 .rct-reader__mark-mode-btn--on {
-  background: var(--accent, #2563eb);
+  background: #2e7d32;
+  border-color: #2e7d32;
   color: #fff;
-  border-radius: 0.35rem;
 }
 
 .rct-reader__mark {

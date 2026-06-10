@@ -8,6 +8,7 @@ import {
   RCT_LECTURE_TOC,
 } from "./data-rct-lecture.js";
 import {
+  flushManuelBackupFromGesture,
   LECTURE_MARKS_KEY,
   maybeOfferManuelRestore,
   scheduleManuelBackupWrite,
@@ -1243,6 +1244,7 @@ function bindUserMarks(content) {
         const workRange = pending.range.cloneRange();
         eraseUserMarksInRange(workRange, article);
         syncUserMarksForSection(article, pending.sectionId);
+        void flushManuelBackupFromGesture();
         closeMarkMenu();
         return;
       }
@@ -1285,6 +1287,7 @@ function bindUserMarks(content) {
 
       wrapRangeWithMark(freshRange, color, newMarkId());
       syncUserMarksForSection(article, pending.sectionId);
+      void flushManuelBackupFromGesture();
       closeMarkMenu();
     },
     { signal: ac.signal },
@@ -2076,7 +2079,7 @@ function renderReaderMarkup() {
         <p class="rct-reader__subtitle">Pages 1–76 · RCT intégral — scans RCT</p>
       </div>
       <div class="rct-reader__chrome-actions">
-        <button type="button" class="rct-reader__btn-icon rct-reader__mark-mode-btn${READER_STATE.markMode ? " rct-reader__mark-mode-btn--on" : ""}" data-reader-mark-mode title="${READER_STATE.markMode ? "Désactiver le mode surlignage" : "Mode surlignage (sans barre Google)"}" aria-label="${READER_STATE.markMode ? "Désactiver le mode surlignage" : "Activer le mode surlignage"}" aria-pressed="${READER_STATE.markMode ? "true" : "false"}">✎</button>
+        <button type="button" class="rct-reader__btn-icon rct-reader__mark-mode-btn${READER_STATE.markMode ? " rct-reader__mark-mode-btn--on" : ""}" data-reader-mark-mode title="${READER_STATE.markMode ? "Désactiver le mode surlignage" : "Mode surlignage (sans barre Google)"}" aria-label="${READER_STATE.markMode ? "Désactiver le mode surlignage" : "Activer le mode surlignage"}" aria-pressed="${READER_STATE.markMode ? "true" : "false"}"><svg class="rct-reader__mark-mode-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
         <button type="button" class="rct-reader__btn-icon" data-reader-minimize title="${READER_STATE.minimized ? "Agrandir" : "Réduire"}" aria-label="${READER_STATE.minimized ? "Agrandir le panneau" : "Réduire le panneau"}">${READER_STATE.minimized ? "▢" : "—"}</button>
         <button type="button" class="rct-reader__btn-icon rct-reader__btn-icon--close" data-reader-close title="Fermer" aria-label="Fermer la consultation">×</button>
       </div>
