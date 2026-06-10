@@ -1865,7 +1865,7 @@ export const RCT_LECTURE_CH3_SECTIONS = [
     "level": 2,
     "code": "3.3",
     "page": 49,
-    "title": "CIRCULATION HAUT LE PIED",
+    "title": "CIRCULATION HAUT LE PIED (= SANS VOYAGEURS)",
     "blocks": [
       {
         "type": "page-scan",
@@ -1944,11 +1944,16 @@ export const RCT_LECTURE_CH3_SECTIONS = [
             ]
           }
         ]
-      },
-      {
-        "type": "anchor",
-        "id": "s-3-4"
-      },
+      }
+    ]
+  },
+  {
+    "id": "s-3-4",
+    "level": 2,
+    "code": "3.4",
+    "page": 49,
+    "title": "UTILISATION DES FEUX ET DES FEUX DE DETRESSE",
+    "blocks": [
       {
         "type": "rct-section",
         "text": "3.4 - UTILISATION DES FEUX ET DES FEUX DE DETRESSE"
@@ -2246,11 +2251,16 @@ export const RCT_LECTURE_CH3_SECTIONS = [
           },
           "L'usage du klaxon en cas de danger est recommandé, à titre de remplacement."
         ]
-      },
-      {
-        "type": "anchor",
-        "id": "s-3-6"
-      },
+      }
+    ]
+  },
+  {
+    "id": "s-3-6",
+    "level": 2,
+    "code": "3.6",
+    "page": 50,
+    "title": "DISTANCES DE SECURITE",
+    "blocks": [
       {
         "type": "rct-section",
         "text": "3.6 - DISTANCES DE SECURITE"
@@ -3741,16 +3751,14 @@ export const RCT_LECTURE_CH3_TOC = [
     "level": 2,
     "code": "3.3",
     "page": 49,
-    "title": "CIRCULATION HAUT LE PIED"
+    "title": "CIRCULATION HAUT LE PIED (= SANS VOYAGEURS)"
   },
   {
     "id": "s-3-4",
-    "level": 3,
+    "level": 2,
     "code": "3.4",
     "page": 49,
-    "title": "Feux et feux de détresse",
-    "anchorOnly": true,
-    "parentId": "s-3-3"
+    "title": "UTILISATION DES FEUX ET DES FEUX DE DETRESSE"
   },
   {
     "id": "s-3-5",
@@ -3761,12 +3769,10 @@ export const RCT_LECTURE_CH3_TOC = [
   },
   {
     "id": "s-3-6",
-    "level": 3,
+    "level": 2,
     "code": "3.6",
     "page": 50,
-    "title": "Distances de sécurité",
-    "anchorOnly": true,
-    "parentId": "s-3-5"
+    "title": "DISTANCES DE SECURITE"
   },
   {
     "id": "s-3-7",

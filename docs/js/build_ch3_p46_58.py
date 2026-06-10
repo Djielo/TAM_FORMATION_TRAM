@@ -333,7 +333,7 @@ def blocks_p48(ps):
     ]
 
 
-def blocks_p49(ps):
+def blocks_p49_33(ps):
     return [
         ps(49),
         {"type": "rct-section", "text": "3.3 - CIRCULATION HAUT LE PIED (= SANS VOYAGEURS)"},
@@ -344,7 +344,11 @@ def blocks_p49(ps):
             zn("3", "blue2", bullets=[blt("Le conducteur doit veiller au message affiché sur la girouette.")]),
             zn("4", "teal", bullets=[blt("Les feux de détresse doivent être actionnés.")]),
         ),
-        {"type": "anchor", "id": "s-3-4"},
+    ]
+
+
+def blocks_p49_34(ps):
+    return [
         {"type": "rct-section", "text": "3.4 - UTILISATION DES FEUX ET DES FEUX DE DETRESSE"},
         {
             "type": "boxed",
@@ -418,7 +422,11 @@ def blocks_p49(ps):
     ]
 
 
-def blocks_p50(ps):
+def blocks_p49(ps):
+    return blocks_p49_33(ps) + blocks_p49_34(ps)
+
+
+def blocks_p50_35(ps):
     return [
         ps(50),
         {"type": "rct-section", "text": "3.5 - UTILISATION DU GONG"},
@@ -458,7 +466,11 @@ def blocks_p50(ps):
                 "L'usage du klaxon en cas de danger est recommandé, à titre de remplacement.",
             ],
         },
-        {"type": "anchor", "id": "s-3-6"},
+    ]
+
+
+def blocks_p50_36(ps):
+    return [
         {"type": "rct-section", "text": "3.6 - DISTANCES DE SECURITE"},
         {
             "type": "arrow-p",
@@ -509,6 +521,10 @@ def blocks_p50(ps):
             ],
         },
     ]
+
+
+def blocks_p50(ps):
+    return blocks_p50_35(ps) + blocks_p50_36(ps)
 
 
 def blocks_p51(ps):

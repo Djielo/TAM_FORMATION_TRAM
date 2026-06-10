@@ -1817,18 +1817,29 @@ body.rct-reader-open {
 
 .rct-reader__toc-item {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.25rem 0.4rem;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 0.35rem;
   width: 100%;
   text-align: left;
   border: none;
   background: transparent;
   color: var(--text);
   font-size: 0.78rem;
+  line-height: 1.35;
   padding: 0.35rem 0.45rem;
   border-radius: 0.35rem;
   cursor: pointer;
+}
+
+.rct-reader__toc-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.rct-reader__toc-sep {
+  font-weight: 700;
+  color: var(--accent);
 }
 
 .rct-reader__toc-item--l0,
@@ -1842,7 +1853,6 @@ body.rct-reader-open {
 
 .rct-reader__toc-item--l3 {
   padding-left: 1.25rem;
-  font-size: 0.74rem;
 }
 
 .rct-reader__toc-item--active,
@@ -1871,8 +1881,135 @@ body.rct-reader-open {
 .rct-reader__mark {
   background: #ffe08a;
   color: inherit;
+  padding: 0 0.12em;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.lecture-user-mark {
+  color: inherit;
   padding: 0 0.1em;
   border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.lecture-user-mark--yellow {
+  background: #ffe08a;
+}
+
+.lecture-user-mark--blue {
+  background: #b3e5fc;
+}
+
+.lecture-user-mark--green {
+  background: #c8e6c9;
+}
+
+.lecture-user-mark--red {
+  background: #ffcdd2;
+}
+
+.lecture-user-mark--purple {
+  background: #e1bee7;
+}
+
+.rct-reader__mark-menu {
+  position: fixed;
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.55rem;
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #d0d5dd);
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+}
+
+.rct-reader__mark-menu[hidden] {
+  display: none !important;
+}
+
+.rct-reader__mark-menu-label {
+  font-size: 0.78rem;
+  color: var(--muted, #667085);
+  white-space: nowrap;
+}
+
+.rct-reader__mark-color {
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.rct-reader__mark-color:hover,
+.rct-reader__mark-color:focus-visible {
+  border-color: var(--text, #1d2939);
+  outline: none;
+}
+
+.rct-reader__mark-color--yellow {
+  background: #f4c430;
+}
+
+.rct-reader__mark-color--blue {
+  background: #42a5f5;
+}
+
+.rct-reader__mark-color--green {
+  background: #66bb6a;
+}
+
+.rct-reader__mark-color--red {
+  background: #ef5350;
+}
+
+.rct-reader__mark-color--purple {
+  background: #ab47bc;
+}
+
+.rct-reader__mark-erase {
+  margin-left: 0.1rem;
+  padding: 0.15rem 0.4rem;
+  border: 1px solid var(--border, #d0d5dd);
+  border-radius: 4px;
+  background: var(--surface, #fff);
+  color: var(--text, #1d2939);
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.rct-reader__mark-erase:hover,
+.rct-reader__mark-erase:focus-visible {
+  background: #f2f4f7;
+  outline: none;
+}
+
+.rct-reader__mark-erase[hidden] {
+  display: none !important;
+}
+
+.rct-reader__mark-close {
+  margin-left: 0.1rem;
+  padding: 0 0.35rem;
+  border: none;
+  background: transparent;
+  color: var(--muted, #667085);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.rct-reader__mark-close:hover,
+.rct-reader__mark-close:focus-visible {
+  color: var(--text, #1d2939);
+  outline: none;
 }
 
 .lecture-section {

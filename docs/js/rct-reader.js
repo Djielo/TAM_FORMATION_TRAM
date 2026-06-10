@@ -22,6 +22,8 @@ let pendingNavSectionId = null;
 /** Pause du suivi de scroll pendant une navigation programmée. */
 let scrollSpyPaused = false;
 let scrollSpyRaf = 0;
+/** Réinitialise les écouteurs du menu de surlignage (évite les doublons après refresh). */
+let userMarksBindAbort = null;
 
 function escapeHtml(raw) {
   return String(raw)
@@ -476,19 +478,576 @@ function renderListItemBody(item, queryNorm) {
     : highlightText(text, queryNorm);
 }
 
+function findTermRanges(raw, term, occupied) {
+  const tnorm = normalizeSearchText(term);
+  if (!tnorm) return;
+  const norm = normalizeSearchText(raw);
+  let pos = 0;
+  while (pos < norm.length) {
+    const idx = norm.indexOf(tnorm, pos);
+    if (idx < 0) break;
+    const end = idx + tnorm.length;
+    const overlaps = occupied.some((r) => !(end <= r.start || idx >= r.end));
+    if (!overlaps) occupied.push({ start: idx, end });
+    pos = idx + 1;
+  }
+}
+
 function highlightText(text, queryNorm) {
   const raw = String(text);
   if (!queryNorm) return escapeHtml(raw);
-  const norm = normalizeSearchText(raw);
-  const idx = norm.indexOf(queryNorm);
-  if (idx < 0) return escapeHtml(raw);
+  const terms = [...new Set(String(queryNorm).split(/\s+/).filter(Boolean))];
+  if (!terms.length) return escapeHtml(raw);
 
-  const end = idx + queryNorm.length;
-  return (
-    escapeHtml(raw.slice(0, idx)) +
-    `<mark class="rct-reader__mark">${escapeHtml(raw.slice(idx, end))}</mark>` +
-    highlightText(raw.slice(end), queryNorm)
+  const ranges = [];
+  terms.forEach((term) => findTermRanges(raw, term, ranges));
+  if (!ranges.length) return escapeHtml(raw);
+
+  ranges.sort((a, b) => a.start - b.start || a.end - b.end);
+  let html = "";
+  let cursor = 0;
+  for (const range of ranges) {
+    if (range.start < cursor) continue;
+    html += escapeHtml(raw.slice(cursor, range.start));
+    html += `<mark class="rct-reader__mark">${escapeHtml(raw.slice(range.start, range.end))}</mark>`;
+    cursor = range.end;
+  }
+  html += escapeHtml(raw.slice(cursor));
+  return html;
+}
+
+const USER_MARKS_KEY = "tam-rct-lecture-marks-v1";
+const USER_MARKS_KEY_LEGACY = "rct-lecture-user-marks";
+const USER_MARK_COLORS = [
+  { id: "yellow", label: "Jaune" },
+  { id: "blue", label: "Bleu" },
+  { id: "green", label: "Vert" },
+  { id: "red", label: "Rouge" },
+  { id: "purple", label: "Violet" },
+];
+
+function loadUserMarks() {
+  try {
+    const raw =
+      localStorage.getItem(USER_MARKS_KEY) ||
+      localStorage.getItem(USER_MARKS_KEY_LEGACY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveUserMarks(marks) {
+  try {
+    localStorage.setItem(USER_MARKS_KEY, JSON.stringify(marks));
+    if (localStorage.getItem(USER_MARKS_KEY_LEGACY)) {
+      localStorage.removeItem(USER_MARKS_KEY_LEGACY);
+    }
+  } catch (err) {
+    console.warn("Sauvegarde des surlignages RCT impossible :", err);
+  }
+}
+
+function newMarkId() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+  return `m-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function isMarkableTextNode(node) {
+  if (!node || node.nodeType !== Node.TEXT_NODE) return false;
+  const parent = node.parentElement;
+  if (!parent) return false;
+  if (parent.closest(".lecture-page-scan, .rct-reader__mark-menu")) return false;
+  return true;
+}
+
+function getMarkColorId(span) {
+  for (const c of USER_MARK_COLORS) {
+    if (span.classList.contains(`lecture-user-mark--${c.id}`)) return c.id;
+  }
+  return null;
+}
+
+function getArticlePlainText(article) {
+  const walker = createTextWalker(article);
+  let text = "";
+  while (walker.nextNode()) {
+    text += walker.currentNode.textContent || "";
+  }
+  return text;
+}
+
+function getNodeStartOffset(article, node) {
+  const walker = createTextWalker(article);
+  let count = 0;
+  while (walker.nextNode()) {
+    const textNode = walker.currentNode;
+    if (node.contains(textNode)) return count;
+    count += textNode.length;
+  }
+  return count;
+}
+
+function rangeIntersectsUserMark(range, article) {
+  if (!range || range.collapsed) return false;
+  const root =
+    range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE
+      ? range.commonAncestorContainer
+      : range.commonAncestorContainer.parentElement;
+  if (root?.closest(".lecture-user-mark")) return true;
+  return [...article.querySelectorAll(".lecture-user-mark")].some((span) =>
+    range.intersectsNode(span),
   );
+}
+
+function getIntersectionRange(a, b) {
+  if (
+    a.compareBoundaryPoints(Range.END_TO_START, b) > 0 ||
+    b.compareBoundaryPoints(Range.END_TO_START, a) > 0
+  ) {
+    return null;
+  }
+  const range = document.createRange();
+  if (a.compareBoundaryPoints(Range.START_TO_START, b) <= 0) {
+    range.setStart(b.startContainer, b.startOffset);
+  } else {
+    range.setStart(a.startContainer, a.startOffset);
+  }
+  if (a.compareBoundaryPoints(Range.END_TO_END, b) >= 0) {
+    range.setEnd(b.endContainer, b.endOffset);
+  } else {
+    range.setEnd(a.endContainer, a.endOffset);
+  }
+  return range;
+}
+
+function createTextWalker(root) {
+  return document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      return isMarkableTextNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    },
+  });
+}
+
+function getPlainTextOffsetInArticle(article, container, offset) {
+  const walker = createTextWalker(article);
+  let count = 0;
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (node === container) return count + offset;
+    count += node.length;
+  }
+  return count;
+}
+
+function findTextRangeByOffset(article, start, length) {
+  const walker = createTextWalker(article);
+  let charCount = 0;
+  let startNode = null;
+  let startOff = 0;
+  let endNode = null;
+  let endOff = 0;
+  let remaining = length;
+  let foundStart = false;
+
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    const len = node.length;
+    if (!foundStart) {
+      if (charCount + len > start) {
+        startNode = node;
+        startOff = start - charCount;
+        foundStart = true;
+        const avail = len - startOff;
+        if (avail >= length) {
+          endNode = node;
+          endOff = startOff + length;
+          break;
+        }
+        remaining = length - avail;
+      }
+    } else if (remaining <= len) {
+      endNode = node;
+      endOff = remaining;
+      break;
+    } else {
+      remaining -= len;
+    }
+    charCount += len;
+  }
+
+  if (!startNode || !endNode) return null;
+  const range = document.createRange();
+  range.setStart(startNode, startOff);
+  range.setEnd(endNode, endOff);
+  return range;
+}
+
+function createUserMarkSpan(color, markId) {
+  const span = document.createElement("span");
+  span.className = `lecture-user-mark lecture-user-mark--${color}`;
+  span.dataset.userMarkId = markId || newMarkId();
+  return span;
+}
+
+function wrapRangeWithMark(range, color, markId) {
+  if (!range || range.collapsed) return null;
+  const span = createUserMarkSpan(color, markId);
+  const contents = range.extractContents();
+  span.appendChild(contents);
+  range.insertNode(span);
+  return span;
+}
+
+function collectUserMarksFromArticle(article, sectionId) {
+  const sectionMarks = [];
+  article.querySelectorAll(".lecture-user-mark[data-user-mark-id]").forEach((span) => {
+    const color = getMarkColorId(span);
+    const text = span.textContent || "";
+    if (!color || !text) return;
+    sectionMarks.push({
+      id: span.dataset.userMarkId,
+      sectionId,
+      text,
+      color,
+      offset: getNodeStartOffset(article, span),
+    });
+  });
+  return sectionMarks;
+}
+
+function syncUserMarksForSection(article, sectionId) {
+  const others = loadUserMarks().filter((m) => m.sectionId !== sectionId);
+  saveUserMarks([...others, ...collectUserMarksFromArticle(article, sectionId)]);
+}
+
+function syncAllUserMarksFromDom(root) {
+  const all = [];
+  root.querySelectorAll("[data-reader-article]").forEach((article) => {
+    const sectionId = article.getAttribute("data-reader-article");
+    if (!sectionId) return;
+    all.push(...collectUserMarksFromArticle(article, sectionId));
+  });
+  if (all.length) saveUserMarks(all);
+}
+
+function eraseUserMarksInRange(range, article) {
+  if (!range || range.collapsed) return false;
+  const spans = [...article.querySelectorAll(".lecture-user-mark")].filter((span) =>
+    range.intersectsNode(span),
+  );
+  if (!spans.length) return false;
+
+  for (const span of spans) {
+    const spanRange = document.createRange();
+    spanRange.selectNodeContents(span);
+    const intersection = getIntersectionRange(range, spanRange);
+    if (!intersection) continue;
+
+    const fullCover =
+      intersection.compareBoundaryPoints(Range.START_TO_START, spanRange) === 0 &&
+      intersection.compareBoundaryPoints(Range.END_TO_END, spanRange) === 0;
+
+    if (fullCover) {
+      unwrapUserMark(span);
+      continue;
+    }
+
+    const color = getMarkColorId(span);
+    const parent = span.parentNode;
+    if (!parent || !color) continue;
+
+    const frag = document.createDocumentFragment();
+    const beforeRange = document.createRange();
+    beforeRange.setStart(spanRange.startContainer, spanRange.startOffset);
+    beforeRange.setEnd(intersection.startContainer, intersection.startOffset);
+    const beforeText = beforeRange.toString();
+    if (beforeText) {
+      const beforeSpan = createUserMarkSpan(color, newMarkId());
+      beforeSpan.textContent = beforeText;
+      frag.appendChild(beforeSpan);
+    }
+
+    const midText = intersection.toString();
+    if (midText) frag.appendChild(document.createTextNode(midText));
+
+    const afterRange = document.createRange();
+    afterRange.setStart(intersection.endContainer, intersection.endOffset);
+    afterRange.setEnd(spanRange.endContainer, spanRange.endOffset);
+    const afterText = afterRange.toString();
+    if (afterText) {
+      const afterSpan = createUserMarkSpan(color, newMarkId());
+      afterSpan.textContent = afterText;
+      frag.appendChild(afterSpan);
+    }
+
+    parent.replaceChild(frag, span);
+    parent.normalize();
+  }
+
+  return true;
+}
+
+function findMarkRangeInArticle(article, mark) {
+  const expected = mark.text;
+  if (!expected) return null;
+
+  const tryOffset = (off) => {
+    const range = findTextRangeByOffset(article, off, expected.length);
+    return range?.toString() === expected ? range : null;
+  };
+
+  if (typeof mark.offset === "number" && mark.offset >= 0) {
+    const exact = tryOffset(mark.offset);
+    if (exact) return exact;
+  }
+
+  const plain = getArticlePlainText(article);
+  const candidates = [];
+  let from = 0;
+  while (from <= plain.length) {
+    const idx = plain.indexOf(expected, from);
+    if (idx < 0) break;
+    candidates.push(idx);
+    from = idx + 1;
+  }
+  if (!candidates.length) return null;
+
+  if (typeof mark.offset === "number" && mark.offset >= 0) {
+    const nearest = candidates.reduce((best, idx) =>
+      Math.abs(idx - mark.offset) < Math.abs(best - mark.offset) ? idx : best,
+    );
+    const near = tryOffset(nearest);
+    if (near) return near;
+  }
+
+  for (const idx of candidates) {
+    const range = tryOffset(idx);
+    if (range) return range;
+  }
+
+  return null;
+}
+
+function applyUserMarks(root) {
+  const marks = loadUserMarks()
+    .filter((mark) => mark.sectionId && mark.text && mark.color)
+    .sort((a, b) => {
+      if (a.sectionId !== b.sectionId) return a.sectionId.localeCompare(b.sectionId);
+      return (b.offset ?? 0) - (a.offset ?? 0);
+    });
+
+  for (const mark of marks) {
+    const article = root.querySelector(`#reader-${CSS.escape(mark.sectionId)}`);
+    if (!article || article.querySelector(`[data-user-mark-id="${CSS.escape(mark.id)}"]`)) {
+      continue;
+    }
+    const range = findMarkRangeInArticle(article, mark);
+    if (!range) continue;
+    wrapRangeWithMark(range, mark.color, mark.id);
+  }
+}
+
+function unwrapUserMark(span) {
+  const parent = span.parentNode;
+  if (!parent) return;
+  while (span.firstChild) parent.insertBefore(span.firstChild, span);
+  parent.removeChild(span);
+  parent.normalize();
+}
+
+function renderMarkMenuMarkup() {
+  const swatches = USER_MARK_COLORS.map(
+    (c) =>
+      `<button type="button" class="rct-reader__mark-color rct-reader__mark-color--${c.id}" data-mark-color="${c.id}" title="${c.label}" aria-label="Surligner en ${c.label.toLowerCase()}"></button>`,
+  ).join("");
+  return `<div class="rct-reader__mark-menu" id="rct-reader-mark-menu" hidden role="toolbar" aria-label="Surligner la sélection">
+    <span class="rct-reader__mark-menu-label">Surligner :</span>
+    ${swatches}
+    <button type="button" class="rct-reader__mark-erase" data-mark-erase hidden title="Effacer le surlignage" aria-label="Effacer le surlignage">⌫</button>
+    <button type="button" class="rct-reader__mark-close" data-mark-close title="Fermer" aria-label="Fermer le menu">×</button>
+  </div>`;
+}
+
+function positionMarkMenu(menu, rect) {
+  const pad = 8;
+  const menuW = menu.offsetWidth || 220;
+  const menuH = menu.offsetHeight || 40;
+  let left = rect.left + rect.width / 2 - menuW / 2;
+  let top = rect.top - menuH - pad;
+  if (top < pad) top = rect.bottom + pad;
+  left = Math.max(pad, Math.min(left, window.innerWidth - menuW - pad));
+  top = Math.max(pad, Math.min(top, window.innerHeight - menuH - pad));
+  menu.style.left = `${left}px`;
+  menu.style.top = `${top}px`;
+}
+
+function hideMarkMenu() {
+  const menu = overlayEl?.querySelector("#rct-reader-mark-menu");
+  if (!menu) return;
+  menu.hidden = true;
+  overlayEl._markPending = null;
+}
+
+function bindUserMarks(content) {
+  userMarksBindAbort?.abort();
+  const ac = new AbortController();
+  userMarksBindAbort = ac;
+
+  const menu = overlayEl?.querySelector("#rct-reader-mark-menu");
+  if (!menu || !content) return;
+
+  let suppressMenuShow = false;
+
+  const closeMarkMenu = () => {
+    hideMarkMenu();
+    window.getSelection()?.removeAllRanges();
+  };
+
+  const showMenuForSelection = () => {
+    if (suppressMenuShow) return;
+
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) {
+      hideMarkMenu();
+      return;
+    }
+
+    const range = sel.getRangeAt(0);
+    if (!content.contains(range.commonAncestorContainer)) {
+      hideMarkMenu();
+      return;
+    }
+
+    const article =
+      range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE
+        ? range.commonAncestorContainer.closest("[data-reader-article]")
+        : range.commonAncestorContainer.parentElement?.closest("[data-reader-article]");
+    if (!article) {
+      hideMarkMenu();
+      return;
+    }
+
+    const sectionId = article.getAttribute("data-reader-article");
+    const touchesMark = rangeIntersectsUserMark(range, article);
+    overlayEl._markPending = {
+      range: range.cloneRange(),
+      sectionId,
+      touchesMark,
+    };
+
+    const eraseBtn = menu.querySelector("[data-mark-erase]");
+    if (eraseBtn) eraseBtn.hidden = !touchesMark;
+
+    menu.hidden = false;
+    positionMarkMenu(menu, range.getBoundingClientRect());
+  };
+
+  content.addEventListener(
+    "mouseup",
+    () => {
+      window.setTimeout(showMenuForSelection, 10);
+    },
+    { signal: ac.signal },
+  );
+
+  content.addEventListener(
+    "scroll",
+    () => {
+      closeMarkMenu();
+    },
+    { passive: true, signal: ac.signal },
+  );
+
+  document.addEventListener(
+    "mousedown",
+    (ev) => {
+      if (!overlayEl?.contains(ev.target)) return;
+      const liveMenu = overlayEl.querySelector("#rct-reader-mark-menu");
+      if (liveMenu?.contains(ev.target)) return;
+      closeMarkMenu();
+    },
+    { signal: ac.signal },
+  );
+
+  menu.addEventListener(
+    "pointerdown",
+    (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      suppressMenuShow = true;
+      window.setTimeout(() => {
+        suppressMenuShow = false;
+      }, 200);
+
+      const pending = overlayEl._markPending;
+      if (!pending?.range || !pending.sectionId) {
+        if (ev.target.closest("[data-mark-close]")) closeMarkMenu();
+        return;
+      }
+
+      const article = content.querySelector(`#reader-${CSS.escape(pending.sectionId)}`);
+      if (!article) {
+        closeMarkMenu();
+        return;
+      }
+
+      if (ev.target.closest("[data-mark-close]")) {
+        closeMarkMenu();
+        return;
+      }
+
+      if (ev.target.closest("[data-mark-erase]")) {
+        if (!pending.touchesMark) return;
+        const workRange = pending.range.cloneRange();
+        eraseUserMarksInRange(workRange, article);
+        syncUserMarksForSection(article, pending.sectionId);
+        closeMarkMenu();
+        return;
+      }
+
+      const colorBtn = ev.target.closest("[data-mark-color]");
+      if (!colorBtn) return;
+
+      const color = colorBtn.getAttribute("data-mark-color");
+      if (!color) return;
+
+      const startOff = getPlainTextOffsetInArticle(
+        article,
+        pending.range.startContainer,
+        pending.range.startOffset,
+      );
+      const endOff = getPlainTextOffsetInArticle(
+        article,
+        pending.range.endContainer,
+        pending.range.endOffset,
+      );
+      const length = Math.max(0, endOff - startOff);
+      if (!length) {
+        closeMarkMenu();
+        return;
+      }
+
+      eraseUserMarksInRange(pending.range.cloneRange(), article);
+      const freshRange = findTextRangeByOffset(article, startOff, length);
+      if (!freshRange || !freshRange.toString().trim()) {
+        closeMarkMenu();
+        return;
+      }
+
+      wrapRangeWithMark(freshRange, color, newMarkId());
+      syncUserMarksForSection(article, pending.sectionId);
+      closeMarkMenu();
+    },
+    { signal: ac.signal },
+  );
+
+  const restoreMarks = () => {
+    applyUserMarks(content);
+    syncAllUserMarksFromDom(content);
+  };
+  restoreMarks();
+  requestAnimationFrame(restoreMarks);
 }
 
 function renderStepLine(line, queryNorm) {
@@ -1222,14 +1781,18 @@ function renderTocItem(section, queryNorm, activeId) {
   if (!visible) return "";
   const levelClass = `rct-reader__toc-item--l${section.level}`;
   const active = section.id === activeId ? " rct-reader__toc-item--active" : "";
-  const label = [
-    section.code ? `<span class="rct-reader__toc-code">${escapeHtml(section.code)}</span>` : "",
-    `<span class="rct-reader__toc-title">${highlightText(section.title, queryNorm)}</span>`,
+  const heading = section.title
+    ? section.code
+      ? `<span class="rct-reader__toc-heading"><span class="rct-reader__toc-code">${escapeHtml(section.code)}</span><span class="rct-reader__toc-sep"> - </span><span class="rct-reader__toc-title">${highlightText(section.title, queryNorm)}</span></span>`
+      : `<span class="rct-reader__toc-heading"><span class="rct-reader__toc-title">${highlightText(section.title, queryNorm)}</span></span>`
+    : section.code
+      ? `<span class="rct-reader__toc-code">${escapeHtml(section.code)}</span>`
+      : "";
+  const page =
     section.page != null
       ? `<span class="rct-reader__toc-page">p. ${section.page}</span>`
-      : "",
-  ].join("");
-  return `<button type="button" class="rct-reader__toc-item ${levelClass}${active}" data-reader-section="${escapeHtml(section.id)}">${label}</button>`;
+      : "";
+  return `<button type="button" class="rct-reader__toc-item ${levelClass}${active}" data-reader-section="${escapeHtml(section.id)}">${heading}${page}</button>`;
 }
 
 function renderToc(queryNorm, activeId) {
@@ -1289,6 +1852,7 @@ function renderReaderMarkup() {
         </div>
       </div>
     </div>
+    ${renderMarkMenuMarkup()}
   </div>`;
 }
 
@@ -1434,6 +1998,8 @@ function mountOverlay() {
 }
 
 function unmountOverlay() {
+  userMarksBindAbort?.abort();
+  userMarksBindAbort = null;
   document.body.classList.remove("rct-reader-open");
   overlayEl?.remove();
   overlayEl = null;
@@ -1536,6 +2102,9 @@ function bindOverlay() {
     { passive: true },
   );
   requestAnimationFrame(updateScrollSpy);
+
+  const contentEl = overlayEl.querySelector(".rct-reader__content");
+  bindUserMarks(contentEl);
 }
 
 export function isReaderOpen() {

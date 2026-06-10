@@ -626,7 +626,7 @@ export const RCT_LECTURE_SECTIONS = [
     title: "UTILISATION DU SIE (SYSTEME INFORMATIQUE EMBARQUE)",
     blocks: [
       { type: "page-scan", src: "012.jpg", caption: "Page 12/76 — § 1.3" },
-      { type: "rct-section", text: "1.3- UTILISATION DU SIE (SYSTEME INFORMATIQUE EMBARQUE)" },
+      { type: "rct-section", text: "1.3 - UTILISATION DU SIE (SYSTEME INFORMATIQUE EMBARQUE)" },
       {
         type: "p",
         text: "Un écran tactile situé sur le pupitre de chaque cabine de conduite, permet d'aider le conducteur dans sa mission de conduite en lui apportant les informations nécessaires à la conduite liées à l'état de la rame, notamment :",
@@ -793,7 +793,15 @@ export const RCT_LECTURE_SECTIONS = [
         type: "p",
         text: "Quand les circonstances l'exigent, l'utilisation des sablières (action sur le bouton poussoir) est recommandée, notamment en cas de manque d'adhérence -> rail glissant et gras, chutes de feuilles, verglas, neige, pluie fine.",
       },
-      { type: "anchor", id: "s-1-6" },
+    ],
+  },
+  {
+    id: "s-1-6",
+    level: 2,
+    code: "1.6",
+    page: 15,
+    title: "UTILISATION DE LA VEILLE AUTOMATIQUE",
+    blocks: [
       { type: "rct-section", text: "1.6 - UTILISATION DE LA VEILLE AUTOMATIQUE" },
       {
         type: "p",
@@ -1328,12 +1336,10 @@ export const RCT_LECTURE_TOC = [
   { id: "s-1-5", level: 2, code: "1.5", page: 15, title: "UTILISATION DES SABLIERES" },
   {
     id: "s-1-6",
-    level: 3,
+    level: 2,
     code: "1.6",
-    page: null,
+    page: 15,
     title: "UTILISATION DE LA VEILLE AUTOMATIQUE",
-    anchorOnly: true,
-    parentId: "s-1-5",
   },
   {
     id: "s-1-7",

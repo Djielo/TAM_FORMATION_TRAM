@@ -9,7 +9,11 @@ from build_ch3_p46_58 import (
     blocks_p47 as _blocks_p47,
     blocks_p48 as _blocks_p48,
     blocks_p49 as _blocks_p49,
+    blocks_p49_33 as _blocks_p49_33,
+    blocks_p49_34 as _blocks_p49_34,
     blocks_p50 as _blocks_p50,
+    blocks_p50_35 as _blocks_p50_35,
+    blocks_p50_36 as _blocks_p50_36,
     blocks_p51 as _blocks_p51,
     blocks_p52 as _blocks_p52,
     blocks_p53 as _blocks_p53,
@@ -472,8 +476,24 @@ def blocks_p49():
     return _blocks_p49(ps)
 
 
+def blocks_p49_33():
+    return _blocks_p49_33(ps)
+
+
+def blocks_p49_34():
+    return _blocks_p49_34(ps)
+
+
 def blocks_p50():
     return _blocks_p50(ps)
+
+
+def blocks_p50_35():
+    return _blocks_p50_35(ps)
+
+
+def blocks_p50_36():
+    return _blocks_p50_36(ps)
 
 
 def blocks_p51():
@@ -519,8 +539,24 @@ SECTIONS = [
         "title": "CIRCULATION EN LIGNE",
         "blocks": blocks_p42() + blocks_p43() + blocks_p44() + blocks_p45() + blocks_p46() + blocks_p47() + blocks_p48(),
     },
-    {"id": "s-3-3", "level": 2, "code": "3.3", "page": 49, "title": "CIRCULATION HAUT LE PIED", "blocks": blocks_p49()},
-    {"id": "s-3-5", "level": 2, "code": "3.5", "page": 50, "title": "UTILISATION DU GONG", "blocks": blocks_p50()},
+    {"id": "s-3-3", "level": 2, "code": "3.3", "page": 49, "title": "CIRCULATION HAUT LE PIED (= SANS VOYAGEURS)", "blocks": blocks_p49_33()},
+    {
+        "id": "s-3-4",
+        "level": 2,
+        "code": "3.4",
+        "page": 49,
+        "title": "UTILISATION DES FEUX ET DES FEUX DE DETRESSE",
+        "blocks": blocks_p49_34(),
+    },
+    {"id": "s-3-5", "level": 2, "code": "3.5", "page": 50, "title": "UTILISATION DU GONG", "blocks": blocks_p50_35()},
+    {
+        "id": "s-3-6",
+        "level": 2,
+        "code": "3.6",
+        "page": 50,
+        "title": "DISTANCES DE SECURITE",
+        "blocks": blocks_p50_36(),
+    },
     {
         "id": "s-3-7",
         "level": 2,
@@ -552,10 +588,10 @@ TOC = [
     {"id": "s-3-2-c", "level": 3, "code": "C", "page": 44, "title": "Circulation sur voie unique", "anchorOnly": True, "parentId": "s-3-2"},
     {"id": "s-3-2-d", "level": 3, "code": "D", "page": 45, "title": "Circulation en VUT", "anchorOnly": True, "parentId": "s-3-2"},
     {"id": "s-3-2-e", "level": 3, "code": "E", "page": 46, "title": "Manœuvres retournement et rebroussement", "anchorOnly": True, "parentId": "s-3-2"},
-    {"id": "s-3-3", "level": 2, "code": "3.3", "page": 49, "title": "CIRCULATION HAUT LE PIED"},
-    {"id": "s-3-4", "level": 3, "code": "3.4", "page": 49, "title": "Feux et feux de détresse", "anchorOnly": True, "parentId": "s-3-3"},
+    {"id": "s-3-3", "level": 2, "code": "3.3", "page": 49, "title": "CIRCULATION HAUT LE PIED (= SANS VOYAGEURS)"},
+    {"id": "s-3-4", "level": 2, "code": "3.4", "page": 49, "title": "UTILISATION DES FEUX ET DES FEUX DE DETRESSE"},
     {"id": "s-3-5", "level": 2, "code": "3.5", "page": 50, "title": "UTILISATION DU GONG"},
-    {"id": "s-3-6", "level": 3, "code": "3.6", "page": 50, "title": "Distances de sécurité", "anchorOnly": True, "parentId": "s-3-5"},
+    {"id": "s-3-6", "level": 2, "code": "3.6", "page": 50, "title": "DISTANCES DE SECURITE"},
     {"id": "s-3-7", "level": 2, "code": "3.7", "page": 51, "title": "ARRET EN STATION ET COMMANDE DES PORTES"},
     {"id": "s-3-7-a", "level": 3, "code": "A", "page": 51, "title": "Commande d'ouverture de porte", "anchorOnly": True, "parentId": "s-3-7"},
     {"id": "s-3-7-b", "level": 3, "code": "B", "page": 52, "title": "Commande de fermeture des portes", "anchorOnly": True, "parentId": "s-3-7"},
