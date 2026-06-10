@@ -4,6 +4,22 @@
 import json
 from pathlib import Path
 
+from build_ch3_p46_58 import (
+    blocks_p46 as _blocks_p46,
+    blocks_p47 as _blocks_p47,
+    blocks_p48 as _blocks_p48,
+    blocks_p49 as _blocks_p49,
+    blocks_p50 as _blocks_p50,
+    blocks_p51 as _blocks_p51,
+    blocks_p52 as _blocks_p52,
+    blocks_p53 as _blocks_p53,
+    blocks_p54 as _blocks_p54,
+    blocks_p55 as _blocks_p55,
+    blocks_p56 as _blocks_p56,
+    blocks_p57 as _blocks_p57,
+    blocks_p58 as _blocks_p58,
+)
+
 OUT = Path(__file__).parent / "data-rct-lecture-ch3.js"
 
 
@@ -439,10 +455,88 @@ def blocks_p45():
     ]
 
 
+def blocks_p46():
+    return _blocks_p46(ps)
+
+
+def blocks_p47():
+    return _blocks_p47(ps)
+
+
+def blocks_p48():
+    return _blocks_p48(ps)
+
+
+def blocks_p49():
+    return _blocks_p49(ps)
+
+
+def blocks_p50():
+    return _blocks_p50(ps)
+
+
+def blocks_p51():
+    return _blocks_p51(ps)
+
+
+def blocks_p52():
+    return _blocks_p52(ps)
+
+
+def blocks_p53():
+    return _blocks_p53(ps)
+
+
+def blocks_p54():
+    return _blocks_p54(ps)
+
+
+def blocks_p55():
+    return _blocks_p55(ps)
+
+
+def blocks_p56():
+    return _blocks_p56(ps)
+
+
+def blocks_p57():
+    return _blocks_p57(ps)
+
+
+def blocks_p58():
+    return _blocks_p58(ps)
+
+
 SECTIONS = [
     {"id": "p38", "level": 1, "code": "3", "page": 38, "title": "Sommaire — chapitre 3", "blocks": blocks_p38()},
     {"id": "s-3-1", "level": 2, "code": "3.1", "page": 39, "title": "PRISE DE SERVICE", "blocks": blocks_p39() + blocks_p40() + blocks_p41()},
-    {"id": "s-3-2", "level": 2, "code": "3.2", "page": 42, "title": "CIRCULATION EN LIGNE", "blocks": blocks_p42() + blocks_p43() + blocks_p44() + blocks_p45()},
+    {
+        "id": "s-3-2",
+        "level": 2,
+        "code": "3.2",
+        "page": 42,
+        "title": "CIRCULATION EN LIGNE",
+        "blocks": blocks_p42() + blocks_p43() + blocks_p44() + blocks_p45() + blocks_p46() + blocks_p47() + blocks_p48(),
+    },
+    {"id": "s-3-3", "level": 2, "code": "3.3", "page": 49, "title": "CIRCULATION HAUT LE PIED", "blocks": blocks_p49()},
+    {"id": "s-3-5", "level": 2, "code": "3.5", "page": 50, "title": "UTILISATION DU GONG", "blocks": blocks_p50()},
+    {
+        "id": "s-3-7",
+        "level": 2,
+        "code": "3.7",
+        "page": 51,
+        "title": "ARRET EN STATION ET COMMANDE DES PORTES",
+        "blocks": blocks_p51() + blocks_p52() + blocks_p53() + blocks_p54(),
+    },
+    {"id": "s-3-8", "level": 2, "code": "3.8", "page": 55, "title": "COMMUNICATION AVEC LA CLIENTELE", "blocks": blocks_p55()},
+    {
+        "id": "s-3-9",
+        "level": 2,
+        "code": "3.9",
+        "page": 56,
+        "title": "COMMUNICATION AVEC LE PCC",
+        "blocks": blocks_p56() + blocks_p57() + blocks_p58(),
+    },
 ]
 
 TOC = [
@@ -456,11 +550,27 @@ TOC = [
     {"id": "s-3-2-b", "level": 3, "code": "B", "page": 44, "title": "Circulation sur voie double", "anchorOnly": True, "parentId": "s-3-2"},
     {"id": "s-3-2-c", "level": 3, "code": "C", "page": 44, "title": "Circulation sur voie unique", "anchorOnly": True, "parentId": "s-3-2"},
     {"id": "s-3-2-d", "level": 3, "code": "D", "page": 45, "title": "Circulation en VUT", "anchorOnly": True, "parentId": "s-3-2"},
+    {"id": "s-3-2-e", "level": 3, "code": "E", "page": 46, "title": "Manœuvres retournement et rebroussement", "anchorOnly": True, "parentId": "s-3-2"},
+    {"id": "s-3-3", "level": 2, "code": "3.3", "page": 49, "title": "CIRCULATION HAUT LE PIED"},
+    {"id": "s-3-4", "level": 3, "code": "3.4", "page": 49, "title": "Feux et feux de détresse", "anchorOnly": True, "parentId": "s-3-3"},
+    {"id": "s-3-5", "level": 2, "code": "3.5", "page": 50, "title": "UTILISATION DU GONG"},
+    {"id": "s-3-6", "level": 3, "code": "3.6", "page": 50, "title": "Distances de sécurité", "anchorOnly": True, "parentId": "s-3-5"},
+    {"id": "s-3-7", "level": 2, "code": "3.7", "page": 51, "title": "ARRET EN STATION ET COMMANDE DES PORTES"},
+    {"id": "s-3-7-a", "level": 3, "code": "A", "page": 51, "title": "Commande d'ouverture de porte", "anchorOnly": True, "parentId": "s-3-7"},
+    {"id": "s-3-7-b", "level": 3, "code": "B", "page": 52, "title": "Commande de fermeture des portes", "anchorOnly": True, "parentId": "s-3-7"},
+    {"id": "s-3-7-c", "level": 3, "code": "C", "page": 53, "title": "Départ de la station", "anchorOnly": True, "parentId": "s-3-7"},
+    {"id": "s-3-7-d", "level": 3, "code": "D", "page": 54, "title": "Mode dégradé défaut porte", "anchorOnly": True, "parentId": "s-3-7"},
+    {"id": "s-3-8", "level": 2, "code": "3.8", "page": 55, "title": "COMMUNICATION AVEC LA CLIENTELE"},
+    {"id": "s-3-9", "level": 2, "code": "3.9", "page": 56, "title": "COMMUNICATION AVEC LE PCC"},
+    {"id": "s-3-9-a", "level": 3, "code": "A", "page": 56, "title": "Signalements par radio", "anchorOnly": True, "parentId": "s-3-9"},
+    {"id": "s-3-9-b", "level": 3, "code": "B", "page": 57, "title": "En cas de panne de phonie", "anchorOnly": True, "parentId": "s-3-9"},
+    {"id": "s-3-9-c", "level": 3, "code": "C", "page": 57, "title": "Rentrée et circulation dans le dépôt", "anchorOnly": True, "parentId": "s-3-9"},
+    {"id": "s-3-9-d", "level": 3, "code": "D", "page": 58, "title": "Signalements par feuille de route", "anchorOnly": True, "parentId": "s-3-9"},
 ]
 
 OUT.write_text(
     "/**\n * RCT EXP-CSG-01-17 — chapitre 3 (pages 38–58).\n"
-    " * Texte retranscrit depuis source/images/RCT/00X.jpg\n */\n\n"
+    " * Texte retranscrit depuis les scans RCT (docs/rct-img/00X.jpg)\n */\n\n"
     f"export const RCT_LECTURE_CH3_SECTIONS = {json.dumps(SECTIONS, ensure_ascii=False, indent=2)};\n\n"
     f"export const RCT_LECTURE_CH3_TOC = {json.dumps(TOC, ensure_ascii=False, indent=2)};\n",
     encoding="utf-8",

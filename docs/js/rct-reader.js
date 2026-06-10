@@ -3,7 +3,7 @@
  */
 
 import {
-  RCT_IMAGE_BASE,
+  rctImageSrc,
   RCT_LECTURE_SECTIONS,
   RCT_LECTURE_TOC,
 } from "./data-rct-lecture.js";
@@ -173,6 +173,13 @@ function sectionPlainText(section) {
     if (block.type === "boxed" || block.type === "callout-box") {
       parts.push(sectionPlainText({ blocks: block.blocks || [] }));
     }
+    if (block.type === "client-message-panel") {
+      for (const col of block.columns || []) {
+        parts.push(col.title || "");
+        parts.push(sectionPlainText({ blocks: col.blocks || [] }));
+        if (col.text) parts.push(col.text);
+      }
+    }
     if (block.caption) parts.push(block.caption);
     if (block.type === "version-table") {
       for (const entry of block.entries || []) {
@@ -320,6 +327,32 @@ function renderFlowTable(block, queryNorm) {
   return `<div class="lecture-table-wrap"><table class="lecture-table lecture-table--flow"><tbody>${rows.join("")}</tbody></table></div>`;
 }
 
+function renderClientMessagePanel(block, queryNorm) {
+  const tone =
+    block.tone === "accent"
+      ? " lecture-client-messages--accent"
+      : " lecture-client-messages--soft";
+  const renderCell = (col, colspan) => {
+    const title = col.title
+      ? `<div class="lecture-client-messages__title">${highlightText(col.title, queryNorm)}</div>`
+      : "";
+    const body = col.blocks?.length
+      ? renderNestedBlocks(col.blocks, queryNorm)
+      : col.text
+        ? `<p class="lecture-client-messages__text">${highlightText(col.text, queryNorm)}</p>`
+        : "";
+    const span = colspan ? ` colspan="${colspan}"` : "";
+    return `<td class="lecture-client-messages__cell"${span}>${title}${body}</td>`;
+  };
+  const cols = block.columns || [];
+  if (!cols.length) return "";
+  const cells =
+    block.fullWidth && cols.length === 1
+      ? renderCell(cols[0], 2)
+      : cols.map((col) => renderCell(col)).join("");
+  return `<div class="lecture-table-wrap lecture-table-wrap--client-messages"><table class="lecture-table lecture-client-messages${tone}"><tbody><tr>${cells}</tr></tbody></table></div>`;
+}
+
 function renderPannesCell(cell, queryNorm) {
   if (!cell) return "";
   const chunks = [];
@@ -418,6 +451,19 @@ function sectionContentVisible(sectionId, queryNorm) {
   );
 }
 
+function renderListItemBody(item, queryNorm) {
+  if (typeof item === "string") {
+    return highlightText(item, queryNorm);
+  }
+  if (item?.parts?.length) {
+    return renderInlineParts(item.parts, queryNorm);
+  }
+  const text = item.text || "";
+  return item.bold === true
+    ? `<strong>${highlightText(text, queryNorm)}</strong>`
+    : highlightText(text, queryNorm);
+}
+
 function highlightText(text, queryNorm) {
   const raw = String(text);
   if (!queryNorm) return escapeHtml(raw);
@@ -457,9 +503,10 @@ function renderStepItem(item, num, queryNorm) {
     return `<li class="lecture-steps__item" value="${num}"><p>${highlightText(item, queryNorm)}</p></li>`;
   }
   if (item?.text && !item?.tail && !item?.lines) {
-    const lead = item.bold
-      ? `<strong>${highlightText(item.text, queryNorm)}</strong>`
-      : highlightText(item.text, queryNorm);
+    const lead =
+      item.bold === true
+        ? `<strong>${highlightText(item.text, queryNorm)}</strong>`
+        : highlightText(item.text, queryNorm);
     return `<li class="lecture-steps__item" value="${num}"><p>${lead}</p></li>`;
   }
   if (item?.text && item?.tail && !item?.lines) {
@@ -467,9 +514,10 @@ function renderStepItem(item, num, queryNorm) {
       ? "lecture-note lecture-note--blue lecture-note--italic"
       : "lecture-note lecture-note--purple";
     const tail = `<span class="${tailCls}">${highlightText(item.tail.text, queryNorm)}</span>`;
-    const lead = item.bold
-      ? `<strong>${highlightText(item.text, queryNorm)}</strong>`
-      : highlightText(item.text, queryNorm);
+    const lead =
+      item.bold === true
+        ? `<strong>${highlightText(item.text, queryNorm)}</strong>`
+        : highlightText(item.text, queryNorm);
     return `<li class="lecture-steps__item" value="${num}"><p>${lead}${tail}</p></li>`;
   }
   if (item?.text && item?.lines) {
@@ -549,7 +597,7 @@ function renderNestedBlocks(blocks, queryNorm) {
 function renderBlock(block, queryNorm) {
   switch (block.type) {
     case "page-scan": {
-      const src = `${RCT_IMAGE_BASE}${escapeHtml(block.src || "")}`;
+      const src = rctImageSrc(block.src || "").replace(/"/g, "&quot;");
       const cap = block.caption || "Page RCT";
       const landscape = block.landscape ? " lecture-page-scan--landscape" : "";
       return `<figure class="lecture-page-scan${landscape}">
@@ -751,7 +799,12 @@ function renderBlock(block, queryNorm) {
       return `<div class="lecture-boxed${plain}">${renderNestedBlocks(block.blocks, queryNorm)}</div>`;
     }
     case "callout-box": {
-      const tone = block.tone === "soft" ? " lecture-callout-box--soft" : "";
+      const tone =
+        block.tone === "soft"
+          ? " lecture-callout-box--soft"
+          : block.tone === "yellow"
+            ? " lecture-callout-box--yellow"
+            : "";
       return `<div class="lecture-callout-box${tone}">${renderNestedBlocks(block.blocks, queryNorm)}</div>`;
     }
     case "zone-steps":
@@ -759,6 +812,8 @@ function renderBlock(block, queryNorm) {
       return renderZoneTable(block, queryNorm);
     case "flow-table":
       return renderFlowTable(block, queryNorm);
+    case "client-message-panel":
+      return renderClientMessagePanel(block, queryNorm);
     case "signal-table":
       return `<div class="lecture-table-wrap"><table class="lecture-table lecture-table--signal"><tbody>${(block.rows || [])
         .map((row) => {
@@ -873,6 +928,7 @@ function renderBlock(block, queryNorm) {
         block.center ? " lecture-p--center" : "",
         block.red ? " lecture-p--red" : "",
         block.bold ? " lecture-p--bold" : "",
+        block.frame === "dashed" ? " lecture-p--dashed-frame" : "",
       ].join("");
       if (block.parts?.length) {
         return `<p class="lecture-p${extra}">${renderInlineParts(block.parts, queryNorm)}</p>`;
@@ -891,6 +947,10 @@ function renderBlock(block, queryNorm) {
       return `<p class="lecture-note lecture-note--blue lecture-note--italic">${highlightText(block.text, queryNorm)}</p>`;
     case "warning": {
       const toneCls = block.tone === "red" ? " lecture-warning--red-text" : "";
+      const prefixBlackCls = block.prefixBlack ? " lecture-warning--prefix-black" : "";
+      const bulletsRedCls = block.bulletsRed ? " lecture-warning--bullets-red" : "";
+      const centerCls = block.align === "center" ? " lecture-warning--center" : "";
+      const extraCls = `${toneCls}${prefixBlackCls}${bulletsRedCls}${centerCls}`;
       const chunks = [];
       if (block.parts?.length) {
         chunks.push(
@@ -940,16 +1000,16 @@ function renderBlock(block, queryNorm) {
       if (chunks.length) {
         const inner = `${chunks.join("")}${body}${suffix}`;
         if (block.icon) {
-          return `<aside class="lecture-warning lecture-warning--icon${toneCls}" role="note"><span class="lecture-warning__icon" aria-hidden="true">⚠</span><div class="lecture-warning__content">${inner}</div></aside>`;
+          return `<aside class="lecture-warning lecture-warning--icon${extraCls}" role="note"><span class="lecture-warning__icon" aria-hidden="true">⚠</span><div class="lecture-warning__content">${inner}</div></aside>`;
         }
-        return `<aside class="lecture-warning${toneCls}" role="note">${inner}</aside>`;
+        return `<aside class="lecture-warning${extraCls}" role="note">${inner}</aside>`;
       }
       if (block.text || block.suffix) {
         const inner = `${body}${suffix}`;
         if (block.icon) {
-          return `<aside class="lecture-warning lecture-warning--icon${toneCls}" role="note"><span class="lecture-warning__icon" aria-hidden="true">⚠</span><div class="lecture-warning__content">${inner}</div></aside>`;
+          return `<aside class="lecture-warning lecture-warning--icon${extraCls}" role="note"><span class="lecture-warning__icon" aria-hidden="true">⚠</span><div class="lecture-warning__content">${inner}</div></aside>`;
         }
-        return `<aside class="lecture-warning${toneCls}" role="note">${inner}</aside>`;
+        return `<aside class="lecture-warning${extraCls}" role="note">${inner}</aside>`;
       }
       return "";
     }
@@ -1044,48 +1104,40 @@ function renderBlock(block, queryNorm) {
           ]
             .filter(Boolean)
             .join(" ");
-          const body = item.parts?.length
-            ? renderInlineParts(item.parts, queryNorm)
-            : item.bold
-              ? `<strong>${highlightText(item.text || "", queryNorm)}</strong>`
-              : highlightText(item.text || "", queryNorm);
+          const body = renderListItemBody(item, queryNorm);
           return `<li${cls ? ` class="${cls}"` : ""}>${body}</li>`;
         })
         .join("")}</ul>`;
     case "hand-ul":
       return `<ul class="lecture-hand-ul">${(block.items || [])
-        .map((item) => {
-          const body = item.parts?.length
-            ? renderInlineParts(item.parts, queryNorm)
-            : item.bold
-              ? `<strong>${highlightText(item.text || "", queryNorm)}</strong>`
-              : highlightText(typeof item === "string" ? item : item.text || "", queryNorm);
-          return `<li>${body}</li>`;
-        })
+        .map((item) => `<li>${renderListItemBody(item, queryNorm)}</li>`)
         .join("")}</ul>`;
     case "hand-p": {
+      if (block.lead || block.body) {
+        const lead = block.lead?.parts?.length
+          ? renderInlineParts(block.lead.parts, queryNorm)
+          : highlightText(block.lead?.text || "", queryNorm);
+        const chunk = block.body?.parts?.length
+          ? renderInlineParts(block.body.parts, queryNorm)
+          : highlightText(block.body?.text || "", queryNorm);
+        return `<div class="lecture-hand-block"><p class="lecture-hand-block__lead">${lead}</p><p class="lecture-hand-block__body">${chunk}</p></div>`;
+      }
       const body = block.parts?.length
         ? renderInlineParts(block.parts, queryNorm)
         : highlightText(block.text || "", queryNorm);
       return `<p class="lecture-hand-p">${body}</p>`;
     }
     case "chevron-p": {
+      const redCls = block.tone === "red" ? " lecture-chevron-p--red" : "";
       const body = block.parts?.length
         ? renderInlineParts(block.parts, queryNorm)
         : highlightText(block.text || "", queryNorm);
-      return `<p class="lecture-chevron-p">${body}</p>`;
+      return `<p class="lecture-chevron-p${redCls}">${body}</p>`;
     }
     case "arrow-ul": {
       const plain = block.tone === "plain" ? " lecture-arrow-ul--plain" : "";
       return `<ul class="lecture-arrow-ul${plain}">${(block.items || [])
-        .map((item) => {
-          const body = item.parts?.length
-            ? renderInlineParts(item.parts, queryNorm)
-            : item.bold
-              ? `<strong>${highlightText(item.text || "", queryNorm)}</strong>`
-              : highlightText(typeof item === "string" ? item : item.text || "", queryNorm);
-          return `<li>${body}</li>`;
-        })
+        .map((item) => `<li>${renderListItemBody(item, queryNorm)}</li>`)
         .join("")}</ul>`;
     }
     case "blue-callout": {
@@ -1174,7 +1226,7 @@ function renderReaderMarkup() {
     <div class="rct-reader__chrome">
       <div class="rct-reader__chrome-main">
         <h2 class="rct-reader__title">Consultation et recherche — RCT</h2>
-        <p class="rct-reader__subtitle">Pages 1–45 · chapitres 1–3 — scans source/images/RCT</p>
+        <p class="rct-reader__subtitle">Pages 1–58 · chapitres 1–3 — scans RCT</p>
       </div>
       <div class="rct-reader__chrome-actions">
         <button type="button" class="rct-reader__btn-icon" data-reader-minimize title="${READER_STATE.minimized ? "Agrandir" : "Réduire"}" aria-label="${READER_STATE.minimized ? "Agrandir le panneau" : "Réduire le panneau"}">${READER_STATE.minimized ? "▢" : "—"}</button>

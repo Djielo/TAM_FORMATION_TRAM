@@ -731,7 +731,7 @@ for sec in SECTIONS:
 
 OUT.write_text(
     "/**\n * RCT EXP-CSG-01-17 — chapitre 2 (pages 20–37).\n"
-    " * Texte retranscrit depuis source/images/RCT/00X.jpg\n */\n\n"
+    " * Texte retranscrit depuis les scans RCT (docs/rct-img/00X.jpg)\n */\n\n"
     f"export const RCT_LECTURE_CH2_SECTIONS = {json.dumps(SECTIONS, ensure_ascii=False, indent=2)};\n\n"
     f"export const RCT_LECTURE_CH2_TOC = {json.dumps(TOC, ensure_ascii=False, indent=2)};\n",
     encoding="utf-8",

@@ -55,10 +55,25 @@ function protocolError() {
     "L'application ne peut pas démarrer avec file:// (double-clic sur index.html).",
     [
       "Ouvrez un terminal dans le dossier <strong>docs/</strong> du projet.",
-      "Lancez : <code>python serve.py</code> (ou <code>python -m http.server 8080</code>).",
-      "Puis ouvrez : <strong>http://localhost:8080</strong>",
+        "Lancez : <code>python serve.py</code> depuis <strong>docs/</strong>.",
+        "Puis ouvrez : <strong>http://localhost:8080</strong>",
     ],
   );
+}
+
+async function verifyRctScansReachable() {
+  const prefix = globalThis.__RCT_IMG_PREFIX__ || "/rct-img/";
+  const probe = `${prefix}001.jpg?v=${BUST}`;
+  try {
+    const res = await fetch(probe, { method: "GET", cache: "no-store" });
+    if (!res.ok) {
+      console.error(
+        `[RCT] Scans inaccessibles (${res.status}) : ${probe} — vérifiez que docs/rct-img/ contient les JPG et que le serveur est lancé depuis docs/.`,
+      );
+    }
+  } catch (err) {
+    console.error(`[RCT] Scans inaccessibles : ${probe}`, err);
+  }
 }
 
 async function verifyScriptsReachable() {
@@ -119,6 +134,7 @@ async function start() {
 
   try {
     await verifyScriptsReachable();
+    await verifyRctScansReachable();
     globalThis.__RCT_BUILD__ = await mod("./build.js");
     globalThis.__RCT_DATA__ = await mod("./data.js");
     const pool = await mod("./pool.js");

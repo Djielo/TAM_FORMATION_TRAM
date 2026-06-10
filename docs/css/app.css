@@ -2015,6 +2015,12 @@ body.rct-reader-open {
   text-align: center;
 }
 
+.lecture-p--dashed-frame {
+  margin: 0.75rem 0 0.55rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px dashed rgba(0, 0, 0, 0.35);
+}
+
 .lecture-p--red {
   color: #c62828;
 }
@@ -2147,15 +2153,36 @@ body.rct-reader-open {
   color: #1a5f8c;
   font-style: italic;
   font-weight: 400;
-  text-align: right;
   margin-top: 0.5rem;
+}
+
+.lecture-warning--center .lecture-warning__content {
+  text-align: center;
+}
+
+.lecture-warning__line--blue.lecture-warning__line--bold {
+  font-weight: 700;
 }
 
 .lecture-warning--red-text .lecture-warning__line--blue {
   color: #1a5f8c;
 }
 
-.lecture-warning--red-text .lecture-warning__bullets {
+.lecture-warning--prefix-black .lecture-warning__prefix {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.lecture-warning--bullets-red .lecture-warning__bullets--arrow {
+  color: #c62828;
+  font-weight: 700;
+}
+
+.lecture-warning--bullets-red .lecture-warning__bullets--arrow li {
+  font-weight: 700;
+}
+
+.lecture-warning--red-text .lecture-warning__bullets:not(.lecture-warning__bullets--arrow) {
   color: var(--text);
   font-weight: 400;
 }
@@ -2248,6 +2275,29 @@ body.rct-reader-open {
   left: 0;
   top: 0.05em;
   font-size: 0.95rem;
+}
+
+.lecture-hand-block {
+  position: relative;
+  margin: 0.35rem 0 0.65rem;
+  padding-left: 1.35rem;
+  line-height: 1.45;
+}
+
+.lecture-hand-block::before {
+  content: "☞";
+  position: absolute;
+  left: 0;
+  top: 0.05em;
+  font-size: 0.95rem;
+}
+
+.lecture-hand-block__lead {
+  margin: 0;
+}
+
+.lecture-hand-block__body {
+  margin: 0.35rem 0 0;
 }
 
 .lecture-arrow-ul {
@@ -2943,6 +2993,12 @@ body.rct-reader-open {
   font-size: 0.85rem;
 }
 
+.lecture-chevron-p--red,
+.lecture-chevron-p--red::before {
+  color: #c62828;
+  font-weight: 700;
+}
+
 .lecture-prio-box {
   margin: 0.65rem 0 0.85rem;
 }
@@ -2989,6 +3045,17 @@ body.rct-reader-open {
   padding: 0.55rem 0.65rem 0.55rem 0.55rem;
 }
 
+.lecture-callout-box--yellow {
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  background: rgba(255, 224, 130, 0.45);
+  padding: 0.55rem 0.65rem 0.55rem 0.45rem;
+}
+
+.lecture-callout-box--yellow .lecture-hand-p,
+.lecture-callout-box--yellow .lecture-hand-block {
+  margin: 0;
+}
+
 .lecture-callout-box--soft .lecture-arrow-p {
   margin-bottom: 0;
   color: var(--text);
@@ -2996,6 +3063,60 @@ body.rct-reader-open {
 
 .lecture-callout-box--soft .lecture-arrow-p__icon {
   color: #e65100;
+}
+
+.lecture-table-wrap--client-messages {
+  margin: 0.45rem 0 0.65rem;
+}
+
+.lecture-client-messages {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.lecture-client-messages--soft {
+  background: rgba(26, 95, 140, 0.08);
+}
+
+.lecture-client-messages--accent {
+  background: rgba(142, 36, 170, 0.08);
+}
+
+.lecture-client-messages__cell {
+  vertical-align: top;
+  width: 50%;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.lecture-client-messages__title {
+  margin: 0 0 0.45rem;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.lecture-client-messages__cell .lecture-p {
+  margin: 0.25rem 0;
+}
+
+.lecture-client-messages__cell .lecture-hand-p {
+  margin: 0.25rem 0;
+}
+
+@media (max-width: 720px) {
+  .lecture-client-messages tr,
+  .lecture-client-messages__cell {
+    display: block;
+    width: 100%;
+  }
+
+  .lecture-client-messages__cell + .lecture-client-messages__cell {
+    border-top: none;
+  }
 }
 
 .lecture-zone-steps {

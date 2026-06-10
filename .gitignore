@@ -1,7 +1,7 @@
 # Cursor — éditeur (ne jamais versionner)
 .cursor/
 
-# RCT (scans) / données locales — ne jamais versionner
+# Données locales lourdes ou brouillons — ne pas versionner (scans RCT : docs/rct-img/)
 source/
 
 # Artefacts locaux, extraits de test
@@ -28,6 +28,10 @@ reponses-*.md
 # Dépendances Node (tests locaux — jamais versionner)
 node_modules/
 docs/node_modules/
+
+# Python
+__pycache__/
+*.pyc
 
 # OS & éditeurs
 .DS_Store

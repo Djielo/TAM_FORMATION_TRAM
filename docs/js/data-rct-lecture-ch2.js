@@ -1,6 +1,6 @@
 /**
  * RCT EXP-CSG-01-17 — chapitre 2 (pages 20–37).
- * Texte retranscrit depuis source/images/RCT/00X.jpg
+ * Texte retranscrit depuis les scans RCT (docs/rct-img/00X.jpg)
  */
 
 export const RCT_LECTURE_CH2_SECTIONS = [

@@ -1,6 +1,6 @@
 /**
  * RCT EXP-CSG-01-17 — consultation (pages 1–58, chapitres 1–3).
- * Texte mot pour mot depuis source/images/RCT/00X.jpg
+ * Texte mot pour mot depuis les scans RCT (docs/rct-img/00X.jpg)
  */
 
 import {
@@ -15,7 +15,16 @@ import {
 /** @typedef {{ type: string, text?: string, items?: string[], caption?: string, src?: string }} LectureBlock */
 /** @typedef {{ id: string, level: number, code: string | null, page: number | null, title: string, blocks: LectureBlock[] }} LectureSection */
 
-export const RCT_IMAGE_BASE = "/rct-img/";
+/** Chemin d'un scan dans docs/rct-img/ (ex. /rct-img/002.jpg). */
+export function rctImageSrc(filename) {
+  const prefix = globalThis.__RCT_IMG_PREFIX__ || "/rct-img/";
+  const name = String(filename || "")
+    .replace(/^\/+/, "")
+    .split(/[?#]/)[0];
+  const bust = globalThis.__RCT_BUST__;
+  const q = bust ? `?v=${encodeURIComponent(bust)}` : "";
+  return `${prefix}${encodeURI(name)}${q}`;
+}
 
 /** @type {LectureSection[]} */
 export const RCT_LECTURE_SECTIONS = [

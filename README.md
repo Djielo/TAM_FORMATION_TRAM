@@ -6,14 +6,18 @@ Outil web de révision des consignes d’exploitation tramway TaM (RCT — docum
 
 ```bash
 cd docs
-python -m http.server 8080
+python serve.py
 ```
 
-Ouvrir [http://localhost:8080](http://localhost:8080) (idéalement sur téléphone en même réseau Wi‑Fi).
+Ouvrir [http://localhost:8080](http://localhost:8080). Un seul serveur à la fois : ne pas lancer `python -m http.server` en parallèle de `serve.py` sur le même port.
+
+## Scans RCT (consultation intégrale)
+
+Les images des pages sont dans **`docs/rct-img/`**, servies sous **`/rct-img/`** (local et GitHub Pages). Sans ce dossier dans le dépôt, le texte s’affiche mais pas les scans.
 
 ## Publier sur GitHub Pages
 
-1. Créer un dépôt sur GitHub et y pousser la branche **`master`** (sans inclure `source/`, exclu par `.gitignore`).
+1. Créer un dépôt sur GitHub et y pousser la branche **`master`** (avec **`docs/rct-img/`** ; sans `.cursor/`, exclu par `.gitignore`).
 2. **Settings → Pages → Build and deployment** :
    - **Source** : **Deploy from a branch** (pas GitHub Actions).
    - **Branch** : **`master`**
@@ -26,7 +30,7 @@ Chaque **push** sur `master` qui modifie `docs/` met à jour le site automatique
 
 - `docs/` — application statique (HTML/CSS/JS, sans build)
 - `docs/js/data.js` — axes, modules et questions (texte, aligné sur le RCT)
-- `source/` — scans ou photos du RCT pour référence **locale** (dossier ignoré par Git ; ex. `source/images/…`)
+- `docs/rct-img/` — scans RCT (pages du document, versionnés avec le site)
 
 ## Contenu actuel
 
