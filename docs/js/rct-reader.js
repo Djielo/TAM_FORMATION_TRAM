@@ -74,7 +74,33 @@ function sectionPlainText(section) {
     }
     if (block.type === "codes-dest") {
       parts.push(block.title || "");
-      for (const row of block.rows || []) parts.push(row.code || "", row.text || "");
+      if (block.columns) parts.push(...block.columns);
+      for (const row of block.rows || []) {
+        if (Array.isArray(row)) {
+          for (const cell of row) {
+            if (!cell) continue;
+            if (typeof cell === "string") parts.push(cell);
+            else {
+              parts.push(cell.code || "", cell.text || "");
+              if (cell.textParts) parts.push(...cell.textParts.map((p) => p.t || ""));
+            }
+          }
+        } else {
+          parts.push(row.code || "", row.text || "");
+          if (row.textParts) parts.push(...row.textParts.map((p) => p.t || ""));
+        }
+      }
+    }
+    if (block.type === "signal-table") {
+      for (const row of block.rows || []) {
+        parts.push(row.lead || "", row.sub || "");
+      }
+    }
+    if (block.type === "tenus-list") {
+      for (const item of block.items || []) {
+        parts.push(item.n || "", item.text || "");
+        if (item.parts) parts.push(...item.parts.map((p) => p.t || ""));
+      }
     }
     if (block.type === "codes-cas") {
       for (const panel of [block.left, block.right].filter(Boolean)) {
@@ -100,7 +126,30 @@ function sectionPlainText(section) {
       for (const item of block.items || []) {
         parts.push(item.n || "", item.text || "");
         if (item.parts) parts.push(...item.parts.map((p) => p.t || ""));
-        if (item.extra) parts.push(...item.extra.map((p) => p.t || p.text || ""));
+        if (item.bullets) {
+          for (const bullet of item.bullets) {
+            if (bullet.parts) parts.push(...bullet.parts.map((p) => p.t || ""));
+            else parts.push(bullet.text || (typeof bullet === "string" ? bullet : ""));
+          }
+        }
+        const extras = item.extra ? [item.extra] : item.extras || [];
+        for (const chunk of extras) {
+          if (chunk.parts) parts.push(...chunk.parts.map((p) => p.t || ""));
+          else parts.push(chunk.text || "");
+        }
+      }
+    }
+    if (block.type === "flow-table") {
+      for (const item of block.items || []) {
+        parts.push(item.text || "");
+        if (item.parts) parts.push(...item.parts.map((p) => p.t || ""));
+      }
+    }
+    if (block.type === "arrow-ul" || block.type === "hand-ul") {
+      for (const item of block.items || []) {
+        if (typeof item === "string") parts.push(item);
+        else if (item.parts) parts.push(...item.parts.map((p) => p.t || ""));
+        else parts.push(item.text || "");
       }
     }
     if (block.type === "phase-list") {
@@ -143,9 +192,15 @@ function sectionPlainText(section) {
         ),
       );
     }
-    if (block.headers) parts.push(...block.headers);
-    if (block.rows) {
-      for (const row of block.rows) parts.push(...row);
+    if (block.headers) {
+      for (const h of block.headers) {
+        parts.push(typeof h === "string" ? h : h.title || "", typeof h === "string" ? "" : h.speed || "");
+      }
+    }
+    if (block.type === "table" && block.rows) {
+      for (const row of block.rows) {
+        if (Array.isArray(row)) parts.push(...row.map(String));
+      }
     }
     if (block.type === "pannes-table") {
       for (const h of block.headers || []) {
@@ -190,6 +245,77 @@ function renderInlineParts(parts, queryNorm) {
       return classes.length ? `<span class="${classes.join(" ")}">${chunk}</span>` : chunk;
     })
     .join("");
+}
+
+function renderZoneTableBody(item, queryNorm) {
+  if (item.bullets?.length) {
+    return item.bullets
+      .map((bullet) => {
+        const body = bullet.parts?.length
+          ? renderInlineParts(bullet.parts, queryNorm)
+          : highlightText(bullet.text || (typeof bullet === "string" ? bullet : ""), queryNorm);
+        return `<div class="lecture-zone-table__bullet">${body.startsWith("•") ? body : `• ${body}`}</div>`;
+      })
+      .join("");
+  }
+  let body = item.parts?.length
+    ? renderInlineParts(item.parts, queryNorm)
+    : highlightText(item.text || "", queryNorm);
+  const extras = item.extra ? [item.extra] : item.extras || [];
+  for (const chunk of extras) {
+    if (chunk.parts?.length) {
+      body += `<div class="lecture-zone-table__extra">${renderInlineParts(chunk.parts, queryNorm)}</div>`;
+    } else {
+      body += `<div class="lecture-zone-table__extra">${highlightText(chunk.text || "", queryNorm)}</div>`;
+    }
+  }
+  return body;
+}
+
+function renderZoneTable(block, queryNorm) {
+  return `<div class="lecture-table-wrap"><table class="lecture-table lecture-table--zone"><tbody>${(block.items || [])
+    .map((item) => {
+      const numCls = item.nColor ? ` lecture-zone-table__num--${item.nColor}` : "";
+      const chevronCls = item.marker === "chevron" ? " lecture-zone-table__num--chevron" : "";
+      const marker =
+        item.marker === "chevron"
+          ? `<span aria-hidden="true">▼</span>`
+          : item.n
+            ? highlightText(item.n, queryNorm)
+            : "";
+      const num =
+        item.n || item.marker === "chevron"
+          ? `<td class="lecture-zone-table__num${numCls}${chevronCls}">${marker}</td>`
+          : "<td></td>";
+      const boxedCls = item.boxed
+        ? ` lecture-zone-table__text--boxed${item.nColor ? ` lecture-zone-table__text--boxed-${item.nColor}` : ""}`
+        : "";
+      const rowColorCls = item.rowColor ? ` lecture-zone-table__text--${item.rowColor}` : "";
+      const body = renderZoneTableBody(item, queryNorm);
+      return `<tr>${num}<td class="lecture-zone-table__text${boxedCls}${rowColorCls}">${body}</td></tr>`;
+    })
+    .join("")}</tbody></table></div>`;
+}
+
+function renderFlowTable(block, queryNorm) {
+  const rows = [];
+  const items = block.items || [];
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const alignCls = item.align === "left" ? " lecture-flow-table__cell--left" : " lecture-flow-table__cell--center";
+    const colorCls = item.color ? ` lecture-flow-table__cell--${item.color}` : "";
+    const body = item.parts?.length
+      ? renderInlineParts(item.parts, queryNorm)
+      : highlightText(item.text || "", queryNorm);
+    const prefix = item.noArrow ? "" : `<span class="lecture-flow-table__arrow" aria-hidden="true">➔</span>`;
+    rows.push(
+      `<tr><td class="lecture-flow-table__cell${alignCls}${colorCls}">${prefix}${body}</td></tr>`,
+    );
+    if (block.connector !== false && i < items.length - 1) {
+      rows.push(`<tr class="lecture-flow-table__connector"><td aria-hidden="true">▼</td></tr>`);
+    }
+  }
+  return `<div class="lecture-table-wrap"><table class="lecture-table lecture-table--flow"><tbody>${rows.join("")}</tbody></table></div>`;
 }
 
 function renderPannesCell(cell, queryNorm) {
@@ -618,36 +744,19 @@ function renderBlock(block, queryNorm) {
           return `<div class="lecture-prio-box__item">${title}${body}${lead}</div>`;
         })
         .join("")}</div>`;
-    case "boxed":
-      return `<div class="lecture-boxed">${renderNestedBlocks(block.blocks, queryNorm)}</div>`;
+    case "boxed": {
+      const plain = block.tone === "plain" ? " lecture-boxed--plain" : "";
+      return `<div class="lecture-boxed${plain}">${renderNestedBlocks(block.blocks, queryNorm)}</div>`;
+    }
     case "callout-box": {
       const tone = block.tone === "soft" ? " lecture-callout-box--soft" : "";
       return `<div class="lecture-callout-box${tone}">${renderNestedBlocks(block.blocks, queryNorm)}</div>`;
     }
     case "zone-steps":
     case "zone-table":
-      return `<div class="lecture-table-wrap"><table class="lecture-table lecture-table--zone"><tbody>${(block.items || [])
-        .map((item) => {
-          const numCls = item.nColor ? ` lecture-zone-table__num--${item.nColor}` : "";
-          const num = item.n
-            ? `<td class="lecture-zone-table__num${numCls}">${highlightText(item.n, queryNorm)}</td>`
-            : "<td></td>";
-          let body = item.parts?.length
-            ? renderInlineParts(item.parts, queryNorm)
-            : highlightText(item.text || "", queryNorm);
-          if (item.extra?.length) {
-            body += item.extra
-              .map((chunk) => {
-                if (chunk.parts?.length) {
-                  return `<div class="lecture-zone-table__extra">${renderInlineParts(chunk.parts, queryNorm)}</div>`;
-                }
-                return `<div class="lecture-zone-table__extra">${highlightText(chunk.text || "", queryNorm)}</div>`;
-              })
-              .join("");
-          }
-          return `<tr>${num}<td class="lecture-zone-table__text">${body}</td></tr>`;
-        })
-        .join("")}</tbody></table></div>`;
+      return renderZoneTable(block, queryNorm);
+    case "flow-table":
+      return renderFlowTable(block, queryNorm);
     case "signal-table":
       return `<div class="lecture-table-wrap"><table class="lecture-table lecture-table--signal"><tbody>${(block.rows || [])
         .map((row) => {
@@ -1051,7 +1160,7 @@ function renderReaderMarkup() {
     <div class="rct-reader__chrome">
       <div class="rct-reader__chrome-main">
         <h2 class="rct-reader__title">Consultation et recherche — RCT</h2>
-        <p class="rct-reader__subtitle">Pages 1–37 · chapitres 1–2 — scans source/images/RCT</p>
+        <p class="rct-reader__subtitle">Pages 1–45 · chapitres 1–3 — scans source/images/RCT</p>
       </div>
       <div class="rct-reader__chrome-actions">
         <button type="button" class="rct-reader__btn-icon" data-reader-minimize title="${READER_STATE.minimized ? "Agrandir" : "Réduire"}" aria-label="${READER_STATE.minimized ? "Agrandir le panneau" : "Réduire le panneau"}">${READER_STATE.minimized ? "▢" : "—"}</button>
@@ -1231,7 +1340,7 @@ function unmountOverlay() {
 function refreshOverlay(options = {}) {
   if (!overlayEl) return;
   const navSectionId = pendingNavSectionId;
-  const preserveContentScroll = !navSectionId;
+  const preserveContentScroll = !navSectionId && !options.resetContentScroll;
   const scrollTop = preserveContentScroll
     ? (overlayEl.querySelector(".rct-reader__content")?.scrollTop ?? 0)
     : 0;
@@ -1239,7 +1348,7 @@ function refreshOverlay(options = {}) {
     options.focusSearch === true ||
     document.activeElement?.id === "rct-reader-search";
   const selStart = options.focusSearch
-    ? 0
+    ? (options.searchCaret ?? READER_STATE.query.length)
     : overlayEl.querySelector("#rct-reader-search")?.selectionStart;
   overlayEl.innerHTML = renderReaderMarkup();
   bindOverlay();
@@ -1276,13 +1385,21 @@ function bindOverlay() {
 
   const search = overlayEl.querySelector("#rct-reader-search");
   search?.addEventListener("input", () => {
-    READER_STATE.query = search.value;
-    refreshOverlay();
+    const next = search.value;
+    const prevNorm = normalizeSearchText(READER_STATE.query.trim());
+    const nextNorm = normalizeSearchText(next.trim());
+    const caret = search.selectionStart ?? next.length;
+    READER_STATE.query = next;
+    refreshOverlay({
+      resetContentScroll: prevNorm !== nextNorm,
+      focusSearch: true,
+      searchCaret: caret,
+    });
   });
 
   overlayEl.querySelector("[data-reader-search-clear]")?.addEventListener("click", () => {
     READER_STATE.query = "";
-    refreshOverlay({ focusSearch: true });
+    refreshOverlay({ focusSearch: true, resetContentScroll: true });
   });
 
   overlayEl.querySelectorAll("[data-reader-section]").forEach((btn) => {
@@ -1327,6 +1444,7 @@ export function openReader(sectionId = null) {
   READER_STATE.open = true;
   READER_STATE.minimized = false;
   if (sectionId) READER_STATE.activeSectionId = sectionId;
+  searchIndex = null;
   mountOverlay();
 }
 

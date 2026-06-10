@@ -1,5 +1,5 @@
 /**
- * RCT EXP-CSG-01-17 — consultation (pages 1–37, chapitres 1–2).
+ * RCT EXP-CSG-01-17 — consultation (pages 1–58, chapitres 1–3).
  * Texte mot pour mot depuis source/images/RCT/00X.jpg
  */
 
@@ -7,6 +7,10 @@ import {
   RCT_LECTURE_CH2_SECTIONS,
   RCT_LECTURE_CH2_TOC,
 } from "./data-rct-lecture-ch2.js";
+import {
+  RCT_LECTURE_CH3_SECTIONS,
+  RCT_LECTURE_CH3_TOC,
+} from "./data-rct-lecture-ch3.js";
 
 /** @typedef {{ type: string, text?: string, items?: string[], caption?: string, src?: string }} LectureBlock */
 /** @typedef {{ id: string, level: number, code: string | null, page: number | null, title: string, blocks: LectureBlock[] }} LectureSection */
@@ -1165,6 +1169,7 @@ export const RCT_LECTURE_SECTIONS = [
     ],
   },
   ...RCT_LECTURE_CH2_SECTIONS,
+  ...RCT_LECTURE_CH3_SECTIONS,
 ];
 
 /** Sommaire de navigation (ancres A–H sans article séparé). */
@@ -1374,4 +1379,5 @@ export const RCT_LECTURE_TOC = [
     title: "PROCEDURE DE REMORQUAGE – POUSSAGE",
   },
   ...RCT_LECTURE_CH2_TOC,
+  ...RCT_LECTURE_CH3_TOC,
 ];
