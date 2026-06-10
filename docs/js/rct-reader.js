@@ -817,7 +817,12 @@ function renderBlock(block, queryNorm) {
           : block.tone === "yellow"
             ? " lecture-callout-box--yellow"
             : "";
-      return `<div class="lecture-callout-box${tone}">${renderNestedBlocks(block.blocks, queryNorm)}</div>`;
+      const iconCls = block.icon ? " lecture-callout-box--icon" : "";
+      const body = renderNestedBlocks(block.blocks, queryNorm);
+      if (block.icon) {
+        return `<div class="lecture-callout-box${tone}${iconCls}"><span class="lecture-callout-box__icon" aria-hidden="true">⚠</span><div class="lecture-callout-box__content">${body}</div></div>`;
+      }
+      return `<div class="lecture-callout-box${tone}">${body}</div>`;
     }
     case "zone-steps":
     case "zone-table":

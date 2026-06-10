@@ -2900,6 +2900,10 @@ body.rct-reader-open {
   background: #17a589;
 }
 
+.lecture-zone-table__num--green {
+  background: #1e8449;
+}
+
 .lecture-zone-table__num--chevron {
   font-size: 0.72rem;
   line-height: 1.1;
@@ -3110,6 +3114,25 @@ body.rct-reader-open {
 .lecture-callout-box--yellow .lecture-hand-p,
 .lecture-callout-box--yellow .lecture-hand-block {
   margin: 0;
+}
+
+.lecture-callout-box--icon {
+  display: flex;
+  gap: 0.45rem;
+  align-items: flex-start;
+}
+
+.lecture-callout-box__icon {
+  flex-shrink: 0;
+  color: #f9a825;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  margin-top: 0.05rem;
+}
+
+.lecture-callout-box__content {
+  flex: 1;
+  min-width: 0;
 }
 
 .lecture-callout-box--soft .lecture-arrow-p {

@@ -6,7 +6,40 @@ from pathlib import Path
 
 OUT = Path(__file__).parent / "data-rct-lecture-ch4.js"
 
-CHEVRON_COLORS = ("purple", "purple", "blue", "blue", "blue2", "blue2", "blue3", "teal", "teal", "green", "green", "green")
+CHEVRON_COLORS = (
+    "purple",
+    "purple",
+    "blue",
+    "blue",
+    "blue2",
+    "blue2",
+    "blue3",
+    "blue3",
+    "teal",
+    "teal",
+    "green",
+    "green",
+)
+
+
+def colis_callout():
+    return {
+        "type": "callout-box",
+        "tone": "yellow",
+        "icon": True,
+        "blocks": [
+            p(parts=[{"t": "Un colis suspect ne doit ni être touché ni être déplacé !", "bold": True, "red": True}]),
+            p(
+                parts=[
+                    {"t": "Précision :", "bold": True, "italic": True},
+                    {
+                        "t": " tout objet abandonné ne doit pas être considéré de fait comme un colis suspect. La nature de l'objet (documents, trousseau de clés, paquet, sac ouvert ou hermétiquement fermé...), son volume, doivent conduire les agents sur place à apprécier par eux-mêmes le risque potentiel lié à chaque objet, en faisant preuve de bon sens et de discernement.",
+                        "italic": True,
+                    },
+                ]
+            ),
+        ],
+    }
 
 
 def ps(n):
@@ -214,17 +247,17 @@ def blocks_p61():
             "Relever l'identité des témoins.",
             {
                 "bullets": [
-                    blt(
-                        "Remplir la fiche de PRE CONSTAT ACCIDENT et noter les coordonnées du tiers sur sa feuille de route"
-                    )
-                ],
-                "extra": {
-                    "parts": [
-                        {
-                            "t": "Il est impératif que la rédaction des documents se fasse dans la rame avec les tiers afin que le conducteur soit joignable à tout moment par le PCC.",
-                        }
-                    ]
-                },
+                    {
+                        "parts": [
+                            {
+                                "t": "Remplir la fiche de PRE CONSTAT ACCIDENT et noter les coordonnées du tiers sur sa feuille de route. ",
+                            },
+                            {
+                                "t": "Il est impératif que la rédaction des documents se fasse dans la rame avec les tiers afin que le conducteur soit joignable à tout moment par le PCC.",
+                            },
+                        ]
+                    }
+                ]
             },
             "Donner l'exemplaire à remettre au tiers.",
             "Informer le PCC de la mise à disposition de la rame.",
@@ -388,9 +421,9 @@ def blocks_p64_d():
     ]
 
 
-def blocks_p43():
+def blocks_p43_content():
     return [
-        ps(64),
+        {"type": "anchor", "id": "s-4-3"},
         {"type": "rct-section", "text": "4.3 - DERAILLEMENT DE LA RAME"},
         step_list(
             "Arrêter la rame, mettre les feux de détresse.",
@@ -539,21 +572,7 @@ def blocks_p68():
                 {"t": ", sans exagérer le risque encouru."},
             ],
         },
-        {
-            "type": "callout-box",
-            "tone": "yellow",
-            "blocks": [
-                p(parts=[{"t": "Un colis suspect ne doit ni être touché ni être déplacé !", "bold": True, "red": True}]),
-                p(
-                    parts=[
-                        {
-                            "t": "Précision : tout objet abandonné ne doit pas être considéré de fait comme un colis suspect. La nature de l'objet (documents, trousseau de clés, paquet, sac ouvert ou hermétiquement fermé...), son volume, doivent conduire les agents sur place à apprécier par eux-mêmes le risque potentiel lié à chaque objet, en faisant preuve de bon sens et de discernement.",
-                            "italic": True,
-                        }
-                    ]
-                ),
-            ],
-        },
+        colis_callout(),
         p(parts=[{"t": "Cas 1) :", "bold": True}, {"t": " un colis suspect est repéré par le conducteur lors du ", "bold": True}, {"t": "changement de loge", "bold": True}]),
         step_list(
             {
@@ -562,7 +581,13 @@ def blocks_p68():
             },
             "Se conformer aux instructions du PCC",
         ),
-        p(parts=[{"t": "Cas 2) :", "bold": True}, {"t": " un colis suspect est signalé en ligne"}]),
+        p(
+            parts=[
+                {"t": "Cas 2) :", "bold": True},
+                {"t": " un colis suspect est signalé "},
+                {"t": "en ligne", "bold": True},
+            ]
+        ),
         step_list(
             "Identifier l'objet, et s'enquérir de son éventuel propriétaire.",
             "Appeler le PCC et se conformer à ses instructions.",
@@ -599,40 +624,37 @@ def blocks_p69():
             "type": "hand-p",
             "text": "Dans de telles circonstances, l'attitude recommandée est la prudence, sans exagérer le risque encouru.",
         },
-        {
-            "type": "callout-box",
-            "tone": "yellow",
-            "blocks": [
-                p(parts=[{"t": "Un colis suspect ne doit ni être touché ni être déplacé !", "bold": True, "red": True}]),
-                p(
-                    parts=[
-                        {
-                            "t": "Précision : tout objet abandonné ne doit pas être considéré de fait comme un colis suspect. La nature de l'objet (documents, trousseau de clés, paquet, sac ouvert ou hermétiquement fermé...), son volume, doivent conduire les agents sur place à apprécier par eux-mêmes le risque potentiel lié à chaque objet, en faisant preuve de bon sens et de discernement.",
-                            "italic": True,
-                        }
-                    ]
-                ),
-            ],
-        },
+        colis_callout(),
         {
             "type": "hand-p",
             "text": "En cas d'alerte à la bombe (appel PCC ou intervention Police sur site) :",
         },
         step_list(
-            blt("Arrêter la rame, mettre les feux de détresse et se conformer aux instructions reçues.", bold=True),
+            {
+                "bullets": [
+                    blt(
+                        "Arrêter la rame, mettre les feux de détresse et se conformer aux instructions reçues.",
+                        bold=True,
+                    )
+                ]
+            },
             {
                 "bullets": [
                     {
                         "parts": [
                             {"t": "En cas d'ordre d'évacuer la rame :", "bold": True, "blue": True, "italic": True},
-                            {"t": " prévenir la clientèle et procéder à l'évacuation en respectant les règles de sécurité "},
-                            {"t": "(voir chapitre 4.6.B)", "italic": True},
-                            {"t": "."},
+                            {"t": " prévenir la clientèle et procéder à l'évacuation en respectant les règles de sécurité ", "bold": True},
+                            {"t": "(voir chapitre 4.6.B)", "bold": True, "italic": True},
+                            {"t": ".", "bold": True},
                         ]
                     }
                 ]
             },
-            blt("Se mettre à la disposition de la Police et rendre compte au PCC.", bold=True),
+            {
+                "bullets": [
+                    blt("Se mettre à la disposition de la Police et rendre compte au PCC.", bold=True)
+                ]
+            },
         ),
     ]
 
@@ -736,12 +758,7 @@ def blocks_p72():
         {"type": "rct-sub", "text": "D - Accident sur la plate-forme. Chute d'une personne sur la voie"},
         {
             "type": "hand-p",
-            "parts": [
-                {
-                    "t": "Lorsqu'un conducteur est témoin d'un accident survenant sur la plate-forme mais n'impliquant pas son matériel, il doit :",
-                    "bold": True,
-                }
-            ],
+            "text": "Lorsqu'un conducteur est témoin d'un accident survenant sur la plate-forme mais n'impliquant pas son matériel, il doit :",
         },
         step_list(
             blt("Arrêter la rame et mettre les feux de détresse.", bold=True),
@@ -959,15 +976,7 @@ SECTIONS = [
         "code": "4.2",
         "page": 61,
         "title": "ACCIDENTS & AGRESSIONS",
-        "blocks": blocks_p61() + blocks_p62() + blocks_p63() + blocks_p64_d(),
-    },
-    {
-        "id": "s-4-3",
-        "level": 2,
-        "code": "4.3",
-        "page": 64,
-        "title": "DERAILLEMENT DE LA RAME",
-        "blocks": blocks_p43(),
+        "blocks": blocks_p61() + blocks_p62() + blocks_p63() + blocks_p64_d() + blocks_p43_content(),
     },
     {
         "id": "s-4-4",

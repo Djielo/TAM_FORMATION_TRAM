@@ -370,18 +370,14 @@ export const RCT_LECTURE_CH4_SECTIONS = [
               {
                 "parts": [
                   {
-                    "t": "Remplir la fiche de PRE CONSTAT ACCIDENT et noter les coordonnées du tiers sur sa feuille de route"
+                    "t": "Remplir la fiche de PRE CONSTAT ACCIDENT et noter les coordonnées du tiers sur sa feuille de route. "
+                  },
+                  {
+                    "t": "Il est impératif que la rédaction des documents se fasse dans la rame avec les tiers afin que le conducteur soit joignable à tout moment par le PCC."
                   }
                 ]
               }
-            ],
-            "extra": {
-              "parts": [
-                {
-                  "t": "Il est impératif que la rédaction des documents se fasse dans la rame avec les tiers afin que le conducteur soit joignable à tout moment par le PCC."
-                }
-              ]
-            }
+            ]
           },
           {
             "n": "6",
@@ -413,7 +409,7 @@ export const RCT_LECTURE_CH4_SECTIONS = [
           },
           {
             "n": "8",
-            "nColor": "teal",
+            "nColor": "blue3",
             "boxed": true,
             "bullets": [
               {
@@ -589,7 +585,7 @@ export const RCT_LECTURE_CH4_SECTIONS = [
           },
           {
             "n": "8",
-            "nColor": "teal",
+            "nColor": "blue3",
             "boxed": true,
             "bullets": [
               {
@@ -624,7 +620,7 @@ export const RCT_LECTURE_CH4_SECTIONS = [
           },
           {
             "n": "10",
-            "nColor": "green",
+            "nColor": "teal",
             "boxed": true,
             "bullets": [
               {
@@ -821,7 +817,7 @@ export const RCT_LECTURE_CH4_SECTIONS = [
           },
           {
             "n": "8",
-            "nColor": "teal",
+            "nColor": "blue3",
             "boxed": true,
             "bullets": [
               {
@@ -950,20 +946,10 @@ export const RCT_LECTURE_CH4_SECTIONS = [
             ]
           }
         ]
-      }
-    ]
-  },
-  {
-    "id": "s-4-3",
-    "level": 2,
-    "code": "4.3",
-    "page": 64,
-    "title": "DERAILLEMENT DE LA RAME",
-    "blocks": [
+      },
       {
-        "type": "page-scan",
-        "src": "064.jpg",
-        "caption": "Page 64/76"
+        "type": "anchor",
+        "id": "s-4-3"
       },
       {
         "type": "rct-section",
@@ -1087,7 +1073,7 @@ export const RCT_LECTURE_CH4_SECTIONS = [
           },
           {
             "n": "8",
-            "nColor": "teal",
+            "nColor": "blue3",
             "boxed": true,
             "bullets": [
               {
@@ -1248,7 +1234,7 @@ export const RCT_LECTURE_CH4_SECTIONS = [
           },
           {
             "n": "8",
-            "nColor": "teal",
+            "nColor": "blue3",
             "boxed": true,
             "bullets": [
               {
@@ -1592,7 +1578,7 @@ export const RCT_LECTURE_CH4_SECTIONS = [
           },
           {
             "n": "8",
-            "nColor": "teal",
+            "nColor": "blue3",
             "boxed": true,
             "bullets": [
               {
@@ -1657,6 +1643,7 @@ export const RCT_LECTURE_CH4_SECTIONS = [
       {
         "type": "callout-box",
         "tone": "yellow",
+        "icon": true,
         "blocks": [
           {
             "type": "p",
@@ -1672,7 +1659,12 @@ export const RCT_LECTURE_CH4_SECTIONS = [
             "type": "p",
             "parts": [
               {
-                "t": "Précision : tout objet abandonné ne doit pas être considéré de fait comme un colis suspect. La nature de l'objet (documents, trousseau de clés, paquet, sac ouvert ou hermétiquement fermé...), son volume, doivent conduire les agents sur place à apprécier par eux-mêmes le risque potentiel lié à chaque objet, en faisant preuve de bon sens et de discernement.",
+                "t": "Précision :",
+                "bold": true,
+                "italic": true
+              },
+              {
+                "t": " tout objet abandonné ne doit pas être considéré de fait comme un colis suspect. La nature de l'objet (documents, trousseau de clés, paquet, sac ouvert ou hermétiquement fermé...), son volume, doivent conduire les agents sur place à apprécier par eux-mêmes le risque potentiel lié à chaque objet, en faisant preuve de bon sens et de discernement.",
                 "italic": true
               }
             ]
@@ -1746,7 +1738,11 @@ export const RCT_LECTURE_CH4_SECTIONS = [
             "bold": true
           },
           {
-            "t": " un colis suspect est signalé en ligne"
+            "t": " un colis suspect est signalé "
+          },
+          {
+            "t": "en ligne",
+            "bold": true
           }
         ]
       },
@@ -1853,6 +1849,7 @@ export const RCT_LECTURE_CH4_SECTIONS = [
       {
         "type": "callout-box",
         "tone": "yellow",
+        "icon": true,
         "blocks": [
           {
             "type": "p",
@@ -1868,7 +1865,12 @@ export const RCT_LECTURE_CH4_SECTIONS = [
             "type": "p",
             "parts": [
               {
-                "t": "Précision : tout objet abandonné ne doit pas être considéré de fait comme un colis suspect. La nature de l'objet (documents, trousseau de clés, paquet, sac ouvert ou hermétiquement fermé...), son volume, doivent conduire les agents sur place à apprécier par eux-mêmes le risque potentiel lié à chaque objet, en faisant preuve de bon sens et de discernement.",
+                "t": "Précision :",
+                "bold": true,
+                "italic": true
+              },
+              {
+                "t": " tout objet abandonné ne doit pas être considéré de fait comme un colis suspect. La nature de l'objet (documents, trousseau de clés, paquet, sac ouvert ou hermétiquement fermé...), son volume, doivent conduire les agents sur place à apprécier par eux-mêmes le risque potentiel lié à chaque objet, en faisant preuve de bon sens et de discernement.",
                 "italic": true
               }
             ]
@@ -1886,10 +1888,14 @@ export const RCT_LECTURE_CH4_SECTIONS = [
             "n": "1",
             "nColor": "purple",
             "boxed": true,
-            "parts": [
+            "bullets": [
               {
-                "t": "Arrêter la rame, mettre les feux de détresse et se conformer aux instructions reçues.",
-                "bold": true
+                "parts": [
+                  {
+                    "t": "Arrêter la rame, mettre les feux de détresse et se conformer aux instructions reçues.",
+                    "bold": true
+                  }
+                ]
               }
             ]
           },
@@ -1907,14 +1913,17 @@ export const RCT_LECTURE_CH4_SECTIONS = [
                     "italic": true
                   },
                   {
-                    "t": " prévenir la clientèle et procéder à l'évacuation en respectant les règles de sécurité "
+                    "t": " prévenir la clientèle et procéder à l'évacuation en respectant les règles de sécurité ",
+                    "bold": true
                   },
                   {
                     "t": "(voir chapitre 4.6.B)",
+                    "bold": true,
                     "italic": true
                   },
                   {
-                    "t": "."
+                    "t": ".",
+                    "bold": true
                   }
                 ]
               }
@@ -1924,10 +1933,14 @@ export const RCT_LECTURE_CH4_SECTIONS = [
             "n": "3",
             "nColor": "blue",
             "boxed": true,
-            "parts": [
+            "bullets": [
               {
-                "t": "Se mettre à la disposition de la Police et rendre compte au PCC.",
-                "bold": true
+                "parts": [
+                  {
+                    "t": "Se mettre à la disposition de la Police et rendre compte au PCC.",
+                    "bold": true
+                  }
+                ]
               }
             ]
           }
@@ -2059,7 +2072,7 @@ export const RCT_LECTURE_CH4_SECTIONS = [
           },
           {
             "n": "8",
-            "nColor": "teal",
+            "nColor": "blue3",
             "boxed": true,
             "bullets": [
               {
@@ -2263,12 +2276,7 @@ export const RCT_LECTURE_CH4_SECTIONS = [
       },
       {
         "type": "hand-p",
-        "parts": [
-          {
-            "t": "Lorsqu'un conducteur est témoin d'un accident survenant sur la plate-forme mais n'impliquant pas son matériel, il doit :",
-            "bold": true
-          }
-        ]
+        "text": "Lorsqu'un conducteur est témoin d'un accident survenant sur la plate-forme mais n'impliquant pas son matériel, il doit :"
       },
       {
         "type": "zone-table",
