@@ -1881,6 +1881,32 @@ body.rct-reader-open {
   -webkit-touch-callout: default;
 }
 
+.rct-reader__content--mark-mode {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.rct-reader__mark-mode-btn {
+  display: none;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .rct-reader__mark-mode-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.rct-reader__mark-mode-btn--on {
+  background: var(--accent, #2563eb);
+  color: #fff;
+  border-radius: 0.35rem;
+}
+
 .rct-reader__mark {
   background: #ffe08a;
   color: inherit;
@@ -1918,9 +1944,18 @@ body.rct-reader-open {
   background: #e1bee7;
 }
 
+::highlight(rct-reader-pending) {
+  background-color: rgba(255, 224, 138, 0.55);
+  color: inherit;
+}
+
+.lecture-user-mark--preview {
+  background: rgba(255, 224, 138, 0.55) !important;
+}
+
 .rct-reader__mark-menu {
   position: fixed;
-  z-index: 10050;
+  z-index: 2147483000;
   display: flex;
   align-items: center;
   gap: 0.4rem;

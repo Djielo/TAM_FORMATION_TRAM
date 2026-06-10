@@ -18,6 +18,8 @@ const READER_STATE = {
   minimized: false,
   query: "",
   activeSectionId: RCT_LECTURE_TOC[0]?.id || null,
+  /** Sur tactile : sélection manuelle sans barre Google / Chrome. */
+  markMode: false,
 };
 
 let searchIndex = null;
@@ -886,26 +888,122 @@ function isTouchUi() {
   return window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 }
 
-function positionMarkMenu(menu, rect) {
-  if (isTouchUi()) {
-    menu.classList.add("rct-reader__mark-menu--dock");
-    menu.style.left = "";
-    menu.style.top = "";
-    menu.style.right = "";
-    menu.style.bottom = "";
-    return;
+function caretRangeFromPoint(x, y) {
+  if (document.caretRangeFromPoint) return document.caretRangeFromPoint(x, y);
+  const pos = document.caretPositionFromPoint?.(x, y);
+  if (!pos) return null;
+  const range = document.createRange();
+  range.setStart(pos.offsetNode, pos.offset);
+  range.collapse(true);
+  return range;
+}
+
+function getArticleFromRange(range) {
+  const root = range.commonAncestorContainer;
+  const el = root.nodeType === Node.ELEMENT_NODE ? root : root.parentElement;
+  return el?.closest("[data-reader-article]") ?? null;
+}
+
+function orderRange(a, b) {
+  const range = document.createRange();
+  if (a.compareBoundaryPoints(Range.START_TO_START, b) <= 0) {
+    range.setStart(a.startContainer, a.startOffset);
+    range.setEnd(b.endContainer, b.endOffset);
+  } else {
+    range.setStart(b.startContainer, b.startOffset);
+    range.setEnd(a.endContainer, a.endOffset);
   }
+  return range;
+}
+
+function expandRangeToWord(range) {
+  const node = range.startContainer;
+  if (node.nodeType !== Node.TEXT_NODE || !isMarkableTextNode(node)) {
+    return range.cloneRange();
+  }
+  const text = node.textContent || "";
+  const off = Math.min(range.startOffset, text.length);
+  const wordRe = /[\p{L}\p{N}'’\-]+/gu;
+  let match;
+  while ((match = wordRe.exec(text)) !== null) {
+    const start = match.index;
+    const end = start + match[0].length;
+    if (off >= start && off <= end) {
+      const word = document.createRange();
+      word.setStart(node, start);
+      word.setEnd(node, end);
+      return word;
+    }
+  }
+  return range.cloneRange();
+}
+
+function clearPendingHighlightPreview() {
+  if (typeof CSS !== "undefined" && CSS.highlights) {
+    CSS.highlights.delete("rct-reader-pending");
+  }
+  const preview = overlayEl?._pendingPreviewSpan;
+  if (preview?.isConnected) unwrapUserMark(preview);
+  overlayEl._pendingPreviewSpan = null;
+}
+
+function setPendingHighlightPreview(range) {
+  clearPendingHighlightPreview();
+  if (!range || range.collapsed) return;
+
+  if (typeof CSS !== "undefined" && CSS.highlights && typeof Highlight !== "undefined") {
+    try {
+      CSS.highlights.set("rct-reader-pending", new Highlight(range.cloneRange()));
+      return;
+    } catch {
+      /* repli span ci-dessous */
+    }
+  }
+
+  const previewRange = range.cloneRange();
+  const span = createUserMarkSpan("yellow", "preview-temp");
+  span.classList.add("lecture-user-mark--preview");
+  try {
+    previewRange.surroundContents(span);
+  } catch {
+    span.appendChild(previewRange.extractContents());
+    previewRange.insertNode(span);
+  }
+  overlayEl._pendingPreviewSpan = span;
+}
+
+function dismissNativeSelection() {
+  requestAnimationFrame(() => {
+    window.getSelection()?.removeAllRanges();
+    requestAnimationFrame(() => window.getSelection()?.removeAllRanges());
+  });
+}
+
+function positionMarkMenu(menu, rect) {
   menu.classList.remove("rct-reader__mark-menu--dock");
+  menu.hidden = false;
+
   const pad = 8;
-  const menuW = menu.offsetWidth || 220;
-  const menuH = menu.offsetHeight || 40;
+  const topBar = 64;
+  const bottomSafe = isTouchUi() ? window.innerHeight * 0.58 : window.innerHeight - pad;
+  const menuW = menu.offsetWidth || (isTouchUi() ? 300 : 220);
+  const menuH = menu.offsetHeight || (isTouchUi() ? 48 : 40);
+
   let left = rect.left + rect.width / 2 - menuW / 2;
-  let top = rect.top - menuH - pad;
-  if (top < pad) top = rect.bottom + pad;
+  let top = rect.top + rect.height / 2 - menuH / 2;
+
+  if (top < topBar) top = rect.bottom + pad;
+  if (top + menuH > bottomSafe) top = rect.top - menuH - pad;
+  if (top + menuH > bottomSafe) top = rect.top + Math.max(4, (rect.height - menuH) / 2);
+  if (top < topBar) top = topBar;
+
   left = Math.max(pad, Math.min(left, window.innerWidth - menuW - pad));
-  top = Math.max(pad, Math.min(top, window.innerHeight - menuH - pad));
+  top = Math.max(topBar, Math.min(top, window.innerHeight - menuH - pad));
+
   menu.style.left = `${left}px`;
   menu.style.top = `${top}px`;
+  menu.style.right = "";
+  menu.style.bottom = "";
 }
 
 function captureMarkPending(range, article, menu) {
@@ -943,6 +1041,16 @@ function hideMarkMenu() {
   if (!menu) return;
   menu.hidden = true;
   overlayEl._markPending = null;
+  clearPendingHighlightPreview();
+}
+
+function commitMarkCapture(range, article, menu, options = {}) {
+  if (!range?.toString().trim()) return;
+  captureMarkPending(range, article, menu);
+  setPendingHighlightPreview(overlayEl._markPending.range);
+  if (options.dismissNative !== false && isTouchUi() && !READER_STATE.markMode) {
+    dismissNativeSelection();
+  }
 }
 
 function bindUserMarks(content) {
@@ -962,7 +1070,7 @@ function bindUserMarks(content) {
   };
 
   const showMenuForSelection = () => {
-    if (suppressMenuShow) return;
+    if (suppressMenuShow || READER_STATE.markMode) return;
 
     const sel = window.getSelection();
     if (!sel || sel.isCollapsed || !sel.rangeCount) {
@@ -978,10 +1086,7 @@ function bindUserMarks(content) {
       return;
     }
 
-    const article =
-      range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE
-        ? range.commonAncestorContainer.closest("[data-reader-article]")
-        : range.commonAncestorContainer.parentElement?.closest("[data-reader-article]");
+    const article = getArticleFromRange(range);
     if (!article) {
       hideMarkMenu();
       return;
@@ -992,13 +1097,64 @@ function bindUserMarks(content) {
       return;
     }
 
-    captureMarkPending(range, article, menu);
+    commitMarkCapture(range, article, menu);
   };
 
   const queueShowMenuForSelection = (delayMs = 10) => {
     window.clearTimeout(selectionChangeTimer);
     selectionChangeTimer = window.setTimeout(showMenuForSelection, delayMs);
   };
+
+  let touchMark = null;
+
+  const bindMarkModeTouch = () => {
+    content.addEventListener(
+      "touchstart",
+      (ev) => {
+        if (!READER_STATE.markMode || ev.touches.length !== 1) return;
+        const t = ev.touches[0];
+        const caret = caretRangeFromPoint(t.clientX, t.clientY);
+        if (!caret || !content.contains(caret.startContainer)) return;
+        touchMark = { x: t.clientX, y: t.clientY, start: caret.cloneRange(), moved: false };
+      },
+      { passive: true, signal: ac.signal },
+    );
+
+    content.addEventListener(
+      "touchmove",
+      (ev) => {
+        if (!READER_STATE.markMode || !touchMark || ev.touches.length !== 1) return;
+        const t = ev.touches[0];
+        if (Math.hypot(t.clientX - touchMark.x, t.clientY - touchMark.y) < 12) return;
+        touchMark.moved = true;
+        const end = caretRangeFromPoint(t.clientX, t.clientY);
+        if (!end) return;
+        const range = orderRange(touchMark.start, end);
+        const article = getArticleFromRange(range);
+        if (!article || !range.toString().trim()) return;
+        commitMarkCapture(range, article, menu, { dismissNative: false });
+      },
+      { passive: true, signal: ac.signal },
+    );
+
+    content.addEventListener(
+      "touchend",
+      () => {
+        if (!READER_STATE.markMode || !touchMark) return;
+        if (!touchMark.moved) {
+          const word = expandRangeToWord(touchMark.start);
+          const article = getArticleFromRange(word);
+          if (article && word.toString().trim()) {
+            commitMarkCapture(word, article, menu, { dismissNative: false });
+          }
+        }
+        touchMark = null;
+      },
+      { passive: true, signal: ac.signal },
+    );
+  };
+
+  bindMarkModeTouch();
 
   content.addEventListener("mouseup", () => queueShowMenuForSelection(10), {
     signal: ac.signal,
@@ -1007,7 +1163,7 @@ function bindUserMarks(content) {
   content.addEventListener(
     "touchend",
     () => {
-      queueShowMenuForSelection(isTouchUi() ? 120 : 40);
+      if (!READER_STATE.markMode) queueShowMenuForSelection(isTouchUi() ? 60 : 40);
     },
     { passive: true, signal: ac.signal },
   );
@@ -1015,8 +1171,8 @@ function bindUserMarks(content) {
   document.addEventListener(
     "selectionchange",
     () => {
-      if (suppressMenuShow) return;
-      queueShowMenuForSelection(isTouchUi() ? 80 : 30);
+      if (suppressMenuShow || READER_STATE.markMode) return;
+      queueShowMenuForSelection(isTouchUi() ? 40 : 30);
     },
     { signal: ac.signal },
   );
@@ -1119,6 +1275,7 @@ function bindUserMarks(content) {
         return;
       }
 
+      clearPendingHighlightPreview();
       eraseUserMarksInRange(pending.range.cloneRange(), article);
       const freshRange = findTextRangeByOffset(article, startOff, length);
       if (!freshRange || !freshRange.toString().trim()) {
@@ -1919,6 +2076,7 @@ function renderReaderMarkup() {
         <p class="rct-reader__subtitle">Pages 1–76 · RCT intégral — scans RCT</p>
       </div>
       <div class="rct-reader__chrome-actions">
+        <button type="button" class="rct-reader__btn-icon rct-reader__mark-mode-btn${READER_STATE.markMode ? " rct-reader__mark-mode-btn--on" : ""}" data-reader-mark-mode title="${READER_STATE.markMode ? "Désactiver le mode surlignage" : "Mode surlignage (sans barre Google)"}" aria-label="${READER_STATE.markMode ? "Désactiver le mode surlignage" : "Activer le mode surlignage"}" aria-pressed="${READER_STATE.markMode ? "true" : "false"}">✎</button>
         <button type="button" class="rct-reader__btn-icon" data-reader-minimize title="${READER_STATE.minimized ? "Agrandir" : "Réduire"}" aria-label="${READER_STATE.minimized ? "Agrandir le panneau" : "Réduire le panneau"}">${READER_STATE.minimized ? "▢" : "—"}</button>
         <button type="button" class="rct-reader__btn-icon rct-reader__btn-icon--close" data-reader-close title="Fermer" aria-label="Fermer la consultation">×</button>
       </div>
@@ -1937,7 +2095,7 @@ function renderReaderMarkup() {
         <p class="rct-reader__search-meta" aria-live="polite">${matchCount} section${matchCount > 1 ? "s" : ""}</p>
         <nav class="rct-reader__toc">${renderToc(queryNorm, READER_STATE.activeSectionId)}</nav>
       </aside>
-      <div class="rct-reader__content" tabindex="0">
+      <div class="rct-reader__content${READER_STATE.markMode ? " rct-reader__content--mark-mode" : ""}" tabindex="0">
         <div class="rct-reader__content-inner">
           ${RCT_LECTURE_SECTIONS.map((s) => renderSectionArticle(s, queryNorm, showAll)).join("")}
         </div>
@@ -2135,6 +2293,12 @@ function bindOverlay() {
 
   overlayEl.querySelector("[data-reader-close]")?.addEventListener("click", () => {
     closeReader();
+  });
+
+  overlayEl.querySelector("[data-reader-mark-mode]")?.addEventListener("click", () => {
+    READER_STATE.markMode = !READER_STATE.markMode;
+    closeMarkMenu();
+    refreshOverlay();
   });
 
   overlayEl.querySelector("[data-reader-minimize]")?.addEventListener("click", () => {
