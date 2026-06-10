@@ -1876,6 +1876,9 @@ body.rct-reader-open {
   overflow: auto;
   min-height: 0;
   padding: 1rem 1rem 2rem;
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
 }
 
 .rct-reader__mark {
@@ -1930,6 +1933,37 @@ body.rct-reader-open {
 
 .rct-reader__mark-menu[hidden] {
   display: none !important;
+}
+
+.rct-reader__mark-menu--dock {
+  left: 0 !important;
+  right: 0 !important;
+  top: auto !important;
+  bottom: 0;
+  width: 100%;
+  max-width: 100%;
+  border-radius: 14px 14px 0 0;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  padding: 0.7rem 0.85rem;
+  padding-bottom: max(0.7rem, env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.16);
+}
+
+.rct-reader__mark-menu--dock .rct-reader__mark-color {
+  width: 2.1rem;
+  height: 2.1rem;
+}
+
+.rct-reader__mark-menu--dock .rct-reader__mark-erase {
+  padding: 0.35rem 0.55rem;
+  font-size: 1.05rem;
+}
+
+.rct-reader__mark-menu--dock .rct-reader__mark-close {
+  font-size: 1.35rem;
+  padding: 0 0.45rem;
 }
 
 .rct-reader__mark-menu-label {

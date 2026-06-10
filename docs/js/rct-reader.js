@@ -882,7 +882,20 @@ function renderMarkMenuMarkup() {
   </div>`;
 }
 
+function isTouchUi() {
+  return window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+}
+
 function positionMarkMenu(menu, rect) {
+  if (isTouchUi()) {
+    menu.classList.add("rct-reader__mark-menu--dock");
+    menu.style.left = "";
+    menu.style.top = "";
+    menu.style.right = "";
+    menu.style.bottom = "";
+    return;
+  }
+  menu.classList.remove("rct-reader__mark-menu--dock");
   const pad = 8;
   const menuW = menu.offsetWidth || 220;
   const menuH = menu.offsetHeight || 40;
@@ -893,6 +906,36 @@ function positionMarkMenu(menu, rect) {
   top = Math.max(pad, Math.min(top, window.innerHeight - menuH - pad));
   menu.style.left = `${left}px`;
   menu.style.top = `${top}px`;
+}
+
+function captureMarkPending(range, article, menu) {
+  const sectionId = article.getAttribute("data-reader-article");
+  const touchesMark = rangeIntersectsUserMark(range, article);
+  const startOff = getPlainTextOffsetInArticle(
+    article,
+    range.startContainer,
+    range.startOffset,
+  );
+  const endOff = getPlainTextOffsetInArticle(
+    article,
+    range.endContainer,
+    range.endOffset,
+  );
+  overlayEl._markPending = {
+    range: range.cloneRange(),
+    sectionId,
+    touchesMark,
+    anchorRect: range.getBoundingClientRect(),
+    startOff,
+    endOff,
+    text: range.toString(),
+  };
+
+  const eraseBtn = menu.querySelector("[data-mark-erase]");
+  if (eraseBtn) eraseBtn.hidden = !touchesMark;
+
+  menu.hidden = false;
+  positionMarkMenu(menu, overlayEl._markPending.anchorRect);
 }
 
 function hideMarkMenu() {
@@ -911,6 +954,7 @@ function bindUserMarks(content) {
   if (!menu || !content) return;
 
   let suppressMenuShow = false;
+  let selectionChangeTimer = 0;
 
   const closeMarkMenu = () => {
     hideMarkMenu();
@@ -922,6 +966,8 @@ function bindUserMarks(content) {
 
     const sel = window.getSelection();
     if (!sel || sel.isCollapsed || !sel.rangeCount) {
+      const pendingText = overlayEl._markPending?.text?.trim();
+      if (!menu.hidden && pendingText) return;
       hideMarkMenu();
       return;
     }
@@ -941,25 +987,36 @@ function bindUserMarks(content) {
       return;
     }
 
-    const sectionId = article.getAttribute("data-reader-article");
-    const touchesMark = rangeIntersectsUserMark(range, article);
-    overlayEl._markPending = {
-      range: range.cloneRange(),
-      sectionId,
-      touchesMark,
-    };
+    if (!range.toString().trim()) {
+      hideMarkMenu();
+      return;
+    }
 
-    const eraseBtn = menu.querySelector("[data-mark-erase]");
-    if (eraseBtn) eraseBtn.hidden = !touchesMark;
-
-    menu.hidden = false;
-    positionMarkMenu(menu, range.getBoundingClientRect());
+    captureMarkPending(range, article, menu);
   };
 
+  const queueShowMenuForSelection = (delayMs = 10) => {
+    window.clearTimeout(selectionChangeTimer);
+    selectionChangeTimer = window.setTimeout(showMenuForSelection, delayMs);
+  };
+
+  content.addEventListener("mouseup", () => queueShowMenuForSelection(10), {
+    signal: ac.signal,
+  });
+
   content.addEventListener(
-    "mouseup",
+    "touchend",
     () => {
-      window.setTimeout(showMenuForSelection, 10);
+      queueShowMenuForSelection(isTouchUi() ? 120 : 40);
+    },
+    { passive: true, signal: ac.signal },
+  );
+
+  document.addEventListener(
+    "selectionchange",
+    () => {
+      if (suppressMenuShow) return;
+      queueShowMenuForSelection(isTouchUi() ? 80 : 30);
     },
     { signal: ac.signal },
   );
@@ -972,16 +1029,31 @@ function bindUserMarks(content) {
     { passive: true, signal: ac.signal },
   );
 
-  document.addEventListener(
-    "mousedown",
-    (ev) => {
-      if (!overlayEl?.contains(ev.target)) return;
-      const liveMenu = overlayEl.querySelector("#rct-reader-mark-menu");
-      if (liveMenu?.contains(ev.target)) return;
-      closeMarkMenu();
-    },
-    { signal: ac.signal },
-  );
+  const handlePointerOutsideMenu = (ev) => {
+    if (!overlayEl?.contains(ev.target)) return;
+    const liveMenu = overlayEl.querySelector("#rct-reader-mark-menu");
+    if (liveMenu?.contains(ev.target)) return;
+
+    if (isTouchUi() && liveMenu && !liveMenu.hidden && overlayEl._markPending) {
+      if (content.contains(ev.target)) closeMarkMenu();
+      else if (
+        ev.target.closest(
+          "[data-reader-close], [data-reader-minimize], .rct-reader__sidebar, .rct-reader__chrome",
+        )
+      ) {
+        closeMarkMenu();
+      }
+      return;
+    }
+
+    closeMarkMenu();
+  };
+
+  document.addEventListener("mousedown", handlePointerOutsideMenu, { signal: ac.signal });
+  document.addEventListener("touchstart", handlePointerOutsideMenu, {
+    passive: true,
+    signal: ac.signal,
+  });
 
   menu.addEventListener(
     "pointerdown",
@@ -991,7 +1063,7 @@ function bindUserMarks(content) {
       suppressMenuShow = true;
       window.setTimeout(() => {
         suppressMenuShow = false;
-      }, 200);
+      }, 450);
 
       const pending = overlayEl._markPending;
       if (!pending?.range || !pending.sectionId) {
@@ -1025,16 +1097,22 @@ function bindUserMarks(content) {
       const color = colorBtn.getAttribute("data-mark-color");
       if (!color) return;
 
-      const startOff = getPlainTextOffsetInArticle(
-        article,
-        pending.range.startContainer,
-        pending.range.startOffset,
-      );
-      const endOff = getPlainTextOffsetInArticle(
-        article,
-        pending.range.endContainer,
-        pending.range.endOffset,
-      );
+      let startOff =
+        typeof pending.startOff === "number"
+          ? pending.startOff
+          : getPlainTextOffsetInArticle(
+              article,
+              pending.range.startContainer,
+              pending.range.startOffset,
+            );
+      let endOff =
+        typeof pending.endOff === "number"
+          ? pending.endOff
+          : getPlainTextOffsetInArticle(
+              article,
+              pending.range.endContainer,
+              pending.range.endOffset,
+            );
       const length = Math.max(0, endOff - startOff);
       if (!length) {
         closeMarkMenu();
