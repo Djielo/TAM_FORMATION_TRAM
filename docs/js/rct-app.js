@@ -170,7 +170,13 @@ function helpChapitresConsignesLineHtml() {
 function clozeHelpEncartHtml() {
   return `<div class="help-cloze-box" role="note">
     <p class="help-cloze-box__label">Principe du texte à trous</p>
-    <p>Touchez un trou pour afficher le mot auquel vous pensiez. Retouchez pour valider si vous l’aviez trouvé. Retouchez encore pour annuler une validation accidentelle. Si tous les trous sont validés, passage à la consigne suivante. Sinon, cliquez sur «&nbsp;Revoir cette consigne plus tard&nbsp;».</p>
+    <ul class="help-modal__list">
+      <li><strong>1er toucher</strong> sur un trou (<strong>···</strong>) : le mot attendu s’affiche sur <strong>fond bleu</strong>.</li>
+      <li><strong>2e toucher</strong> : si c’était le mot auquel vous pensiez, le fond passe au <strong>jaune</strong> — réponse validée.</li>
+      <li>Si vous ne l’aviez pas trouvé, laissez le mot sur <strong>fond bleu</strong> sans retoucher.</li>
+      <li><strong>3e toucher</strong> sur un mot jaune : annule une validation accidentelle (retour au bleu).</li>
+    </ul>
+    <p>Quand tous les trous sont validés (jaunes), passage à la consigne suivante. Sinon, cliquez sur «&nbsp;Revoir cette consigne plus tard&nbsp;».</p>
   </div>`;
 }
 
@@ -181,7 +187,7 @@ function helpAppSectionsHtml() {
       <p>RCT intégral, recherche par mot, surlignages manuels. Vos annotations sont conservées sur cet appareil.</p>
     </div>
     <div class="help-app-section help-app-section--exam" role="note">
-      <p class="help-app-section__label">Examen</p>
+      <p class="help-app-section__label">Préparation à l'examen</p>
       <p>Pré-examen (cartes et textes à trous) et examen final. Maîtrise, sessions en cours et historique sont conservés sur cet appareil.</p>
     </div>
   </div>`;
@@ -212,7 +218,7 @@ const HELP_TEXT = {
     get body() {
       return `<p><strong>Important :</strong> votre progression est enregistrée sur cet appareil (même lien et même navigateur).</p>
       ${helpAppSectionsHtml()}
-      <p>Au démarrage, l’application ouvre <strong>Consultation et recherche</strong>. L’onglet <strong>Examen</strong> sert au pré-examen et à l’examen final.</p>
+      <p>Au démarrage, l’application ouvre <strong>Consultation et recherche</strong>. L’onglet <strong>Préparation à l'examen</strong> sert au pré-examen et à l’examen final.</p>
       <p><strong>Conseil :</strong> commencez par <strong>Acronymes</strong>, puis les chapitres «&nbsp;Consignes&nbsp;».</p>
       <p>Le <strong>Pré-examen</strong> propose deux formats :</p>
       ${helpAcronymesLineHtml()}
@@ -507,7 +513,7 @@ function renderAppSectionTabsHtml() {
   return `
     <nav class="app-section-tabs" aria-label="Sections RCT">
       <button type="button" class="app-section-tabs__btn ${activeAppSection === "reader" ? "app-section-tabs__btn--active" : ""}" data-app-section="reader">Consultation et recherche</button>
-      <button type="button" class="app-section-tabs__btn ${activeAppSection === "exam" ? "app-section-tabs__btn--active" : ""}" data-app-section="exam">Examen</button>
+      <button type="button" class="app-section-tabs__btn ${activeAppSection === "exam" ? "app-section-tabs__btn--active" : ""}" data-app-section="exam">Préparation à l'examen</button>
     </nav>`;
 }
 
@@ -520,8 +526,7 @@ function renderExamChrome(mainHtml) {
   return `
     <div class="app-top-bar">
       <header class="header header--app">
-        <h1>RCT</h1>
-        <p>Règlement de Circulation Tramway TaM</p>
+        <h1>RCT <span class="header__app-subtitle">(Règlement de Circulation Tramway TaM)</span></h1>
         ${renderUnlockBanner()}
       </header>
       <nav class="tabs" aria-label="Modes d'examen">

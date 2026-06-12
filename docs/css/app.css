@@ -836,7 +836,14 @@ body.app-dialog-open {
 }
 
 .header--app {
-  padding-bottom: 1rem;
+  padding-bottom: 0.65rem;
+}
+
+.header__app-subtitle {
+  font-size: 0.72rem;
+  font-weight: 500;
+  opacity: 0.92;
+  letter-spacing: normal;
 }
 
 .header__unlock {
