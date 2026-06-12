@@ -388,6 +388,10 @@ export function renderClozeHtml(raw, opts) {
 /**
  * Progression affichée : part des mots masquables validés (double toucher).
  */
+export function isClozeConsigneRetired(questionId) {
+  return Boolean(getSrsRow(questionId).clozeDeclaredMaster);
+}
+
 export function getClozeDisplayProgress(questionId, answerRaw) {
   const { segments } = buildClozeSegments(answerRaw);
   const total = segments.length;
@@ -395,6 +399,9 @@ export function getClozeDisplayProgress(questionId, answerRaw) {
     return { pct: 0, inProgress: false, complete: false };
   }
   const row = getSrsRow(questionId);
+  if (row.clozeDeclaredMaster) {
+    return { pct: 100, inProgress: false, complete: true };
+  }
   const confirmed = new Set(row.clozeConfirmedIds ?? []);
   const pct = Math.min(100, Math.round((confirmed.size / total) * 100));
   const complete = confirmed.size / total >= CLOZE_CONSIGNE_MASTERY_RATE;
@@ -432,6 +439,7 @@ function pickNextUntouchedClozeModule(lastAxisHint = null) {
     for (const mod of listClozeModules(axisId)) {
       const q = mod.questions?.[0];
       if (!q?.id) continue;
+      if (isClozeConsigneRetired(q.id)) continue;
       if ((getSrsRow(q.id).clozeSeed ?? 0) === 0) {
         return { axisId, moduleId: mod.id };
       }
@@ -450,6 +458,7 @@ export function countClozeAlternatives(excludeQuestionId) {
     for (const mod of listClozeModules(axisId)) {
       const q = mod.questions?.[0];
       if (!q?.id || q.id === excludeQuestionId) continue;
+      if (isClozeConsigneRetired(q.id)) continue;
       const row = getSrsRow(q.id);
       if (row.sessionsUntilEligible > 0) continue;
       n += 1;
@@ -469,6 +478,7 @@ export function countUntouchedClozeConsignes(axisId = null) {
     for (const mod of listClozeModules(ax)) {
       const q = mod.questions?.[0];
       if (!q?.id) continue;
+      if (isClozeConsigneRetired(q.id)) continue;
       if ((getSrsRow(q.id).clozeSeed ?? 0) === 0) n += 1;
     }
   }
@@ -485,6 +495,7 @@ export function getClozeIdleState() {
     for (const mod of listClozeModules(axisId)) {
       const q = mod.questions?.[0];
       if (!q?.id) continue;
+      if (isClozeConsigneRetired(q.id)) continue;
       const row = getSrsRow(q.id);
       if (row.pendingReview && row.sessionsUntilEligible > 0) deferredCount += 1;
       if (row.pendingReview || (row.intervalIndex ?? 0) === 0) continue;
@@ -518,6 +529,7 @@ function pickNextClozeRevisionModule() {
       const q = mod.questions?.[0];
       if (!q?.id) continue;
       const questionId = q.id;
+      if (isClozeConsigneRetired(questionId)) continue;
       const row = getSrsRow(questionId);
 
       if ((row.clozeSeed ?? 0) === 0) continue;

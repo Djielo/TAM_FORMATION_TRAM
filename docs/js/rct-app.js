@@ -4,7 +4,7 @@ import {
   writeIntentionalResetBackup,
   writeProgressBackupFile,
 } from "./backup.js";
-import { showAlert, showConfirm } from "./dialog.js";
+import { showAlert, showConfirm, showConfirmWithDismiss } from "./dialog.js";
 import {
   getAxisById,
   getQuestionById,
@@ -44,6 +44,7 @@ import {
   FINAL_EXAM_QUESTION_COUNT,
   appendFinalExamResult,
   applyClozeMaster,
+  applyClozeDeclaredMaster,
   applyClozeReview,
   mergeClozeConfirmed,
   applySrsMaster,
@@ -175,8 +176,10 @@ function clozeHelpEncartHtml() {
       <li><strong>2e toucher</strong> : si c’était le mot auquel vous pensiez, le fond passe au <strong>jaune</strong> — réponse validée.</li>
       <li>Si vous ne l’aviez pas trouvé, laissez le mot sur <strong>fond bleu</strong> sans retoucher.</li>
       <li><strong>3e toucher</strong> sur un mot jaune : annule une validation accidentelle (retour au bleu).</li>
+      <li>Quand <strong>tous les trous sont validés</strong> (jaunes), passage automatique à la consigne suivante.</li>
+      <li><strong>Je maîtrise cette consigne</strong> : si vous connaissez déjà la consigne, elle est retirée <strong>définitivement</strong> du pré-examen (file automatique et révisions SRS). Elle compte comme maîtrisée pour la progression du chapitre. Vous pouvez toujours la relire dans le RCT.</li>
+      <li><strong>Revoir cette consigne plus tard</strong> : la consigne reviendra plus tard dans la file de révision.</li>
     </ul>
-    <p>Quand tous les trous sont validés (jaunes), passage à la consigne suivante. Sinon, cliquez sur «&nbsp;Revoir cette consigne plus tard&nbsp;».</p>
   </div>`;
 }
 
@@ -1399,6 +1402,29 @@ function finishClozePretestAsMaster() {
   continueAfterClozePretest(axisId, wasNew);
 }
 
+function finishClozePretestAsDeclaredMaster() {
+  const { axisId, moduleId, questionId } = cardSession;
+  const q = getQuestionById(questionId);
+  const raw =
+    q?.answer ??
+    getModuleById(axisId, moduleId)?.questions?.find((item) => item.id === questionId)
+      ?.answer ??
+    "";
+  const { segments } = buildClozeSegments(raw);
+  const segmentIds = segments.map((s) => s.id);
+  const wasNew = (getSrsRow(questionId).clozeSeed ?? 0) === 0;
+  const total = Math.max(segmentIds.length, 1);
+
+  recordClozeSessionResult(questionId, total, total);
+  applyClozeDeclaredMaster(questionId, segmentIds);
+  if (wasNew) recordClozeDailyIntro();
+  onClozeSessionComplete();
+  recordPretestSessionResult(getPretestScopeKey(axisId, moduleId), 1, 1);
+  cardSession = null;
+  persistActiveClozeSession({ axisId });
+  continueAfterClozePretest(axisId, wasNew);
+}
+
 function finishClozePretestAsReview() {
   const { axisId, moduleId, questionId, confirmedBlanks, sessionBlankIds } =
     cardSession;
@@ -1948,6 +1974,7 @@ function renderClozePretest() {
   const reviewBtn = sessionComplete
     ? ""
     : `<div class="cloze-actions">
+        <button type="button" class="btn btn--primary" data-cloze-declare-master>Je maîtrise cette consigne</button>
         <button type="button" class="btn btn--ghost" data-cloze-review>Revoir cette consigne plus tard</button>
       </div>`;
 
@@ -2243,6 +2270,22 @@ function bindClozePretest() {
 
   app.querySelector("[data-cloze-review]")?.addEventListener("click", () => {
     if (cardSession?.mode === "pretest-cloze") finishClozePretestAsReview();
+  });
+
+  app.querySelector("[data-cloze-declare-master]")?.addEventListener("click", async () => {
+    if (cardSession?.mode !== "pretest-cloze") return;
+    if (!isHelpDismissed("cloze-declare-master")) {
+      const { confirmed, dismissChecked } = await showConfirmWithDismiss({
+        title: "Je maîtrise cette consigne",
+        message:
+          "Cette consigne sera retirée définitivement de vos révisions en pré-examen.\n\nEn cliquant sur OK, la consigne en cours est exclue du cycle automatique (nouvelles consignes et révisions SRS). Elle reste consultable dans le RCT.\n\nSi vous cochez « Ne plus afficher », ce message ne réapparaîtra plus : chaque clic sur « Je maîtrise cette consigne » retirera directement la consigne du pré-examen.",
+        confirmLabel: "OK",
+        cancelLabel: "Annuler",
+      });
+      if (!confirmed) return;
+      if (dismissChecked) dismissHelp("cloze-declare-master");
+    }
+    finishClozePretestAsDeclaredMaster();
   });
 }
 

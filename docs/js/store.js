@@ -596,6 +596,8 @@ function defaultSrsRow() {
     clozeLastSessionHits: 0,
     clozeLastSessionTotal: 0,
     lastClozeAt: 0,
+    /** Déclaration « Je maîtrise cette consigne » — hors rotation pré-examen. */
+    clozeDeclaredMaster: false,
   };
 }
 
@@ -633,6 +635,21 @@ export function applyClozeMaster(questionId, maxSegments, confirmedIds = []) {
   const current = row.clozeBlanks ?? 5;
   row.clozeBlanks = Math.min(current + 2, Math.max(1, maxSegments));
   row.clozeSeed = (row.clozeSeed ?? 0) + 1;
+  saveSrs(all);
+}
+
+/** Déclaration « Je maîtrise cette consigne » — retrait complet du pré-examen. */
+export function applyClozeDeclaredMaster(questionId, segmentIds = []) {
+  const all = loadSrs();
+  const row = { ...defaultSrsRow(), ...all[questionId] };
+  if (!row.firstSeenAt) row.firstSeenAt = Date.now();
+  row.clozeConfirmedIds = [...segmentIds];
+  row.clozeDeclaredMaster = true;
+  row.clozeSeed = Math.max(row.clozeSeed ?? 0, 1);
+  row.everMastered = true;
+  row.pendingReview = false;
+  row.sessionsUntilEligible = 0;
+  all[questionId] = row;
   saveSrs(all);
 }
 

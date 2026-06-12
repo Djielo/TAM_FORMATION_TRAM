@@ -115,6 +115,66 @@ export function showConfirm({
 }
 
 /**
+ * Confirmation avec case « Ne plus afficher » (optionnelle).
+ * @returns {Promise<{ confirmed: boolean, dismissChecked: boolean }>}
+ */
+export function showConfirmWithDismiss({
+  title = "Confirmation",
+  message,
+  confirmLabel = "OK",
+  cancelLabel = "Annuler",
+  dismissLabel = "Ne plus afficher",
+  danger = false,
+}) {
+  return new Promise((resolve) => {
+    const confirmCls = danger ? "btn btn--danger" : "btn btn--primary";
+    const panel = el(
+      "app-dialog",
+      'role="alertdialog" aria-modal="true" aria-labelledby="app-dialog-title" aria-describedby="app-dialog-desc"',
+      [
+        `<h2 id="app-dialog-title" class="app-dialog__title">${escapeHtml(title)}</h2>`,
+        el("app-dialog__body", 'id="app-dialog-desc"', formatMessage(message)),
+        `<label class="app-dialog__dismiss"><input type="checkbox" data-dialog-dismiss /> ${escapeHtml(dismissLabel)}</label>`,
+        el(
+          "app-dialog__actions",
+          "",
+          [
+            `<button type="button" class="btn btn--ghost" data-dialog-cancel>${escapeHtml(cancelLabel)}</button>`,
+            `<button type="button" class="${confirmCls}" data-dialog-confirm>${escapeHtml(confirmLabel)}</button>`,
+          ].join("")
+        ),
+      ].join("")
+    );
+    const html = el("app-dialog-backdrop", 'role="presentation"', panel);
+
+    mountDialog(html, (root) => {
+      const backdrop = root.querySelector(".app-dialog-backdrop");
+      const btnCancel = root.querySelector("[data-dialog-cancel]");
+      const btnConfirm = root.querySelector("[data-dialog-confirm]");
+      const dismissInput = root.querySelector("[data-dialog-dismiss]");
+
+      const finish = (confirmed) => {
+        document.removeEventListener("keydown", onKey);
+        const dismissChecked = Boolean(dismissInput?.checked);
+        unmountDialog(root, resolve, { confirmed, dismissChecked });
+      };
+
+      const onKey = (e) => {
+        if (e.key === "Escape") finish(false);
+      };
+
+      backdrop.addEventListener("click", (e) => {
+        if (e.target === backdrop) finish(false);
+      });
+      btnCancel.addEventListener("click", () => finish(false));
+      btnConfirm.addEventListener("click", () => finish(true));
+      document.addEventListener("keydown", onKey);
+      (danger ? btnCancel : btnConfirm).focus();
+    });
+  });
+}
+
+/**
  * @param {object} opts
  * @param {string} [opts.title]
  * @param {string} opts.message
