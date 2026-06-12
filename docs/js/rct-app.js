@@ -247,11 +247,10 @@ const HELP_TEXT = {
   final: {
     title: "Mode Examen final",
     get body() {
-      return `<p>Même principe de <strong>carte</strong>, sur <strong>toutes les parties</strong> mélangées.</p>
+      return `<p>Principe de <strong>carte recto-verso</strong> sur toutes les cartes et consignes du pré-examen&nbsp;: <strong>Acronymes</strong>, <strong>Consignes de circulation en ligne</strong> (ch.&nbsp;1) et <strong>Consignes d'urgence</strong> (ch.&nbsp;2), mélangées dans une même session.</p>
       <p>Chaque session tire <strong>${FINAL_EXAM_QUESTION_COUNT} questions</strong> différentes dans le pool complet.</p>
-      <p>${examFinalGoalText()}</p>
-      <p>Après le verso, indiquez <strong>Correct</strong> ou <strong>Incorrect</strong> (auto-évaluation honnête). Pas de résultat carte par carte : le bilan arrive à la fin.</p>
-      <p>Seuil de réussite : <strong>${FINAL_PASS_COUNT} / ${FINAL_EXAM_QUESTION_COUNT}</strong> (<strong>90 %</strong>).</p>`;
+      <p>Après avoir pris connaissance de la réponse au verso de la carte, indiquez <strong>Correct</strong> ou <strong>Incorrect</strong> pour une auto-évaluation honnête. Pas de résultat carte par carte&nbsp;: le bilan arrive à la fin.</p>
+      <p>Seuil de réussite&nbsp;: <strong>${FINAL_PASS_COUNT} cartes sur ${FINAL_EXAM_QUESTION_COUNT}</strong> (90&nbsp;%).</p>`;
     },
   },
 };
