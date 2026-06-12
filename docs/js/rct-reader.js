@@ -30,6 +30,8 @@ let pendingNavSectionId = null;
 /** Pause du suivi de scroll pendant une navigation programmée. */
 let scrollSpyPaused = false;
 let scrollSpyRaf = 0;
+/** Barre de recherche active — ne pas déplacer le sommaire ni voler le focus. */
+let searchFieldFocused = false;
 /** Réinitialise les écouteurs du menu de surlignage (évite les doublons après refresh). */
 let userMarksBindAbort = null;
 
@@ -2218,20 +2220,25 @@ function collectScrollSpyMarkers() {
 }
 
 function updateScrollSpy() {
-  if (scrollSpyPaused || !overlayEl) return;
+  if (scrollSpyPaused || searchFieldFocused || !overlayEl) return;
   const root = overlayEl.querySelector(".rct-reader__content");
   if (!root) return;
   const markers = collectScrollSpyMarkers();
   if (!markers.length) return;
 
-  const rootRect = root.getBoundingClientRect();
-  const probeLine = rootRect.top + Math.min(120, rootRect.height * 0.22);
+  const maxScroll = root.scrollHeight - root.clientHeight;
   let activeId = markers[0].id;
 
-  for (const marker of markers) {
-    const rect = marker.el.getBoundingClientRect();
-    if (rect.top <= probeLine) activeId = marker.id;
-    else break;
+  if (maxScroll > 0 && root.scrollTop >= maxScroll - 12) {
+    activeId = markers[markers.length - 1].id;
+  } else {
+    const rootRect = root.getBoundingClientRect();
+    const probeLine = rootRect.top + Math.min(120, rootRect.height * 0.22);
+    for (const marker of markers) {
+      const rect = marker.el.getBoundingClientRect();
+      if (rect.top <= probeLine) activeId = marker.id;
+      else break;
+    }
   }
 
   if (activeId !== READER_STATE.activeSectionId) {
@@ -2291,6 +2298,7 @@ function unmountOverlay() {
   userMarksBindAbort = null;
   navScrollGuard?.cleanup();
   navScrollGuard = null;
+  searchFieldFocused = false;
   document.body.classList.remove("rct-reader-open");
   overlayEl?.remove();
   overlayEl = null;
@@ -2349,6 +2357,25 @@ function bindOverlay() {
   });
 
   const search = overlayEl.querySelector("#rct-reader-search");
+
+  const holdSearchFocus = () => {
+    searchFieldFocused = true;
+    scrollSpyPaused = true;
+  };
+
+  const releaseSearchFocus = () => {
+    searchFieldFocused = false;
+    window.setTimeout(() => {
+      if (!searchFieldFocused && document.activeElement?.id !== "rct-reader-search") {
+        scrollSpyPaused = false;
+      }
+    }, 200);
+  };
+
+  search?.addEventListener("pointerdown", holdSearchFocus);
+  search?.addEventListener("focus", holdSearchFocus);
+  search?.addEventListener("blur", releaseSearchFocus);
+
   search?.addEventListener("input", () => {
     const next = search.value;
     const prevNorm = normalizeSearchText(READER_STATE.query.trim());
@@ -2392,6 +2419,7 @@ function bindOverlay() {
   content?.addEventListener(
     "scroll",
     () => {
+      if (searchFieldFocused) return;
       cancelAnimationFrame(scrollSpyRaf);
       scrollSpyRaf = requestAnimationFrame(updateScrollSpy);
     },
