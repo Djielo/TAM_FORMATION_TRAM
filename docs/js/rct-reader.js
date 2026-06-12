@@ -2197,6 +2197,8 @@ function renderSectionArticle(section, queryNorm) {
 
 function readerHelpBodyHtml() {
   return `<p>RCT intégral avec sommaire.</p>
+    <p>Le texte reprend mot pour mot le <strong>RCT officiel</strong>, à partir des <strong>scans de référence</strong>. Ces scans sont inclus dans cette application.</p>
+    <p>Chaque entrée du sommaire ouvre la <strong>page rédigée</strong> correspondante. Le scan de cette page se trouvera juste au-dessus.</p>
     <p>Vos surlignages manuels sont enregistrés sur cet appareil, même lien, même navigateur.</p>
     <p><strong>Surlignage manuel</strong></p>
     <ul class="help-modal__list">
@@ -2313,22 +2315,82 @@ function renderReaderMarkup() {
 
 /** Navigation en cours — ne pas re-scroller si l'utilisateur a défilé. */
 let navScrollGuard = null;
+/** @type {number[]} */
+let sectionScrollRetryTimers = [];
 
-function scrollContentToSection(sectionId, behavior = "smooth") {
+function getTocEntry(sectionId) {
+  return RCT_LECTURE_TOC.find((e) => e.id === sectionId) ?? null;
+}
+
+/** Article `#reader-…` contenant la cible (ancre A–H dans le parent). */
+function getArticleIdForSection(sectionId) {
+  const entry = getTocEntry(sectionId);
+  if (entry?.anchorOnly && entry.parentId) return entry.parentId;
+  return sectionId;
+}
+
+function resolveScrollTarget(sectionId) {
+  if (!overlayEl) return null;
+  const anchor = overlayEl.querySelector(`#anchor-${CSS.escape(sectionId)}`);
+  if (anchor) {
+    let el = anchor.nextElementSibling;
+    while (el && !el.matches(".lecture-rct-sub, .lecture-rct-section, .lecture-h, .lecture-doc-title")) {
+      if (el.matches(".lecture-anchor")) break;
+      el = el.nextElementSibling;
+    }
+    if (el?.matches(".lecture-rct-sub, .lecture-rct-section, .lecture-h, .lecture-doc-title")) {
+      return el;
+    }
+    return anchor;
+  }
+  const article = overlayEl.querySelector(
+    `#reader-${CSS.escape(getArticleIdForSection(sectionId))}`,
+  );
+  if (!article) return null;
+  return (
+    article.querySelector(".lecture-rct-section, .lecture-rct-sub, .lecture-doc-title, .lecture-h") ||
+    article
+  );
+}
+
+function computeScrollTopForTarget(root, target) {
+  const topInset = 8;
+  const rootRect = root.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  return Math.max(0, targetRect.top - rootRect.top + root.scrollTop - topInset);
+}
+
+function scrollContentToSection(sectionId, behavior = "auto") {
   const root = overlayEl?.querySelector(".rct-reader__content");
-  if (!root) return;
-  const anchor = overlayEl?.querySelector(`#anchor-${CSS.escape(sectionId)}`);
-  const article = overlayEl?.querySelector(`#reader-${CSS.escape(sectionId)}`);
-  const target =
-    anchor ||
-    article?.querySelector(".lecture-rct-section, .lecture-rct-sub, .lecture-page-scan") ||
-    article;
-  if (!target) return;
-  const top =
-    target.getBoundingClientRect().top -
-    root.getBoundingClientRect().top +
-    root.scrollTop;
-  root.scrollTo({ top: Math.max(0, top), behavior });
+  const target = resolveScrollTarget(sectionId);
+  if (!root || !target?.isConnected) return false;
+  const top = computeScrollTopForTarget(root, target);
+  root.scrollTo({ top, behavior });
+  return true;
+}
+
+function clearSectionScrollRetries() {
+  sectionScrollRetryTimers.forEach((id) => window.clearTimeout(id));
+  sectionScrollRetryTimers = [];
+}
+
+function scheduleSectionScrollRetries(sectionId) {
+  clearSectionScrollRetries();
+  const attempt = () => scrollContentToSection(sectionId, "auto");
+  attempt();
+  requestAnimationFrame(() => {
+    attempt();
+    requestAnimationFrame(attempt);
+  });
+  sectionScrollRetryTimers.push(window.setTimeout(attempt, 80));
+  sectionScrollRetryTimers.push(window.setTimeout(attempt, 280));
+
+  const article = overlayEl?.querySelector(
+    `#reader-${CSS.escape(getArticleIdForSection(sectionId))}`,
+  );
+  article?.querySelectorAll("img").forEach((img) => {
+    if (!img.complete) img.addEventListener("load", attempt, { once: true });
+  });
 }
 
 function beginNavScrollGuard(sectionId) {
@@ -2340,6 +2402,7 @@ function beginNavScrollGuard(sectionId) {
     sectionId,
     startTop: root.scrollTop,
     userMoved: false,
+    ignoreScrollUntil: 0,
     cleanup() {
       root.removeEventListener("scroll", onScroll);
       window.clearTimeout(guard.timeoutId);
@@ -2349,6 +2412,7 @@ function beginNavScrollGuard(sectionId) {
   };
 
   const onScroll = () => {
+    if (Date.now() < guard.ignoreScrollUntil) return;
     if (Math.abs(root.scrollTop - guard.startTop) > 48) guard.userMoved = true;
   };
 
@@ -2356,11 +2420,6 @@ function beginNavScrollGuard(sectionId) {
   guard.timeoutId = window.setTimeout(() => guard.cleanup(), 8000);
   navScrollGuard = guard;
   return guard;
-}
-
-function safeScrollToSectionAfterLayout(sectionId) {
-  if (navScrollGuard?.userMoved) return;
-  scrollContentToSection(sectionId, "auto");
 }
 
 function scrollTocToActive(sectionId, behavior = "smooth") {
@@ -2400,7 +2459,7 @@ function collectScrollSpyMarkers() {
     const article = root.querySelector(`#reader-${CSS.escape(section.id)}`);
     if (!article) continue;
     const el =
-      article.querySelector(".lecture-page-scan, .lecture-rct-section, .lecture-doc-title") ||
+      article.querySelector(".lecture-rct-section, .lecture-rct-sub, .lecture-doc-title, .lecture-h") ||
       article;
     markers.push({ id: section.id, el });
   }
@@ -2459,24 +2518,21 @@ function pauseScrollSpy(ms = 900) {
 
 function queueSectionNavigation(sectionId) {
   pauseScrollSpy(1200);
+  READER_STATE.activeSectionId = sectionId;
   const guard = beginNavScrollGuard(sectionId);
   const run = () => {
+    if (guard) guard.ignoreScrollUntil = Date.now() + 180;
     scrollContentToSection(sectionId, "auto");
     scrollTocToActive(sectionId);
     highlightTocItem(sectionId);
-    if (guard) guard.startTop = overlayEl?.querySelector(".rct-reader__content")?.scrollTop ?? guard.startTop;
+    const root = overlayEl?.querySelector(".rct-reader__content");
+    if (guard && root) guard.startTop = root.scrollTop;
   };
+  run();
+  scheduleSectionScrollRetries(sectionId);
   requestAnimationFrame(() => {
     run();
     requestAnimationFrame(run);
-  });
-  const article = overlayEl?.querySelector(`#reader-${CSS.escape(sectionId)}`);
-  article?.querySelectorAll("img").forEach((img) => {
-    if (!img.complete) {
-      img.addEventListener("load", () => safeScrollToSectionAfterLayout(sectionId), {
-        once: true,
-      });
-    }
   });
 }
 
@@ -2503,6 +2559,7 @@ function unmountOverlay() {
   userMarksBindAbort = null;
   searchFocusBindAbort?.abort();
   searchFocusBindAbort = null;
+  clearSectionScrollRetries();
   navScrollGuard?.cleanup();
   navScrollGuard = null;
   document.body.classList.remove("rct-reader-open", "app-section-reader");
@@ -2566,14 +2623,11 @@ function bindTocSectionButtons(root = overlayEl) {
 
 function clearReaderSearch() {
   const search = overlayEl?.querySelector("#rct-reader-search");
-  const content = overlayEl?.querySelector(".rct-reader__content");
-  const scrollTop = content?.scrollTop ?? 0;
   if (search) search.value = "";
   READER_STATE.query = "";
   READER_STATE.searchMatchIndex = 0;
   searchHits = [];
-  refreshReaderSearchResults({ resetContentScroll: false });
-  if (content) content.scrollTop = scrollTop;
+  refreshReaderSearchResults({ resetContentScroll: false, realignSection: true });
   focusReaderSearch();
   requestAnimationFrame(updateScrollSpy);
 }
@@ -2627,6 +2681,9 @@ function refreshReaderSearchResults(options = {}) {
   } else {
     READER_STATE.searchMatchIndex = 0;
     updateSearchNavUi();
+    if (options.realignSection && READER_STATE.activeSectionId) {
+      queueSectionNavigation(READER_STATE.activeSectionId);
+    }
   }
 }
 
