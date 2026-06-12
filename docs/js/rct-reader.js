@@ -1,5 +1,5 @@
 /**
- * Consultation intégrale du RCT — panneau plein écran, sommaire, recherche au fil de la frappe.
+ * Consultation intégrale du RCT — panneau plein écran, sommaire, recherche par occurrences (Préc. / Suiv.).
  */
 
 import {
@@ -18,12 +18,16 @@ const READER_STATE = {
   open: false,
   minimized: false,
   query: "",
+  /** Index de l'occurrence courante (0 = première dans le détail, de haut en bas). */
+  searchMatchIndex: 0,
   activeSectionId: RCT_LECTURE_TOC[0]?.id || null,
   /** Sur tactile : sélection manuelle sans barre Google / Chrome. */
   markMode: false,
 };
 
 let searchIndex = null;
+/** Occurrences <mark> du détail, dans l'ordre du document. */
+let searchHits = [];
 let overlayEl = null;
 /** Navigation sommaire en cours — ne pas restaurer l'ancien scroll contenu. */
 let pendingNavSectionId = null;
@@ -38,7 +42,7 @@ let searchFocusBindAbort = null;
 function isReaderSearchTarget(target) {
   return Boolean(
     target?.closest?.(
-      ".rct-reader__search-wrap, #rct-reader-search, .rct-reader__search-label, [data-reader-search-clear]",
+      ".rct-reader__search-row, .rct-reader__search-wrap, .rct-reader__search-nav, #rct-reader-search, .rct-reader__search-label, [data-reader-search-clear], [data-reader-search-prev], [data-reader-search-next]",
     ),
   );
 }
@@ -537,11 +541,80 @@ function highlightText(text, queryNorm) {
   for (const range of ranges) {
     if (range.start < cursor) continue;
     html += escapeHtml(raw.slice(cursor, range.start));
-    html += `<mark class="rct-reader__mark">${escapeHtml(raw.slice(range.start, range.end))}</mark>`;
+    html += `<mark class="rct-reader__mark" data-search-hit>${escapeHtml(raw.slice(range.start, range.end))}</mark>`;
     cursor = range.end;
   }
   html += escapeHtml(raw.slice(cursor));
   return html;
+}
+
+function refreshSearchHitList() {
+  const inner = overlayEl?.querySelector(".rct-reader__content-inner");
+  searchHits = inner ? [...inner.querySelectorAll("mark[data-search-hit]")] : [];
+}
+
+function getSectionIdFromSearchHit(el) {
+  return el?.closest("[data-reader-article]")?.getAttribute("data-reader-article") || null;
+}
+
+function scrollToSearchHit(mark) {
+  const root = overlayEl?.querySelector(".rct-reader__content");
+  if (!root || !mark) return;
+  pauseScrollSpy(900);
+  const rootRect = root.getBoundingClientRect();
+  const markRect = mark.getBoundingClientRect();
+  const top = markRect.top - rootRect.top + root.scrollTop - Math.min(120, rootRect.height * 0.28);
+  root.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+}
+
+function updateSearchNavUi() {
+  const meta = overlayEl?.querySelector(".rct-reader__search-meta");
+  const prev = overlayEl?.querySelector("[data-reader-search-prev]");
+  const next = overlayEl?.querySelector("[data-reader-search-next]");
+  const query = READER_STATE.query.trim();
+  const queryNorm = normalizeSearchText(query);
+  const total = searchHits.length;
+  const idx = READER_STATE.searchMatchIndex;
+
+  if (meta) {
+    if (!queryNorm) meta.textContent = "";
+    else if (!total) meta.textContent = `Aucune occurrence de « ${query} »`;
+    else meta.textContent = `${idx + 1} / ${total}`;
+  }
+
+  if (prev) prev.disabled = !queryNorm || total === 0 || idx <= 0;
+  if (next) next.disabled = !queryNorm || total === 0 || idx >= total - 1;
+}
+
+function setSearchMatchIndex(index, options = {}) {
+  const queryNorm = normalizeSearchText(READER_STATE.query.trim());
+  if (!queryNorm || !searchHits.length) {
+    READER_STATE.searchMatchIndex = 0;
+    searchHits.forEach((el) => el.classList.remove("rct-reader__mark--current"));
+    updateSearchNavUi();
+    return;
+  }
+
+  const clamped = Math.max(0, Math.min(index, searchHits.length - 1));
+  READER_STATE.searchMatchIndex = clamped;
+
+  searchHits.forEach((el, i) => {
+    el.classList.toggle("rct-reader__mark--current", i === clamped);
+  });
+
+  const hit = searchHits[clamped];
+  if (hit && options.scroll !== false) {
+    scrollToSearchHit(hit);
+  }
+
+  const sectionId = getSectionIdFromSearchHit(hit);
+  if (sectionId) {
+    READER_STATE.activeSectionId = sectionId;
+    highlightTocItem(sectionId);
+    scrollTocToActive(sectionId);
+  }
+
+  updateSearchNavUi();
 }
 
 const USER_MARKS_KEY = LECTURE_MARKS_KEY;
@@ -2051,8 +2124,6 @@ function renderSectionBody(section, queryNorm) {
 }
 
 function renderTocItem(section, queryNorm, activeId) {
-  const visible = sectionMatchesQuery(section.id, queryNorm);
-  if (!visible) return "";
   const levelClass = `rct-reader__toc-item--l${section.level}`;
   const active = section.id === activeId ? " rct-reader__toc-item--active" : "";
   const heading = section.title
@@ -2070,30 +2141,18 @@ function renderTocItem(section, queryNorm, activeId) {
 }
 
 function renderToc(queryNorm, activeId) {
-  const items = RCT_LECTURE_TOC.map((s) => renderTocItem(s, queryNorm, activeId)).join("");
-  if (!items && queryNorm) {
-    return `<p class="rct-reader__toc-empty">Aucune section ne correspond à « ${escapeHtml(queryNorm)} ».</p>`;
-  }
-  return items;
+  return RCT_LECTURE_TOC.map((s) => renderTocItem(s, queryNorm, activeId)).join("");
 }
 
-function renderSectionArticle(section, queryNorm, forceShow) {
-  const visible = forceShow || sectionContentVisible(section.id, queryNorm);
-  if (!visible) return "";
-  const hidden =
-    queryNorm && !sectionContentVisible(section.id, queryNorm) ? " hidden" : "";
-  return `<article class="lecture-section${hidden}" id="reader-${escapeHtml(section.id)}" data-reader-article="${escapeHtml(section.id)}">
+function renderSectionArticle(section, queryNorm) {
+  return `<article class="lecture-section" id="reader-${escapeHtml(section.id)}" data-reader-article="${escapeHtml(section.id)}">
     <div class="lecture-section__body">${renderSectionBody(section, queryNorm)}</div>
   </article>`;
 }
 
 function renderReaderMarkup() {
   const queryNorm = normalizeSearchText(READER_STATE.query.trim());
-  const matchCount = queryNorm
-    ? RCT_LECTURE_TOC.filter((s) => sectionMatchesQuery(s.id, queryNorm)).length
-    : RCT_LECTURE_TOC.length;
   const minimizedClass = READER_STATE.minimized ? " rct-reader--minimized" : "";
-  const showAll = !queryNorm;
 
   return `<div class="rct-reader${minimizedClass}" role="dialog" aria-modal="true" aria-label="Consultation du RCT">
     <div class="rct-reader__chrome">
@@ -2110,20 +2169,26 @@ function renderReaderMarkup() {
     <div class="rct-reader__body">
       <aside class="rct-reader__sidebar" aria-label="Sommaire">
         <label class="rct-reader__search-label" for="rct-reader-search">Rechercher dans le RCT</label>
-        <div class="rct-reader__search-wrap">
-          <input type="text" id="rct-reader-search" class="rct-reader__search" value="${escapeHtml(READER_STATE.query)}" placeholder="Ex. frein, chasse-corps, PCC…" autocomplete="off" inputmode="search" enterkeyhint="search" />
-          ${
-            READER_STATE.query.trim()
-              ? `<button type="button" class="rct-reader__search-clear" data-reader-search-clear title="Effacer la recherche" aria-label="Effacer la recherche">×</button>`
-              : ""
-          }
+        <div class="rct-reader__search-row">
+          <div class="rct-reader__search-wrap">
+            <input type="text" id="rct-reader-search" class="rct-reader__search" value="${escapeHtml(READER_STATE.query)}" placeholder="Ex. frein, chasse-corps, PCC…" autocomplete="off" inputmode="search" enterkeyhint="search" />
+            ${
+              READER_STATE.query.trim()
+                ? `<button type="button" class="rct-reader__search-clear" data-reader-search-clear title="Effacer la recherche" aria-label="Effacer la recherche">×</button>`
+                : ""
+            }
+          </div>
+          <div class="rct-reader__search-nav">
+            <button type="button" class="rct-reader__search-nav-btn" data-reader-search-prev disabled title="Occurrence précédente" aria-label="Occurrence précédente">Préc.</button>
+            <button type="button" class="rct-reader__search-nav-btn" data-reader-search-next disabled title="Occurrence suivante" aria-label="Occurrence suivante">Suiv.</button>
+          </div>
         </div>
-        <p class="rct-reader__search-meta" aria-live="polite">${matchCount} section${matchCount > 1 ? "s" : ""}</p>
+        <p class="rct-reader__search-meta" aria-live="polite"></p>
         <nav class="rct-reader__toc">${renderToc(queryNorm, READER_STATE.activeSectionId)}</nav>
       </aside>
       <div class="rct-reader__content${READER_STATE.markMode ? " rct-reader__content--mark-mode" : ""}" tabindex="0">
         <div class="rct-reader__content-inner">
-          ${RCT_LECTURE_SECTIONS.map((s) => renderSectionArticle(s, queryNorm, showAll)).join("")}
+          ${RCT_LECTURE_SECTIONS.map((s) => renderSectionArticle(s, queryNorm)).join("")}
         </div>
       </div>
     </div>
@@ -2242,6 +2307,7 @@ function collectScrollSpyMarkers() {
 
 function updateScrollSpy() {
   if (scrollSpyPaused || !overlayEl) return;
+  if (normalizeSearchText(READER_STATE.query.trim())) return;
   const root = overlayEl.querySelector(".rct-reader__content");
   if (!root) return;
   const markers = collectScrollSpyMarkers();
@@ -2358,6 +2424,13 @@ function refreshOverlay(options = {}) {
       }
     }
   }
+
+  if (normalizeSearchText(READER_STATE.query.trim())) {
+    refreshSearchHitList();
+    setSearchMatchIndex(READER_STATE.searchMatchIndex, { scroll: false });
+  } else {
+    updateSearchNavUi();
+  }
 }
 
 function bindTocSectionButtons(root = overlayEl) {
@@ -2377,6 +2450,8 @@ function clearReaderSearch() {
   const scrollTop = content?.scrollTop ?? 0;
   if (search) search.value = "";
   READER_STATE.query = "";
+  READER_STATE.searchMatchIndex = 0;
+  searchHits = [];
   refreshReaderSearchResults({ resetContentScroll: false });
   if (content) content.scrollTop = scrollTop;
   focusReaderSearch();
@@ -2387,14 +2462,13 @@ function clearReaderSearch() {
 function refreshReaderSearchResults(options = {}) {
   if (!overlayEl) return;
   const queryNorm = normalizeSearchText(READER_STATE.query.trim());
-  const showAll = !queryNorm;
   const content = overlayEl.querySelector(".rct-reader__content");
   const scrollTop = options.resetContentScroll ? 0 : (content?.scrollTop ?? 0);
 
   const inner = overlayEl.querySelector(".rct-reader__content-inner");
   if (inner) {
     inner.innerHTML = RCT_LECTURE_SECTIONS.map((s) =>
-      renderSectionArticle(s, queryNorm, showAll),
+      renderSectionArticle(s, queryNorm),
     ).join("");
   }
 
@@ -2403,12 +2477,6 @@ function refreshReaderSearchResults(options = {}) {
     toc.innerHTML = renderToc(queryNorm, READER_STATE.activeSectionId);
     bindTocSectionButtons(toc);
   }
-
-  const matchCount = queryNorm
-    ? RCT_LECTURE_TOC.filter((s) => sectionMatchesQuery(s.id, queryNorm)).length
-    : RCT_LECTURE_TOC.length;
-  const meta = overlayEl.querySelector(".rct-reader__search-meta");
-  if (meta) meta.textContent = `${matchCount} section${matchCount > 1 ? "s" : ""}`;
 
   const wrap = overlayEl.querySelector(".rct-reader__search-wrap");
   if (wrap) {
@@ -2430,6 +2498,16 @@ function refreshReaderSearchResults(options = {}) {
 
   if (content) content.scrollTop = scrollTop;
   reapplyMarksInPlace();
+  refreshSearchHitList();
+
+  if (queryNorm && searchHits.length) {
+    setSearchMatchIndex(READER_STATE.searchMatchIndex, {
+      scroll: options.scrollToMatch !== false,
+    });
+  } else {
+    READER_STATE.searchMatchIndex = 0;
+    updateSearchNavUi();
+  }
 }
 
 /**
@@ -2443,14 +2521,16 @@ function bindSearchFocusTargets() {
   const { signal } = ac;
 
   const search = overlayEl?.querySelector("#rct-reader-search");
+  const row = overlayEl?.querySelector(".rct-reader__search-row");
   const wrap = overlayEl?.querySelector(".rct-reader__search-wrap");
   const label = overlayEl?.querySelector(".rct-reader__search-label");
+  const nav = overlayEl?.querySelector(".rct-reader__search-nav");
 
   const stopBubble = (ev) => {
     ev.stopPropagation();
   };
 
-  for (const node of [search, wrap, label].filter(Boolean)) {
+  for (const node of [search, row, wrap, label, nav].filter(Boolean)) {
     node.addEventListener("pointerdown", stopBubble, { signal });
     node.addEventListener("touchstart", stopBubble, { signal, passive: true });
     node.addEventListener("click", stopBubble, { signal });
@@ -2502,10 +2582,19 @@ function bindOverlay() {
     const prevNorm = normalizeSearchText(READER_STATE.query.trim());
     const nextNorm = normalizeSearchText(next.trim());
     READER_STATE.query = next;
-    refreshReaderSearchResults({ resetContentScroll: prevNorm !== nextNorm });
+    if (prevNorm !== nextNorm) READER_STATE.searchMatchIndex = 0;
+    refreshReaderSearchResults({ scrollToMatch: Boolean(nextNorm) });
   });
 
   overlayEl.querySelector("[data-reader-search-clear]")?.addEventListener("click", clearReaderSearch);
+
+  overlayEl.querySelector("[data-reader-search-prev]")?.addEventListener("click", () => {
+    setSearchMatchIndex(READER_STATE.searchMatchIndex - 1);
+  });
+
+  overlayEl.querySelector("[data-reader-search-next]")?.addEventListener("click", () => {
+    setSearchMatchIndex(READER_STATE.searchMatchIndex + 1);
+  });
 
   bindTocSectionButtons();
 
