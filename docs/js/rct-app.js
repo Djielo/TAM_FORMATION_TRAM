@@ -1532,9 +1532,6 @@ function renderPretestChapters() {
                 badge = `<span class="badge badge--ok">Examen final : OK (${chPct} %)</span>`;
               } else {
                 badge = consigneBadgeHtml(agg);
-                if (!agg.inProgress) {
-                  badge += ` · ${pre.thresholdPct} % requis`;
-                }
               }
             } else {
               const n = getQuestionsForAxis(axis.id).length;
@@ -1554,7 +1551,7 @@ function renderPretestChapters() {
                         total,
                         pct: chPct,
                         complete: total > 0 && mastered >= total,
-                      }) + ` · ${pre.thresholdPct} % requis`;
+                      });
             }
             return pretestModuleCardHtml({
               code: axisChapterLabel(axis),

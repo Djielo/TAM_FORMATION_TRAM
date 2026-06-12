@@ -427,7 +427,7 @@ function pickNextUntouchedClozeModule(axisId = "circulation") {
  * D’abord les nouvelles (quota/j), puis révisions par score session + SRS.
  */
 export function countClozeAlternatives(excludeQuestionId, axisId = "circulation") {
-  if (axisId !== "circulation") return 0;
+  if (axisId !== "circulation" && axisId !== "urgence") return 0;
   const modules = getModulesForAxis(axisId).filter((mod) =>
     isClozePretestModule(axisId, mod.id),
   );
@@ -444,7 +444,7 @@ export function countClozeAlternatives(excludeQuestionId, axisId = "circulation"
 
 /** Consignes jamais ouvertes (encore introduisibles). */
 export function countUntouchedClozeConsignes(axisId = "circulation") {
-  if (axisId !== "circulation") return 0;
+  if (axisId !== "circulation" && axisId !== "urgence") return 0;
   const modules = getModulesForAxis(axisId).filter((mod) =>
     isClozePretestModule(axisId, mod.id),
   );
@@ -459,7 +459,9 @@ export function countUntouchedClozeConsignes(axisId = "circulation") {
 
 /** Délai avant la prochaine révision SRS, ou null si rien de planifié. */
 export function getClozeIdleState(axisId = "circulation") {
-  if (axisId !== "circulation") return { waitMs: null, deferredCount: 0 };
+  if (axisId !== "circulation" && axisId !== "urgence") {
+    return { waitMs: null, deferredCount: 0 };
+  }
   const modules = getModulesForAxis(axisId).filter((mod) =>
     isClozePretestModule(axisId, mod.id),
   );
