@@ -2111,7 +2111,7 @@ function renderReaderMarkup() {
       <aside class="rct-reader__sidebar" aria-label="Sommaire">
         <label class="rct-reader__search-label" for="rct-reader-search">Rechercher dans le RCT</label>
         <div class="rct-reader__search-wrap">
-          <input type="search" id="rct-reader-search" class="rct-reader__search" value="${escapeHtml(READER_STATE.query)}" placeholder="Ex. frein, chasse-corps, PCC…" autocomplete="off" enterkeyhint="search" />
+          <input type="text" id="rct-reader-search" class="rct-reader__search" value="${escapeHtml(READER_STATE.query)}" placeholder="Ex. frein, chasse-corps, PCC…" autocomplete="off" inputmode="search" enterkeyhint="search" />
           ${
             READER_STATE.query.trim()
               ? `<button type="button" class="rct-reader__search-clear" data-reader-search-clear title="Effacer la recherche" aria-label="Effacer la recherche">×</button>`
@@ -2265,9 +2265,7 @@ function updateScrollSpy() {
   if (activeId !== READER_STATE.activeSectionId) {
     READER_STATE.activeSectionId = activeId;
     highlightTocItem(activeId);
-    if (document.activeElement?.id !== "rct-reader-search") {
-      scrollTocToActive(activeId);
-    }
+    scrollTocToActive(activeId);
   }
 }
 
@@ -2375,10 +2373,14 @@ function bindTocSectionButtons(root = overlayEl) {
 
 function clearReaderSearch() {
   const search = overlayEl?.querySelector("#rct-reader-search");
+  const content = overlayEl?.querySelector(".rct-reader__content");
+  const scrollTop = content?.scrollTop ?? 0;
   if (search) search.value = "";
   READER_STATE.query = "";
-  refreshReaderSearchResults({ resetContentScroll: true });
+  refreshReaderSearchResults({ resetContentScroll: false });
+  if (content) content.scrollTop = scrollTop;
   focusReaderSearch();
+  requestAnimationFrame(updateScrollSpy);
 }
 
 /** Met à jour contenu et sommaire sans détruire le champ de recherche (garde le focus). */
