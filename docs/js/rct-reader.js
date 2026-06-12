@@ -2108,7 +2108,10 @@ function renderReaderMarkup() {
   </div>`;
 }
 
-function scrollContentToSection(sectionId) {
+/** Navigation en cours — ne pas re-scroller si l'utilisateur a défilé. */
+let navScrollGuard = null;
+
+function scrollContentToSection(sectionId, behavior = "smooth") {
   const root = overlayEl?.querySelector(".rct-reader__content");
   if (!root) return;
   const anchor = overlayEl?.querySelector(`#anchor-${CSS.escape(sectionId)}`);
@@ -2122,7 +2125,39 @@ function scrollContentToSection(sectionId) {
     target.getBoundingClientRect().top -
     root.getBoundingClientRect().top +
     root.scrollTop;
-  root.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  root.scrollTo({ top: Math.max(0, top), behavior });
+}
+
+function beginNavScrollGuard(sectionId) {
+  navScrollGuard?.cleanup();
+  const root = overlayEl?.querySelector(".rct-reader__content");
+  if (!root) return null;
+
+  const guard = {
+    sectionId,
+    startTop: root.scrollTop,
+    userMoved: false,
+    cleanup() {
+      root.removeEventListener("scroll", onScroll);
+      window.clearTimeout(guard.timeoutId);
+      if (navScrollGuard === guard) navScrollGuard = null;
+    },
+    timeoutId: 0,
+  };
+
+  const onScroll = () => {
+    if (Math.abs(root.scrollTop - guard.startTop) > 48) guard.userMoved = true;
+  };
+
+  root.addEventListener("scroll", onScroll, { passive: true });
+  guard.timeoutId = window.setTimeout(() => guard.cleanup(), 8000);
+  navScrollGuard = guard;
+  return guard;
+}
+
+function safeScrollToSectionAfterLayout(sectionId) {
+  if (navScrollGuard?.userMoved) return;
+  scrollContentToSection(sectionId, "auto");
 }
 
 function scrollTocToActive(sectionId) {
@@ -2214,11 +2249,13 @@ function pauseScrollSpy(ms = 900) {
 }
 
 function queueSectionNavigation(sectionId) {
-  pauseScrollSpy();
+  pauseScrollSpy(1200);
+  const guard = beginNavScrollGuard(sectionId);
   const run = () => {
-    scrollContentToSection(sectionId);
+    scrollContentToSection(sectionId, "auto");
     scrollTocToActive(sectionId);
     highlightTocItem(sectionId);
+    if (guard) guard.startTop = overlayEl?.querySelector(".rct-reader__content")?.scrollTop ?? guard.startTop;
   };
   requestAnimationFrame(() => {
     run();
@@ -2227,7 +2264,7 @@ function queueSectionNavigation(sectionId) {
   const article = overlayEl?.querySelector(`#reader-${CSS.escape(sectionId)}`);
   article?.querySelectorAll("img").forEach((img) => {
     if (!img.complete) {
-      img.addEventListener("load", () => scrollContentToSection(sectionId), {
+      img.addEventListener("load", () => safeScrollToSectionAfterLayout(sectionId), {
         once: true,
       });
     }
@@ -2252,6 +2289,8 @@ function mountOverlay() {
 function unmountOverlay() {
   userMarksBindAbort?.abort();
   userMarksBindAbort = null;
+  navScrollGuard?.cleanup();
+  navScrollGuard = null;
   document.body.classList.remove("rct-reader-open");
   overlayEl?.remove();
   overlayEl = null;
@@ -2333,8 +2372,7 @@ function bindOverlay() {
       const id = btn.getAttribute("data-reader-section");
       if (!id) return;
       READER_STATE.activeSectionId = id;
-      pendingNavSectionId = id;
-      refreshOverlay();
+      queueSectionNavigation(id);
     });
   });
 
