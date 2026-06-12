@@ -5,14 +5,23 @@
 
 const bust = globalThis.__RCT_BUST__ || String(Date.now());
 
-const [{ MODULES_ACRONYMES }, { MODULES_CH3, MODULE_GROUPS_CH3 }, { MODULES_CH4 }] =
-  await Promise.all([
-    import(`./data-rct-acronymes.js?v=${bust}`),
-    import(`./data-rct-ch3.js?v=${bust}`),
-    import(`./data-rct-ch4.js?v=${bust}`),
-  ]);
+const [
+  { MODULES_ACRONYMES },
+  { MODULES_CH3, MODULE_GROUPS_CH3 },
+  { MODULES_CH4, MODULE_GROUPS_CH4 },
+] = await Promise.all([
+  import(`./data-rct-acronymes.js?v=${bust}`),
+  import(`./data-rct-ch3.js?v=${bust}`),
+  import(`./data-rct-ch4.js?v=${bust}`),
+]);
 
-export { MODULES_ACRONYMES, MODULES_CH3, MODULE_GROUPS_CH3, MODULES_CH4 };
+export {
+  MODULES_ACRONYMES,
+  MODULES_CH3,
+  MODULE_GROUPS_CH3,
+  MODULES_CH4,
+  MODULE_GROUPS_CH4,
+};
 
 export const AXES = [
   {
@@ -50,6 +59,7 @@ export const MODULES = {
 
 export const MODULE_GROUPS = {
   circulation: MODULE_GROUPS_CH3,
+  urgence: MODULE_GROUPS_CH4,
 };
 
 export function getModulesForAxis(axisId) {
