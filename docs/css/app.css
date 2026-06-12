@@ -1916,21 +1916,30 @@ body.app-section-reader {
 .rct-reader__search-nav {
   display: flex;
   flex-shrink: 0;
-  gap: 0.25rem;
+  gap: 0.2rem;
   align-items: stretch;
 }
 
 .rct-reader__search-nav-btn {
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: 6px;
   background: var(--bg);
   color: var(--text);
-  font-size: 0.68rem;
+  font-size: 1rem;
   font-weight: 600;
-  padding: 0 0.4rem;
-  min-width: 2.35rem;
+  padding: 0;
+  width: 1.85rem;
+  min-width: 1.85rem;
   cursor: pointer;
-  line-height: 1.1;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rct-reader__search-nav-btn--jump {
+  font-size: 0.92rem;
+  letter-spacing: -0.08em;
 }
 
 .rct-reader__search-nav-btn:hover:not(:disabled),

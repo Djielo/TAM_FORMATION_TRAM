@@ -44,7 +44,7 @@ let searchFocusBindAbort = null;
 function isReaderSearchTarget(target) {
   return Boolean(
     target?.closest?.(
-      ".rct-reader__search-row, .rct-reader__search-wrap, .rct-reader__search-nav, #rct-reader-search, .rct-reader__search-label, [data-reader-search-clear], [data-reader-search-prev], [data-reader-search-next]",
+      ".rct-reader__search-row, .rct-reader__search-wrap, .rct-reader__search-nav, #rct-reader-search, .rct-reader__search-label, [data-reader-search-clear], [data-reader-search-prev], [data-reader-search-prev-10], [data-reader-search-next], [data-reader-search-next-10]",
     ),
   );
 }
@@ -596,12 +596,15 @@ function scrollToSearchHit(mark, direction = "next") {
 
 function updateSearchNavUi() {
   const meta = overlayEl?.querySelector(".rct-reader__search-meta");
+  const prev10 = overlayEl?.querySelector("[data-reader-search-prev-10]");
   const prev = overlayEl?.querySelector("[data-reader-search-prev]");
   const next = overlayEl?.querySelector("[data-reader-search-next]");
+  const next10 = overlayEl?.querySelector("[data-reader-search-next-10]");
   const query = READER_STATE.query.trim();
   const queryNorm = normalizeSearchText(query);
   const total = searchHits.length;
   const idx = READER_STATE.searchMatchIndex;
+  const navOn = Boolean(queryNorm && total > 0);
 
   if (meta) {
     if (!queryNorm) meta.textContent = "";
@@ -609,8 +612,16 @@ function updateSearchNavUi() {
     else meta.textContent = `${idx + 1} / ${total}`;
   }
 
-  if (prev) prev.disabled = !queryNorm || total === 0 || idx <= 0;
-  if (next) next.disabled = !queryNorm || total === 0 || idx >= total - 1;
+  if (prev10) prev10.disabled = !navOn || idx <= 0;
+  if (prev) prev.disabled = !navOn || idx <= 0;
+  if (next) next.disabled = !navOn || idx >= total - 1;
+  if (next10) next10.disabled = !navOn || idx >= total - 1;
+}
+
+function leapSearchMatch(delta) {
+  setSearchMatchIndex(READER_STATE.searchMatchIndex + delta, {
+    direction: delta < 0 ? "prev" : "next",
+  });
 }
 
 function setSearchMatchIndex(index, options = {}) {
@@ -2216,9 +2227,11 @@ function renderReaderMarkup() {
                 : ""
             }
           </div>
-          <div class="rct-reader__search-nav">
-            <button type="button" class="rct-reader__search-nav-btn" data-reader-search-prev disabled title="Occurrence précédente" aria-label="Occurrence précédente">Préc.</button>
-            <button type="button" class="rct-reader__search-nav-btn" data-reader-search-next disabled title="Occurrence suivante" aria-label="Occurrence suivante">Suiv.</button>
+          <div class="rct-reader__search-nav" aria-label="Navigation entre les occurrences">
+            <button type="button" class="rct-reader__search-nav-btn rct-reader__search-nav-btn--jump" data-reader-search-prev-10 disabled title="Reculer de 10 occurrences" aria-label="Reculer de 10 occurrences"><span aria-hidden="true">«</span></button>
+            <button type="button" class="rct-reader__search-nav-btn" data-reader-search-prev disabled title="Occurrence précédente" aria-label="Occurrence précédente"><span aria-hidden="true">‹</span></button>
+            <button type="button" class="rct-reader__search-nav-btn" data-reader-search-next disabled title="Occurrence suivante" aria-label="Occurrence suivante"><span aria-hidden="true">›</span></button>
+            <button type="button" class="rct-reader__search-nav-btn rct-reader__search-nav-btn--jump" data-reader-search-next-10 disabled title="Avancer de 10 occurrences" aria-label="Avancer de 10 occurrences"><span aria-hidden="true">»</span></button>
           </div>
         </div>
         <p class="rct-reader__search-meta" aria-live="polite"></p>
@@ -2630,12 +2643,20 @@ function bindOverlay() {
 
   overlayEl.querySelector("[data-reader-search-clear]")?.addEventListener("click", clearReaderSearch);
 
+  overlayEl.querySelector("[data-reader-search-prev-10]")?.addEventListener("click", () => {
+    leapSearchMatch(-10);
+  });
+
   overlayEl.querySelector("[data-reader-search-prev]")?.addEventListener("click", () => {
-    setSearchMatchIndex(READER_STATE.searchMatchIndex - 1, { direction: "prev" });
+    leapSearchMatch(-1);
   });
 
   overlayEl.querySelector("[data-reader-search-next]")?.addEventListener("click", () => {
-    setSearchMatchIndex(READER_STATE.searchMatchIndex + 1, { direction: "next" });
+    leapSearchMatch(1);
+  });
+
+  overlayEl.querySelector("[data-reader-search-next-10]")?.addEventListener("click", () => {
+    leapSearchMatch(10);
   });
 
   bindTocSectionButtons();
