@@ -164,7 +164,7 @@ function helpAcronymesLineHtml() {
 }
 
 function helpChapitresConsignesLineHtml() {
-  return `<p><strong>Chapitres «&nbsp;Consignes&nbsp;»</strong> (texte à trous) : remplir les trous selon la réponse attendue.</p>`;
+  return `<p><strong>Chapitres «&nbsp;Consignes&nbsp;»</strong> (texte à trous) : circulation en ligne et consignes d'urgence partagent la <strong>même file automatique</strong> (10 nouvelles consignes par jour, révisions SRS). Cliquer sur l'un ou l'autre chapitre reprend ou poursuit cette file.</p>`;
 }
 
 function clozeHelpEncartHtml() {
@@ -194,7 +194,7 @@ function helpAppSectionsHtml() {
 }
 
 function helpDailyConsignesHtml() {
-  return `<p><strong>${CLOZE_DAILY_NEW_TARGET} nouvelles consignes par jour</strong>, présentées l’une après l’autre sans revenir en arrière. À la fin de ce lot, vous pourrez <strong>une seule fois</strong> en ajouter (de 1 à 10, maximum <strong>${CLOZE_DAILY_MAX}</strong> dans la journée) ou passer aux révisions. Les révisions priorisent les consignes les moins bien réussies, selon le calendrier SRS.</p>`;
+  return `<p><strong>${CLOZE_DAILY_NEW_TARGET} nouvelles consignes par jour</strong> (circulation + urgence confondues), présentées l'une après l'autre sans revenir en arrière. À la fin de ce lot, vous pourrez <strong>une seule fois</strong> en ajouter (de 1 à 10, maximum <strong>${CLOZE_DAILY_MAX}</strong> dans la journée) ou passer aux révisions. Les révisions priorisent les consignes les moins bien réussies, selon le calendrier SRS.</p>`;
 }
 
 /** Déverrouillage de l'onglet Examen final. */
@@ -689,10 +689,9 @@ async function offerBackupRestore() {
 }
 
 function renderClozeIdleModal(idle) {
-  const axisId = idle.axisId ?? "circulation";
   const waitLabel =
     idle.waitMs != null ? formatClozeWaitFr(idle.waitMs) : null;
-  const untouched = countUntouchedClozeConsignes(axisId);
+  const untouched = countUntouchedClozeConsignes();
   const canAddNew = untouched > 0;
   const body = waitLabel
     ? `<p>Aucune consigne à travailler pour le moment selon le calendrier SRS.</p>
@@ -734,9 +733,12 @@ function renderClozeIdleModal(idle) {
       </div>
     </div>`;
 
+  const leaveAxis =
+    idle.axisId ?? route.axisId ?? cardSession?.axisId ?? "circulation";
+
   const leave = () => {
     showClozeIdleWait = null;
-    route.axisId = axisId;
+    route.axisId = leaveAxis;
     route.groupId = null;
     route.moduleId = null;
     screen = "pretest-groups";
@@ -747,7 +749,7 @@ function renderClozeIdleModal(idle) {
   app.querySelector("[data-idle-extra='5']")?.addEventListener("click", () => {
     addClozeDailyExtra(5);
     showClozeIdleWait = null;
-    continueClozeRevision(axisId);
+    continueClozeRevision(leaveAxis);
   });
 }
 
@@ -1208,7 +1210,7 @@ function persistActiveClozeSession(overrides = {}) {
     return;
   }
 
-  if (hasUnfinishedClozeCycle(axisId)) {
+  if (hasUnfinishedClozeCycle()) {
     saveActiveClozeSession({
       axisId,
       pendingDailyExtra: Boolean(overrides.pendingDailyExtra),
@@ -1225,7 +1227,7 @@ function canResumeClozeSession() {
   if (saved.questionId) {
     return Boolean(getQuestionById(saved.questionId));
   }
-  return saved.pendingDailyExtra || hasUnfinishedClozeCycle(saved.axisId);
+  return saved.pendingDailyExtra || hasUnfinishedClozeCycle();
 }
 
 function tryResumeClozeSession() {
@@ -1337,15 +1339,18 @@ function openClozePretest(axisId, moduleId, { scrollToTop = false } = {}) {
   start();
 }
 
-function continueClozeRevision(axisId) {
-  const next = pickNextClozeModule(axisId);
+function continueClozeRevision(lastAxisHint = null) {
+  const next = pickNextClozeModule(lastAxisHint);
   if (next) {
     openClozePretest(next.axisId, next.moduleId, { scrollToTop: true });
     return;
   }
   clearActiveClozeSession();
-  const idle = getClozeIdleState(axisId);
-  showClozeIdleWait = { ...idle, axisId };
+  const idle = getClozeIdleState();
+  showClozeIdleWait = {
+    ...idle,
+    axisId: lastAxisHint ?? route.axisId ?? cardSession?.axisId ?? null,
+  };
   render();
 }
 
@@ -1403,7 +1408,7 @@ function finishClozePretestAsReview() {
 
   recordClozeSessionResult(questionId, confirmedIds.length, sessionTotal);
   if (confirmedIds.length) mergeClozeConfirmed(questionId, confirmedIds);
-  const others = countClozeAlternatives(questionId, axisId);
+  const others = countClozeAlternatives(questionId);
   const defer = others > 0 ? Math.min(3, others) : 0;
   applyClozeReview(questionId, defer);
   onClozeSessionComplete();
@@ -2099,16 +2104,11 @@ function openPretestAxis(axisId) {
   route.groupId = null;
   route.moduleId = null;
   if (axisHasModuleGroups(axisId) && usesConsigneLabels(axisId)) {
-    const saved = getActiveClozeSession();
-    if (
-      saved?.axisId === axisId &&
-      saved.questionId &&
-      canResumeClozeSession()
-    ) {
+    if (canResumeClozeSession()) {
       tryResumeClozeSession();
       return;
     }
-    const next = pickNextClozeModule(axisId);
+    const next = pickNextClozeModule();
     if (next) {
       openPretestModule(next.axisId, next.moduleId);
       return;
