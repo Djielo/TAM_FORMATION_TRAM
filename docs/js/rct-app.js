@@ -465,7 +465,6 @@ function setTab(tab) {
   route = { axisId: null, groupId: null, moduleId: null };
   screen = tab === "pretest" ? "pretest-chapters" : "final-setup";
 
-  if (tab === "pretest" && !isHelpDismissed("pretest")) pendingHelp = "pretest";
   if (tab === "final" && !isHelpDismissed("final")) pendingHelp = "final";
   render();
 }
@@ -526,7 +525,10 @@ function renderExamChrome(mainHtml) {
   return `
     <div class="app-top-bar">
       <header class="header header--app">
-        <h1>RCT <span class="header__app-subtitle">(Règlement de Circulation Tramway TaM)</span></h1>
+        <div class="header__app-title-row">
+          <h1>RCT <span class="header__app-subtitle">(Règlement de Circulation Tramway TaM)</span></h1>
+          <button type="button" class="header__help-btn" data-exam-help title="Aide pré-examen" aria-label="Aide pré-examen"><span aria-hidden="true">?</span></button>
+        </div>
         ${renderUnlockBanner()}
       </header>
       <nav class="tabs" aria-label="Modes d'examen">
@@ -602,9 +604,17 @@ function renderExamSection(mainHtml) {
     </div>`;
   bindAppSectionTabs();
   bindTabs();
+  bindExamChrome();
   if (activeTab === "pretest") bindPretest();
   else bindFinal();
   bindHiddenResetGesture();
+}
+
+function bindExamChrome() {
+  app.querySelector("[data-exam-help]")?.addEventListener("click", () => {
+    pendingHelp = "pretest";
+    render();
+  });
 }
 
 function bindTabs() {

@@ -40,6 +40,9 @@ let scrollSpyRaf = 0;
 let userMarksBindAbort = null;
 /** Réinitialise les écouteurs dédiés au focus de la barre de recherche. */
 let searchFocusBindAbort = null;
+/** Modale d'aide consultation (sibling du panneau, pas dans innerHTML refresh). */
+let readerHelpEl = null;
+let readerHelpKeyHandler = null;
 
 function isReaderSearchTarget(target) {
   return Boolean(
@@ -2192,9 +2195,69 @@ function renderSectionArticle(section, queryNorm) {
   </article>`;
 }
 
+function readerHelpBodyHtml() {
+  return `<p>RCT intégral avec sommaire.</p>
+    <p>Vos surlignages manuels sont enregistrés sur cet appareil, même lien, même navigateur.</p>
+    <p><strong>Surlignage manuel</strong></p>
+    <ul class="help-modal__list">
+      <li>Sur tablette ou téléphone : touchez le crayon en haut à droite.</li>
+      <li>Sélectionnez le texte dans la partie «&nbsp;<strong>Détail</strong>&nbsp;» uniquement, puis choisissez une couleur.</li>
+      <li>Touchez un surlignage existant pour le modifier ou l’effacer.</li>
+    </ul>
+    <p><strong>Recherche</strong></p>
+    <ul class="help-modal__list">
+      <li>Saisissez un mot dans le champ «&nbsp;<strong>Rechercher dans le RCT</strong>&nbsp;» : toutes les occurrences sont surlignées en <strong>jaune</strong>, l’occurrence courante en <strong>vert</strong>.</li>
+      <li>Occurrence précédente (<strong>‹</strong>) ou suivante (<strong>›</strong>), en pas de 1.</li>
+      <li>Reculer (<strong>«</strong>) ou avancer (<strong>»</strong>) de dix occurrences (pas de 10).</li>
+      <li>Le sommaire reste complet ; la section de l’occurrence active est mise en évidence.</li>
+    </ul>`;
+}
+
+function closeReaderHelp() {
+  readerHelpEl?.remove();
+  readerHelpEl = null;
+  if (readerHelpKeyHandler) {
+    document.removeEventListener("keydown", readerHelpKeyHandler);
+    readerHelpKeyHandler = null;
+  }
+}
+
+function openReaderHelp() {
+  if (!overlayEl || readerHelpEl) return;
+  const backdrop = document.createElement("div");
+  backdrop.className = "help-backdrop rct-reader-help-backdrop";
+  backdrop.setAttribute("role", "dialog");
+  backdrop.setAttribute("aria-modal", "true");
+  backdrop.setAttribute("aria-labelledby", "rct-reader-help-title");
+  backdrop.innerHTML = `<div class="help-modal">
+      <h2 id="rct-reader-help-title">Consultation et recherche</h2>
+      <div class="help-modal__body">${readerHelpBodyHtml()}</div>
+      <button type="button" class="btn btn--primary" data-reader-help-close>Compris</button>
+    </div>`;
+  overlayEl.appendChild(backdrop);
+  readerHelpEl = backdrop;
+  const close = () => closeReaderHelp();
+  backdrop.querySelector("[data-reader-help-close]")?.addEventListener("click", close);
+  backdrop.addEventListener("click", (ev) => {
+    if (ev.target === backdrop) close();
+  });
+  readerHelpKeyHandler = (ev) => {
+    if (ev.key === "Escape") close();
+  };
+  document.addEventListener("keydown", readerHelpKeyHandler);
+  backdrop.querySelector("[data-reader-help-close]")?.focus();
+}
+
 function renderReaderMarkup() {
   const queryNorm = normalizeSearchText(READER_STATE.query.trim());
   const minimizedClass = READER_STATE.minimized ? " rct-reader--minimized" : "";
+  const touchMark = isTouchUi();
+  const markModeOn = touchMark && READER_STATE.markMode;
+  const markModeTitle = touchMark
+    ? markModeOn
+      ? "Désactiver le mode surlignage"
+      : "Mode surlignage (sélection sans barre du navigateur)"
+    : "Surlignage : sélectionnez le texte dans le détail";
 
   const shellRole = READER_STATE.embedded
     ? `role="region" aria-label="Consultation du RCT"`
@@ -2211,7 +2274,8 @@ function renderReaderMarkup() {
         <p class="rct-reader__subtitle">Pages 1–76 · RCT intégral — scans RCT</p>
       </div>
       <div class="rct-reader__chrome-actions">
-        <button type="button" class="rct-reader__btn-icon rct-reader__mark-mode-btn${READER_STATE.markMode ? " rct-reader__mark-mode-btn--on" : ""}" data-reader-mark-mode title="${READER_STATE.markMode ? "Désactiver le mode surlignage" : "Mode surlignage (sans barre Google)"}" aria-label="${READER_STATE.markMode ? "Désactiver le mode surlignage" : "Activer le mode surlignage"}" aria-pressed="${READER_STATE.markMode ? "true" : "false"}"><svg class="rct-reader__mark-mode-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+        <button type="button" class="rct-reader__btn-icon rct-reader__mark-mode-btn${markModeOn ? " rct-reader__mark-mode-btn--on" : ""}" data-reader-mark-mode title="${markModeTitle}" aria-label="${markModeTitle}" aria-pressed="${markModeOn ? "true" : "false"}"><svg class="rct-reader__mark-mode-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+        <button type="button" class="rct-reader__btn-icon rct-reader__btn-icon--help" data-reader-help title="Aide consultation et recherche" aria-label="Aide consultation et recherche"><span aria-hidden="true">?</span></button>
         ${windowChrome}
       </div>
     </div>
@@ -2449,6 +2513,7 @@ function unmountOverlay() {
 
 function refreshOverlay(options = {}) {
   if (!overlayEl) return;
+  closeReaderHelp();
   const navSectionId = pendingNavSectionId;
   const preserveContentScroll = !navSectionId && !options.resetContentScroll;
   const scrollTop = preserveContentScroll
@@ -2619,9 +2684,15 @@ function bindOverlay() {
   });
 
   overlayEl.querySelector("[data-reader-mark-mode]")?.addEventListener("click", () => {
+    if (!isTouchUi()) return;
     READER_STATE.markMode = !READER_STATE.markMode;
-    closeMarkMenu();
+    hideMarkMenu();
     refreshOverlay();
+  });
+
+  overlayEl.querySelector("[data-reader-help]")?.addEventListener("click", () => {
+    hideMarkMenu();
+    openReaderHelp();
   });
 
   overlayEl.querySelector("[data-reader-minimize]")?.addEventListener("click", () => {
@@ -2663,6 +2734,11 @@ function bindOverlay() {
 
   overlayEl.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape") {
+      if (readerHelpEl) {
+        ev.preventDefault();
+        closeReaderHelp();
+        return;
+      }
       if (READER_STATE.embedded) return;
       ev.preventDefault();
       if (READER_STATE.minimized) {

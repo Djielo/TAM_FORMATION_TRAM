@@ -839,11 +839,43 @@ body.app-dialog-open {
   padding-bottom: 0.65rem;
 }
 
+.header__app-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.header__app-title-row h1 {
+  min-width: 0;
+}
+
 .header__app-subtitle {
   font-size: 0.72rem;
   font-weight: 500;
   opacity: 0.92;
   letter-spacing: normal;
+}
+
+.header__help-btn {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.header__help-btn:hover,
+.header__help-btn:focus-visible {
+  background: rgb(255 255 255 / 22%);
 }
 
 .header__unlock {
@@ -1849,6 +1881,27 @@ body.app-section-reader {
   font-size: 1.35rem;
 }
 
+.rct-reader__btn-icon--help {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.rct-reader__btn-icon--help:hover,
+.rct-reader__btn-icon--help:focus-visible {
+  background: #2a8f5f;
+  border-color: #2a8f5f;
+  color: #fff;
+}
+
+.rct-reader-root .rct-reader-help-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+}
+
 .rct-reader__body {
   display: flex;
   flex-direction: row;
@@ -2055,20 +2108,14 @@ body.app-section-reader {
 }
 
 .rct-reader__mark-mode-btn {
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .rct-reader__mark-mode-icon {
   display: block;
   pointer-events: none;
-}
-
-@media (hover: none) and (pointer: coarse) {
-  .rct-reader__mark-mode-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
 }
 
 .rct-reader__mark-mode-btn--on {
