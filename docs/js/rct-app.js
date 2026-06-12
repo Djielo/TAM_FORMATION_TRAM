@@ -38,7 +38,7 @@ import {
   isClozeSessionComplete,
 } from "./cloze.js";
 import { createPretestSession } from "./pretest-session.js";
-import { openReader } from "./rct-reader.js";
+import { closeReader, isReaderOpen, openReader, setReaderEmbedded } from "./rct-reader.js";
 import {
   FINAL_EXAM_PASS_RATE,
   FINAL_EXAM_QUESTION_COUNT,
@@ -126,6 +126,8 @@ const app = {
   },
 };
 
+/** @type {"reader"|"exam"} */
+let activeAppSection = "reader";
 /** @type {"pretest"|"final"} */
 let activeTab = "pretest";
 /** @type {string} */
@@ -144,8 +146,6 @@ let pauseWarnContinue = null;
 let showClozeDailyExtra = false;
 let clozeDailyExtraContinue = null;
 let showClozeIdleWait = null;
-/** Reprise auto des consignes après la modale Présentation (ou au chargement). */
-let pendingClozeResume = false;
 /** @type {string} */
 let cetTitleTapCount = 0;
 let cetTitleTapTimer = null;
@@ -174,6 +174,19 @@ function clozeHelpEncartHtml() {
   </div>`;
 }
 
+function helpAppSectionsHtml() {
+  return `<div class="help-app-sections">
+    <div class="help-app-section help-app-section--reader" role="note">
+      <p class="help-app-section__label">Consultation et recherche</p>
+      <p>RCT intégral, recherche par mot, surlignages manuels. Vos annotations sont conservées sur cet appareil.</p>
+    </div>
+    <div class="help-app-section help-app-section--exam" role="note">
+      <p class="help-app-section__label">Examen</p>
+      <p>Pré-examen (cartes et textes à trous) et examen final. Maîtrise, sessions en cours et historique sont conservés sur cet appareil.</p>
+    </div>
+  </div>`;
+}
+
 function helpDailyConsignesHtml() {
   return `<p><strong>${CLOZE_DAILY_NEW_TARGET} nouvelles consignes par jour</strong>, présentées l’une après l’autre sans revenir en arrière. À la fin de ce lot, vous pourrez <strong>une seule fois</strong> en ajouter (de 1 à 10, maximum <strong>${CLOZE_DAILY_MAX}</strong> dans la journée) ou passer aux révisions. Les révisions priorisent les consignes les moins bien réussies, selon le calendrier SRS.</p>`;
 }
@@ -198,6 +211,8 @@ const HELP_TEXT = {
     title: "Présentation",
     get body() {
       return `<p><strong>Important :</strong> votre progression est enregistrée sur cet appareil (même lien et même navigateur).</p>
+      ${helpAppSectionsHtml()}
+      <p>Au démarrage, l’application ouvre <strong>Consultation et recherche</strong>. L’onglet <strong>Examen</strong> sert au pré-examen et à l’examen final.</p>
       <p><strong>Conseil :</strong> commencez par <strong>Acronymes</strong>, puis les chapitres «&nbsp;Consignes&nbsp;».</p>
       <p>Le <strong>Pré-examen</strong> propose deux formats :</p>
       ${helpAcronymesLineHtml()}
@@ -488,7 +503,15 @@ function renderUnlockBanner() {
   return "";
 }
 
-function renderTabsShell(mainHtml) {
+function renderAppSectionTabsHtml() {
+  return `
+    <nav class="app-section-tabs" aria-label="Sections RCT">
+      <button type="button" class="app-section-tabs__btn ${activeAppSection === "reader" ? "app-section-tabs__btn--active" : ""}" data-app-section="reader">Consultation et recherche</button>
+      <button type="button" class="app-section-tabs__btn ${activeAppSection === "exam" ? "app-section-tabs__btn--active" : ""}" data-app-section="exam">Examen</button>
+    </nav>`;
+}
+
+function renderExamChrome(mainHtml) {
   const lockFinal = !isFinalExamUnlocked();
   const unlockPct = Math.round(PRETEST_FINAL_UNLOCK_RATE * 100);
   const finalTitle = lockFinal
@@ -497,19 +520,86 @@ function renderTabsShell(mainHtml) {
   return `
     <div class="app-top-bar">
       <header class="header header--app">
-        <div class="header__title-row">
-          <h1>RCT</h1>
-          <button type="button" class="header__reader-link" data-open-reader>Consultation et recherche</button>
-        </div>
+        <h1>RCT</h1>
         <p>Règlement de Circulation Tramway TaM</p>
         ${renderUnlockBanner()}
       </header>
-      <nav class="tabs" aria-label="Modes">
+      <nav class="tabs" aria-label="Modes d'examen">
         <button type="button" class="tabs__btn ${activeTab === "pretest" ? "tabs__btn--active" : ""}" data-tab="pretest">Pré-examen</button>
         <button type="button" class="tabs__btn ${activeTab === "final" ? "tabs__btn--active" : ""}" data-tab="final" ${lockFinal ? `disabled title="${finalTitle}"` : ""}>Examen final</button>
       </nav>
     </div>
     ${mainHtml}`;
+}
+
+function bindAppSectionTabs() {
+  app.querySelectorAll("[data-app-section]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const section = btn.dataset.appSection;
+      if (section === "reader" || section === "exam") setAppSection(section);
+    });
+  });
+}
+
+function prepareExamSectionOnEnter() {
+  if (cardSession) return false;
+
+  if (tryResumeClozeSession()) return true;
+
+  const savedFinal = getActiveFinalSession();
+  if (
+    savedFinal?.queue?.length &&
+    savedFinal.index < savedFinal.queue.length &&
+    isFinalExamUnlocked()
+  ) {
+    activeTab = "final";
+    screen = "final-setup";
+  }
+  return false;
+}
+
+function setAppSection(section) {
+  if (section === activeAppSection) return;
+  if (section === "reader") {
+    stashClozeProgressBeforeLeave();
+    activeAppSection = "reader";
+    render();
+    return;
+  }
+  stashClozeProgressBeforeLeave();
+  activeAppSection = "exam";
+  if (cardSession) {
+    render();
+    return;
+  }
+  if (tryResumeClozeSession()) return;
+  if (reconcileExamScreenAfterSessionLost({ allowResume: true })) return;
+  prepareExamSectionOnEnter();
+  render();
+}
+
+function renderReaderSection() {
+  app.innerHTML = `<div class="app-root app-root--reader">${renderAppSectionTabsHtml()}</div>`;
+  bindAppSectionTabs();
+  if (!isReaderOpen()) {
+    openReader(null, { embedded: true });
+  } else {
+    setReaderEmbedded(true);
+  }
+}
+
+function renderExamSection(mainHtml) {
+  closeReader();
+  app.innerHTML = `
+    <div class="app-root">
+      ${renderAppSectionTabsHtml()}
+      <div class="app-root__exam">${renderExamChrome(mainHtml)}</div>
+    </div>`;
+  bindAppSectionTabs();
+  bindTabs();
+  if (activeTab === "pretest") bindPretest();
+  else bindFinal();
+  bindHiddenResetGesture();
 }
 
 function bindTabs() {
@@ -543,10 +633,6 @@ function renderHelpModal(mode) {
   app.querySelector("[data-help-close]").addEventListener("click", () => {
     if (app.querySelector("[data-help-dismiss]")?.checked) dismissHelp(mode);
     pendingHelp = null;
-    if (pendingClozeResume && tryResumeClozeSession()) {
-      pendingClozeResume = false;
-      return;
-    }
     render();
     if ((mode === "welcome" || mode === "pretest") && pendingBackupRestore) {
       pendingBackupRestore = false;
@@ -991,6 +1077,39 @@ function pretestBackAfterModule(axisId, moduleId) {
   return pretestModuleCount(axisId) > 1 ? "pretest-modules" : "pretest-chapters";
 }
 
+/** Écran quiz sans session en mémoire (ex. après bascule Consultation ↔ Examen). */
+function reconcileExamScreenAfterSessionLost({ allowResume = false } = {}) {
+  if (cardSession) return false;
+
+  if (screen === "pretest-cloze") {
+    if (allowResume && tryResumeClozeSession()) return true;
+    screen =
+      route.axisId && route.moduleId
+        ? pretestBackAfterModule(route.axisId, route.moduleId)
+        : route.axisId
+          ? axisHasModuleGroups(route.axisId)
+            ? "pretest-groups"
+            : "pretest-modules"
+          : "pretest-chapters";
+    return false;
+  }
+
+  if (screen === "pretest-card") {
+    screen =
+      route.axisId && route.moduleId
+        ? pretestBackAfterModule(route.axisId, route.moduleId)
+        : "pretest-chapters";
+    return false;
+  }
+
+  if (screen === "final-card" || screen === "final-results") {
+    screen = "final-setup";
+    return false;
+  }
+
+  return false;
+}
+
 function pretestBackLabel(screenName) {
   if (screenName === "pretest-groups") return "← Chapitres";
   if (screenName === "pretest-modules" && route.groupId) return "← Groupes";
@@ -1101,6 +1220,7 @@ function tryResumeClozeSession() {
     return false;
   }
 
+  activeAppSection = "exam";
   activeTab = "pretest";
   route = {
     axisId: saved.axisId,
@@ -1185,6 +1305,7 @@ function openClozePretest(axisId, moduleId, { scrollToTop = false } = {}) {
       ),
       sessionBlankIds,
     };
+    activeAppSection = "exam";
     screen = "pretest-cloze";
     route = { axisId, groupId: null, moduleId };
     persistActiveClozeSession();
@@ -1295,6 +1416,7 @@ function launchPretestSession(axisId, moduleId, count, resumeSession) {
       masterCount: session.masterCount ?? 0,
       flipped: false,
     };
+    activeAppSection = "exam";
     screen = "pretest-card";
     render();
   };
@@ -1309,6 +1431,10 @@ function launchPretestSession(axisId, moduleId, count, resumeSession) {
 }
 
 function renderPretest() {
+  if (screen === "pretest-cloze" && !cardSession) {
+    if (reconcileExamScreenAfterSessionLost({ allowResume: true })) return "";
+  }
+
   if (
     route.axisId &&
     !route.groupId &&
@@ -1649,6 +1775,7 @@ function persistFinalSession() {
 }
 
 function launchFinalSession(count, resumeSaved = null) {
+  activeAppSection = "exam";
   if (resumeSaved) {
     cardSession = {
       mode: "final",
@@ -1760,6 +1887,11 @@ function tryCompleteClozeSession() {
 }
 
 function renderClozePretest() {
+  if (!cardSession || cardSession.mode !== "pretest-cloze") {
+    if (reconcileExamScreenAfterSessionLost({ allowResume: true })) return "";
+    return renderPretest();
+  }
+
   const { axisId, moduleId, questionId } = cardSession;
   const q = getQuestionById(questionId);
   const mod = getModuleById(axisId, moduleId);
@@ -1824,6 +1956,15 @@ function renderClozePretest() {
 /* ─── Carte flashcard (pré-examen + final) ─── */
 
 function renderFlashcard() {
+  if (!cardSession) {
+    if (screen.startsWith("final")) {
+      screen = "final-setup";
+      return renderFinal();
+    }
+    if (reconcileExamScreenAfterSessionLost({ allowResume: true })) return "";
+    return renderPretest();
+  }
+
   const qid = cardSession.queue[cardSession.index];
   const q = getQuestionById(qid);
   if (!q) return `<main class="main"><p>Question introuvable.</p></main>`;
@@ -2216,23 +2357,13 @@ function render() {
     return;
   }
 
-  const mainHtml =
-    activeTab === "pretest" ? renderPretest() : renderFinal();
+  if (activeAppSection === "reader") {
+    renderReaderSection();
+    return;
+  }
 
-  app.innerHTML = renderTabsShell(mainHtml);
-  bindTabs();
-
-  if (activeTab === "pretest") bindPretest();
-  else bindFinal();
-
-  bindHiddenResetGesture();
-  bindReaderLink();
-}
-
-function bindReaderLink() {
-  app.querySelector("[data-open-reader]")?.addEventListener("click", () => {
-    openReader();
-  });
+  const mainHtml = activeTab === "pretest" ? renderPretest() : renderFinal();
+  renderExamSection(mainHtml);
 }
 
 async function requestFullProgressReset() {
@@ -2259,7 +2390,7 @@ async function requestFullProgressReset() {
 /** Réinitialisation cachée : 5 appuis rapides sur le titre « RCT » dans l'en-tête. */
 function bindHiddenResetGesture() {
   const title = app.querySelector(".header--app h1");
-  if (!title) return;
+  if (!title || activeAppSection !== "exam") return;
   title.classList.add("header__cet-title");
   title.replaceWith(title.cloneNode(true));
   const fresh = app.querySelector(".header--app h1");
@@ -2279,33 +2410,23 @@ function bindHiddenResetGesture() {
 
 /* ─── Init ─── */
 
-/** Reprise au chargement : examen final en cours uniquement. */
+/** Au chargement : nettoie les sessions examen invalides sans ouvrir l’onglet Examen. */
 function tryRestoreOnLoad() {
   const savedFinal = getActiveFinalSession();
-  if (savedFinal?.queue?.length) {
-    const validIds = new Set(getQuestionPool().map((q) => q.questionId));
-    const queue = savedFinal.queue.filter((id) => validIds.has(id));
-    if (!queue.length || (savedFinal.index ?? 0) >= queue.length) {
-      saveActiveFinalSession(null);
-      return false;
-    }
-    if (queue.length !== savedFinal.queue.length) {
-      savedFinal.queue = queue;
-      savedFinal.targetCount = queue.length;
-      savedFinal.index = Math.min(savedFinal.index ?? 0, queue.length - 1);
-      saveActiveFinalSession(savedFinal);
-    }
-  }
-  if (
-    savedFinal?.queue?.length &&
-    savedFinal.index < savedFinal.queue.length &&
-    isFinalExamUnlocked()
-  ) {
-    activeTab = "final";
-    launchFinalSession(null, savedFinal);
-    return true;
-  }
+  if (!savedFinal?.queue?.length) return false;
 
+  const validIds = new Set(getQuestionPool().map((q) => q.questionId));
+  const queue = savedFinal.queue.filter((id) => validIds.has(id));
+  if (!queue.length || (savedFinal.index ?? 0) >= queue.length) {
+    saveActiveFinalSession(null);
+    return false;
+  }
+  if (queue.length !== savedFinal.queue.length) {
+    savedFinal.queue = queue;
+    savedFinal.targetCount = queue.length;
+    savedFinal.index = Math.min(savedFinal.index ?? 0, queue.length - 1);
+    saveActiveFinalSession(savedFinal);
+  }
   return false;
 }
 
@@ -2328,14 +2449,10 @@ function init() {
     migrateStorage();
     invalidateQuestionPool();
     sanitizePretestActiveSessions();
-    const restored = tryRestoreOnLoad();
-    pendingBackupRestore = !restored && shouldOfferBackupRestore();
-    pendingClozeResume = !restored && canResumeClozeSession();
-    if (!restored && !isHelpDismissed("welcome")) {
+    tryRestoreOnLoad();
+    pendingBackupRestore = shouldOfferBackupRestore();
+    if (!isHelpDismissed("welcome")) {
       pendingHelp = "welcome";
-    } else if (pendingClozeResume) {
-      pendingClozeResume = false;
-      tryResumeClozeSession();
     } else if (pendingBackupRestore) {
       queueBackupRestoreOffer();
       pendingBackupRestore = false;

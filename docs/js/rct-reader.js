@@ -17,6 +17,8 @@ import {
 const READER_STATE = {
   open: false,
   minimized: false,
+  /** Intégré sous les onglets app (pas de voile plein écran ni bouton Fermer). */
+  embedded: false,
   query: "",
   /** Index de l'occurrence courante (0 = première dans le détail, de haut en bas). */
   searchMatchIndex: 0,
@@ -557,14 +559,39 @@ function getSectionIdFromSearchHit(el) {
   return el?.closest("[data-reader-article]")?.getAttribute("data-reader-article") || null;
 }
 
-function scrollToSearchHit(mark) {
+/** @param {"next"|"prev"} direction — Suiv. : occurrence en haut ; Préc. : en bas si possible. */
+function scrollToSearchHit(mark, direction = "next") {
   const root = overlayEl?.querySelector(".rct-reader__content");
   if (!root || !mark) return;
-  pauseScrollSpy(900);
-  const rootRect = root.getBoundingClientRect();
-  const markRect = mark.getBoundingClientRect();
-  const top = markRect.top - rootRect.top + root.scrollTop - Math.min(120, rootRect.height * 0.28);
-  root.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  pauseScrollSpy(1200);
+
+  const topInset = 14;
+  const bottomInset = 14;
+
+  const position = () => {
+    const rootRect = root.getBoundingClientRect();
+    const markRect = mark.getBoundingClientRect();
+    if (!mark.isConnected) return;
+    const markTop = markRect.top - rootRect.top + root.scrollTop;
+    const maxScroll = Math.max(0, root.scrollHeight - root.clientHeight);
+    let target;
+    if (direction === "prev") {
+      target = markTop - root.clientHeight + markRect.height + bottomInset;
+    } else {
+      target = markTop - topInset;
+    }
+    root.scrollTo({ top: Math.max(0, Math.min(target, maxScroll)), behavior: "smooth" });
+  };
+
+  position();
+  requestAnimationFrame(() => {
+    position();
+    requestAnimationFrame(position);
+  });
+
+  mark.closest("[data-reader-article]")?.querySelectorAll("img").forEach((img) => {
+    if (!img.complete) img.addEventListener("load", position, { once: true });
+  });
 }
 
 function updateSearchNavUi() {
@@ -595,7 +622,11 @@ function setSearchMatchIndex(index, options = {}) {
     return;
   }
 
+  const prevIndex = READER_STATE.searchMatchIndex;
   const clamped = Math.max(0, Math.min(index, searchHits.length - 1));
+  const direction =
+    options.direction ||
+    (clamped > prevIndex ? "next" : clamped < prevIndex ? "prev" : "next");
   READER_STATE.searchMatchIndex = clamped;
 
   searchHits.forEach((el, i) => {
@@ -604,14 +635,14 @@ function setSearchMatchIndex(index, options = {}) {
 
   const hit = searchHits[clamped];
   if (hit && options.scroll !== false) {
-    scrollToSearchHit(hit);
+    scrollToSearchHit(hit, direction);
   }
 
   const sectionId = getSectionIdFromSearchHit(hit);
   if (sectionId) {
     READER_STATE.activeSectionId = sectionId;
     highlightTocItem(sectionId);
-    scrollTocToActive(sectionId);
+    scrollTocToActive(sectionId, "auto");
   }
 
   updateSearchNavUi();
@@ -2154,7 +2185,15 @@ function renderReaderMarkup() {
   const queryNorm = normalizeSearchText(READER_STATE.query.trim());
   const minimizedClass = READER_STATE.minimized ? " rct-reader--minimized" : "";
 
-  return `<div class="rct-reader${minimizedClass}" role="dialog" aria-modal="true" aria-label="Consultation du RCT">
+  const shellRole = READER_STATE.embedded
+    ? `role="region" aria-label="Consultation du RCT"`
+    : `role="dialog" aria-modal="true" aria-label="Consultation du RCT"`;
+  const windowChrome = READER_STATE.embedded
+    ? ""
+    : `<button type="button" class="rct-reader__btn-icon" data-reader-minimize title="${READER_STATE.minimized ? "Agrandir" : "Réduire"}" aria-label="${READER_STATE.minimized ? "Agrandir le panneau" : "Réduire le panneau"}">${READER_STATE.minimized ? "▢" : "—"}</button>
+        <button type="button" class="rct-reader__btn-icon rct-reader__btn-icon--close" data-reader-close title="Fermer" aria-label="Fermer la consultation">×</button>`;
+
+  return `<div class="rct-reader${minimizedClass}${READER_STATE.embedded ? " rct-reader--embedded" : ""}" ${shellRole}>
     <div class="rct-reader__chrome">
       <div class="rct-reader__chrome-main">
         <h2 class="rct-reader__title">Consultation et recherche — RCT</h2>
@@ -2162,8 +2201,7 @@ function renderReaderMarkup() {
       </div>
       <div class="rct-reader__chrome-actions">
         <button type="button" class="rct-reader__btn-icon rct-reader__mark-mode-btn${READER_STATE.markMode ? " rct-reader__mark-mode-btn--on" : ""}" data-reader-mark-mode title="${READER_STATE.markMode ? "Désactiver le mode surlignage" : "Mode surlignage (sans barre Google)"}" aria-label="${READER_STATE.markMode ? "Désactiver le mode surlignage" : "Activer le mode surlignage"}" aria-pressed="${READER_STATE.markMode ? "true" : "false"}"><svg class="rct-reader__mark-mode-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
-        <button type="button" class="rct-reader__btn-icon" data-reader-minimize title="${READER_STATE.minimized ? "Agrandir" : "Réduire"}" aria-label="${READER_STATE.minimized ? "Agrandir le panneau" : "Réduire le panneau"}">${READER_STATE.minimized ? "▢" : "—"}</button>
-        <button type="button" class="rct-reader__btn-icon rct-reader__btn-icon--close" data-reader-close title="Fermer" aria-label="Fermer la consultation">×</button>
+        ${windowChrome}
       </div>
     </div>
     <div class="rct-reader__body">
@@ -2248,7 +2286,7 @@ function safeScrollToSectionAfterLayout(sectionId) {
   scrollContentToSection(sectionId, "auto");
 }
 
-function scrollTocToActive(sectionId) {
+function scrollTocToActive(sectionId, behavior = "smooth") {
   const toc = overlayEl?.querySelector(".rct-reader__toc");
   const btn = overlayEl?.querySelector(
     `.rct-reader__toc-item[data-reader-section="${CSS.escape(sectionId)}"]`,
@@ -2259,7 +2297,7 @@ function scrollTocToActive(sectionId) {
     toc.getBoundingClientRect().top +
     toc.scrollTop -
     8;
-  toc.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  toc.scrollTo({ top: Math.max(0, top), behavior });
 }
 
 function highlightTocItem(sectionId) {
@@ -2370,10 +2408,13 @@ function mountOverlay() {
   if (existing) existing.remove();
   overlayEl = document.createElement("div");
   overlayEl.id = "rct-reader-root";
-  overlayEl.className = "rct-reader-root";
+  overlayEl.className = READER_STATE.embedded
+    ? "rct-reader-root rct-reader-root--embedded"
+    : "rct-reader-root";
   overlayEl.innerHTML = renderReaderMarkup();
   document.body.appendChild(overlayEl);
   document.body.classList.add("rct-reader-open");
+  if (READER_STATE.embedded) document.body.classList.add("app-section-reader");
   bindOverlay();
   if (READER_STATE.activeSectionId) {
     queueSectionNavigation(READER_STATE.activeSectionId);
@@ -2387,9 +2428,10 @@ function unmountOverlay() {
   searchFocusBindAbort = null;
   navScrollGuard?.cleanup();
   navScrollGuard = null;
-  document.body.classList.remove("rct-reader-open");
+  document.body.classList.remove("rct-reader-open", "app-section-reader");
   overlayEl?.remove();
   overlayEl = null;
+  READER_STATE.embedded = false;
 }
 
 function refreshOverlay(options = {}) {
@@ -2560,7 +2602,7 @@ function bindOverlay() {
   if (!overlayEl) return;
 
   overlayEl.querySelector("[data-reader-close]")?.addEventListener("click", () => {
-    closeReader();
+    if (!READER_STATE.embedded) closeReader();
   });
 
   overlayEl.querySelector("[data-reader-mark-mode]")?.addEventListener("click", () => {
@@ -2589,17 +2631,18 @@ function bindOverlay() {
   overlayEl.querySelector("[data-reader-search-clear]")?.addEventListener("click", clearReaderSearch);
 
   overlayEl.querySelector("[data-reader-search-prev]")?.addEventListener("click", () => {
-    setSearchMatchIndex(READER_STATE.searchMatchIndex - 1);
+    setSearchMatchIndex(READER_STATE.searchMatchIndex - 1, { direction: "prev" });
   });
 
   overlayEl.querySelector("[data-reader-search-next]")?.addEventListener("click", () => {
-    setSearchMatchIndex(READER_STATE.searchMatchIndex + 1);
+    setSearchMatchIndex(READER_STATE.searchMatchIndex + 1, { direction: "next" });
   });
 
   bindTocSectionButtons();
 
   overlayEl.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape") {
+      if (READER_STATE.embedded) return;
       ev.preventDefault();
       if (READER_STATE.minimized) {
         READER_STATE.minimized = false;
@@ -2629,13 +2672,28 @@ export function isReaderOpen() {
   return READER_STATE.open;
 }
 
-export function openReader(sectionId = null) {
+export function openReader(sectionId = null, options = {}) {
   READER_STATE.open = true;
   READER_STATE.minimized = false;
+  READER_STATE.embedded = options.embedded === true;
   if (sectionId) READER_STATE.activeSectionId = sectionId;
+  if (overlayEl) {
+    overlayEl.classList.toggle("rct-reader-root--embedded", READER_STATE.embedded);
+    document.body.classList.toggle("app-section-reader", READER_STATE.embedded);
+    refreshOverlay();
+    return;
+  }
   searchIndex = null;
   mountOverlay();
   void maybeOfferManuelRestore(reapplyMarksInPlace);
+}
+
+export function setReaderEmbedded(embedded) {
+  READER_STATE.embedded = embedded;
+  if (!overlayEl) return;
+  overlayEl.classList.toggle("rct-reader-root--embedded", embedded);
+  document.body.classList.toggle("app-section-reader", embedded);
+  refreshOverlay();
 }
 
 export function closeReader() {

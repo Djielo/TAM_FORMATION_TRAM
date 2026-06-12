@@ -17,6 +17,7 @@
   --safe-bottom: env(safe-area-inset-bottom, 0);
   --cloze: #1a5fb4;
   --cloze-soft: #e8f1fb;
+  --app-section-tabs-height: 2.85rem;
 }
 
 *,
@@ -143,6 +144,50 @@ body.app-dialog-open {
   font-weight: 700;
   color: var(--cloze);
   letter-spacing: 0.02em;
+}
+
+.help-app-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 0.65rem 0;
+}
+
+.help-app-section {
+  margin: 0;
+  padding: 0.75rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+
+.help-app-section p {
+  margin: 0;
+}
+
+.help-app-section__label {
+  margin: 0 0 0.35rem !important;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.help-app-section--reader {
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+}
+
+.help-app-section--reader .help-app-section__label {
+  color: var(--accent);
+}
+
+.help-app-section--exam {
+  background: var(--cloze-soft);
+  border-left: 4px solid var(--cloze);
+}
+
+.help-app-section--exam .help-app-section__label {
+  color: var(--cloze);
 }
 
 .header p {
@@ -743,12 +788,50 @@ body.app-dialog-open {
   line-height: 1.4;
 }
 
-/* App shell — en-tête + onglets (bloc fixe au défilement) */
-.app-top-bar {
-  position: sticky;
+/* Onglets principaux — Consultation / Examen */
+.app-section-tabs {
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  z-index: 250;
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.35rem 0.5rem;
+  padding-top: calc(0.35rem + env(safe-area-inset-top, 0));
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
+.app-section-tabs__btn {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.42rem 0.3rem;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.app-section-tabs__btn--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.app-root__exam {
+  padding-top: calc(var(--app-section-tabs-height) + env(safe-area-inset-top, 0));
+}
+
+/* App shell — en-tête + onglets examen (bloc fixe au défilement) */
+.app-root__exam .app-top-bar {
+  position: sticky;
+  top: calc(var(--app-section-tabs-height) + env(safe-area-inset-top, 0));
   z-index: 20;
-  padding-top: env(safe-area-inset-top, 0);
   box-shadow: var(--shadow);
 }
 
@@ -785,7 +868,7 @@ body.app-dialog-open {
   font-size: 0.78rem;
   font-weight: 600;
   padding: 0.5rem 0.35rem;
-  border-radius: 999px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
@@ -1649,6 +1732,10 @@ body.rct-reader-open {
   overflow: hidden;
 }
 
+body.app-section-reader {
+  overflow: hidden;
+}
+
 /* Panneau consultation RCT */
 .rct-reader-root {
   position: fixed;
@@ -1660,6 +1747,30 @@ body.rct-reader-open {
   display: flex;
   align-items: stretch;
   justify-content: stretch;
+}
+
+.rct-reader-root--embedded {
+  top: calc(var(--app-section-tabs-height) + env(safe-area-inset-top, 0));
+  left: 0.45rem;
+  right: 0.45rem;
+  bottom: calc(0.45rem + env(safe-area-inset-bottom, 0));
+  padding: 0;
+  background: transparent;
+  z-index: 200;
+}
+
+.rct-reader-root--embedded .rct-reader {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.12);
+}
+
+.rct-reader--embedded.rct-reader--minimized {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: min(22rem, 100%);
+  max-height: 3.25rem;
 }
 
 .rct-reader {
