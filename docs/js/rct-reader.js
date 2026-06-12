@@ -30,10 +30,28 @@ let pendingNavSectionId = null;
 /** Pause du suivi de scroll pendant une navigation programmée. */
 let scrollSpyPaused = false;
 let scrollSpyRaf = 0;
-/** Barre de recherche active — ne pas déplacer le sommaire ni voler le focus. */
-let searchFieldFocused = false;
 /** Réinitialise les écouteurs du menu de surlignage (évite les doublons après refresh). */
 let userMarksBindAbort = null;
+/** Réinitialise les écouteurs dédiés au focus de la barre de recherche. */
+let searchFocusBindAbort = null;
+
+function isReaderSearchTarget(target) {
+  return Boolean(
+    target?.closest?.(
+      ".rct-reader__search-wrap, #rct-reader-search, .rct-reader__search-label, [data-reader-search-clear]",
+    ),
+  );
+}
+
+function focusReaderSearch() {
+  const input = overlayEl?.querySelector("#rct-reader-search");
+  if (!input) return;
+  try {
+    input.focus({ preventScroll: true });
+  } catch {
+    input.focus();
+  }
+}
 
 function escapeHtml(raw) {
   return String(raw)
@@ -1069,6 +1087,7 @@ function bindUserMarks(content) {
 
   const closeMarkMenu = () => {
     hideMarkMenu();
+    if (document.activeElement?.id === "rct-reader-search") return;
     window.getSelection()?.removeAllRanges();
   };
 
@@ -1165,7 +1184,8 @@ function bindUserMarks(content) {
 
   content.addEventListener(
     "touchend",
-    () => {
+    (ev) => {
+      if (isReaderSearchTarget(ev.target)) return;
       if (!READER_STATE.markMode) queueShowMenuForSelection(isTouchUi() ? 60 : 40);
     },
     { passive: true, signal: ac.signal },
@@ -1190,6 +1210,7 @@ function bindUserMarks(content) {
 
   const handlePointerOutsideMenu = (ev) => {
     if (!overlayEl?.contains(ev.target)) return;
+    if (isReaderSearchTarget(ev.target)) return;
     const liveMenu = overlayEl.querySelector("#rct-reader-mark-menu");
     if (liveMenu?.contains(ev.target)) return;
 
@@ -2220,7 +2241,7 @@ function collectScrollSpyMarkers() {
 }
 
 function updateScrollSpy() {
-  if (scrollSpyPaused || searchFieldFocused || !overlayEl) return;
+  if (scrollSpyPaused || !overlayEl) return;
   const root = overlayEl.querySelector(".rct-reader__content");
   if (!root) return;
   const markers = collectScrollSpyMarkers();
@@ -2244,7 +2265,9 @@ function updateScrollSpy() {
   if (activeId !== READER_STATE.activeSectionId) {
     READER_STATE.activeSectionId = activeId;
     highlightTocItem(activeId);
-    scrollTocToActive(activeId);
+    if (document.activeElement?.id !== "rct-reader-search") {
+      scrollTocToActive(activeId);
+    }
   }
 }
 
@@ -2296,9 +2319,10 @@ function mountOverlay() {
 function unmountOverlay() {
   userMarksBindAbort?.abort();
   userMarksBindAbort = null;
+  searchFocusBindAbort?.abort();
+  searchFocusBindAbort = null;
   navScrollGuard?.cleanup();
   navScrollGuard = null;
-  searchFieldFocused = false;
   document.body.classList.remove("rct-reader-open");
   overlayEl?.remove();
   overlayEl = null;
@@ -2338,6 +2362,118 @@ function refreshOverlay(options = {}) {
   }
 }
 
+function bindTocSectionButtons(root = overlayEl) {
+  root?.querySelectorAll("[data-reader-section]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-reader-section");
+      if (!id) return;
+      READER_STATE.activeSectionId = id;
+      queueSectionNavigation(id);
+    });
+  });
+}
+
+function clearReaderSearch() {
+  const search = overlayEl?.querySelector("#rct-reader-search");
+  if (search) search.value = "";
+  READER_STATE.query = "";
+  refreshReaderSearchResults({ resetContentScroll: true });
+  focusReaderSearch();
+}
+
+/** Met à jour contenu et sommaire sans détruire le champ de recherche (garde le focus). */
+function refreshReaderSearchResults(options = {}) {
+  if (!overlayEl) return;
+  const queryNorm = normalizeSearchText(READER_STATE.query.trim());
+  const showAll = !queryNorm;
+  const content = overlayEl.querySelector(".rct-reader__content");
+  const scrollTop = options.resetContentScroll ? 0 : (content?.scrollTop ?? 0);
+
+  const inner = overlayEl.querySelector(".rct-reader__content-inner");
+  if (inner) {
+    inner.innerHTML = RCT_LECTURE_SECTIONS.map((s) =>
+      renderSectionArticle(s, queryNorm, showAll),
+    ).join("");
+  }
+
+  const toc = overlayEl.querySelector(".rct-reader__toc");
+  if (toc) {
+    toc.innerHTML = renderToc(queryNorm, READER_STATE.activeSectionId);
+    bindTocSectionButtons(toc);
+  }
+
+  const matchCount = queryNorm
+    ? RCT_LECTURE_TOC.filter((s) => sectionMatchesQuery(s.id, queryNorm)).length
+    : RCT_LECTURE_TOC.length;
+  const meta = overlayEl.querySelector(".rct-reader__search-meta");
+  if (meta) meta.textContent = `${matchCount} section${matchCount > 1 ? "s" : ""}`;
+
+  const wrap = overlayEl.querySelector(".rct-reader__search-wrap");
+  if (wrap) {
+    const existing = wrap.querySelector("[data-reader-search-clear]");
+    if (READER_STATE.query.trim() && !existing) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "rct-reader__search-clear";
+      btn.dataset.readerSearchClear = "";
+      btn.title = "Effacer la recherche";
+      btn.setAttribute("aria-label", "Effacer la recherche");
+      btn.textContent = "×";
+      btn.addEventListener("click", clearReaderSearch);
+      wrap.appendChild(btn);
+    } else if (!READER_STATE.query.trim() && existing) {
+      existing.remove();
+    }
+  }
+
+  if (content) content.scrollTop = scrollTop;
+  reapplyMarksInPlace();
+}
+
+/**
+ * Isole la barre de recherche des handlers globaux (surlignage) sans bloquer
+ * le focus natif : jamais de stopPropagation en phase capture sur l'input.
+ */
+function bindSearchFocusTargets() {
+  searchFocusBindAbort?.abort();
+  const ac = new AbortController();
+  searchFocusBindAbort = ac;
+  const { signal } = ac;
+
+  const search = overlayEl?.querySelector("#rct-reader-search");
+  const wrap = overlayEl?.querySelector(".rct-reader__search-wrap");
+  const label = overlayEl?.querySelector(".rct-reader__search-label");
+
+  const stopBubble = (ev) => {
+    ev.stopPropagation();
+  };
+
+  for (const node of [search, wrap, label].filter(Boolean)) {
+    node.addEventListener("pointerdown", stopBubble, { signal });
+    node.addEventListener("touchstart", stopBubble, { signal, passive: true });
+    node.addEventListener("click", stopBubble, { signal });
+  }
+
+  search?.addEventListener(
+    "pointerdown",
+    () => {
+      focusReaderSearch();
+    },
+    { signal },
+  );
+
+  for (const node of [wrap, label].filter(Boolean)) {
+    node.addEventListener(
+      "pointerdown",
+      (ev) => {
+        ev.preventDefault();
+        focusReaderSearch();
+      },
+      { signal },
+    );
+  }
+}
+
 function bindOverlay() {
   if (!overlayEl) return;
 
@@ -2357,51 +2493,19 @@ function bindOverlay() {
   });
 
   const search = overlayEl.querySelector("#rct-reader-search");
-
-  const holdSearchFocus = () => {
-    searchFieldFocused = true;
-    scrollSpyPaused = true;
-  };
-
-  const releaseSearchFocus = () => {
-    searchFieldFocused = false;
-    window.setTimeout(() => {
-      if (!searchFieldFocused && document.activeElement?.id !== "rct-reader-search") {
-        scrollSpyPaused = false;
-      }
-    }, 200);
-  };
-
-  search?.addEventListener("pointerdown", holdSearchFocus);
-  search?.addEventListener("focus", holdSearchFocus);
-  search?.addEventListener("blur", releaseSearchFocus);
+  bindSearchFocusTargets();
 
   search?.addEventListener("input", () => {
     const next = search.value;
     const prevNorm = normalizeSearchText(READER_STATE.query.trim());
     const nextNorm = normalizeSearchText(next.trim());
-    const caret = search.selectionStart ?? next.length;
     READER_STATE.query = next;
-    refreshOverlay({
-      resetContentScroll: prevNorm !== nextNorm,
-      focusSearch: true,
-      searchCaret: caret,
-    });
+    refreshReaderSearchResults({ resetContentScroll: prevNorm !== nextNorm });
   });
 
-  overlayEl.querySelector("[data-reader-search-clear]")?.addEventListener("click", () => {
-    READER_STATE.query = "";
-    refreshOverlay({ focusSearch: true, resetContentScroll: true });
-  });
+  overlayEl.querySelector("[data-reader-search-clear]")?.addEventListener("click", clearReaderSearch);
 
-  overlayEl.querySelectorAll("[data-reader-section]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-reader-section");
-      if (!id) return;
-      READER_STATE.activeSectionId = id;
-      queueSectionNavigation(id);
-    });
-  });
+  bindTocSectionButtons();
 
   overlayEl.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape") {
@@ -2419,7 +2523,6 @@ function bindOverlay() {
   content?.addEventListener(
     "scroll",
     () => {
-      if (searchFieldFocused) return;
       cancelAnimationFrame(scrollSpyRaf);
       scrollSpyRaf = requestAnimationFrame(updateScrollSpy);
     },
