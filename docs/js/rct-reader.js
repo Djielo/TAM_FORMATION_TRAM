@@ -13,6 +13,7 @@ import {
   maybeOfferManuelRestore,
   scheduleManuelBackupWrite,
 } from "./manuel-backup.js";
+import { bindHiddenConsignesSyntheseGesture } from "./consignes-synthese.js";
 
 const READER_STATE = {
   open: false,
@@ -2232,12 +2233,15 @@ function openReaderHelp() {
   backdrop.setAttribute("aria-modal", "true");
   backdrop.setAttribute("aria-labelledby", "rct-reader-help-title");
   backdrop.innerHTML = `<div class="help-modal">
-      <h2 id="rct-reader-help-title">Consultation et recherche</h2>
+      <h2 id="rct-reader-help-title" class="help-modal__title">Consultation et recherche</h2>
       <div class="help-modal__body">${readerHelpBodyHtml()}</div>
       <button type="button" class="btn btn--primary" data-reader-help-close>Compris</button>
     </div>`;
   overlayEl.appendChild(backdrop);
   readerHelpEl = backdrop;
+  bindHiddenConsignesSyntheseGesture(
+    backdrop.querySelector("#rct-reader-help-title"),
+  );
   const close = () => closeReaderHelp();
   backdrop.querySelector("[data-reader-help-close]")?.addEventListener("click", close);
   backdrop.addEventListener("click", (ev) => {

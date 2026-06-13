@@ -22,4 +22,6 @@ globalThis.__RCT_JS_MODULES__ = [
   "data-rct-acronymes.js",
   "data-rct-ch3.js",
   "data-rct-ch4.js",
+  "data-rct-consignes-synthese.js",
+  "consignes-synthese.js",
 ];

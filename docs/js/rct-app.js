@@ -5,6 +5,7 @@ import {
   writeProgressBackupFile,
 } from "./backup.js";
 import { showAlert, showConfirm, showConfirmWithDismiss } from "./dialog.js";
+import { bindHiddenConsignesSyntheseGesture } from "./consignes-synthese.js";
 import {
   getAxisById,
   getQuestionById,
@@ -641,12 +642,17 @@ function renderHelpModal(mode) {
   app.innerHTML = `
     <div class="help-backdrop" role="dialog" aria-modal="true">
       <div class="help-modal">
-        <h2>${escapeHtml(h.title)}</h2>
+        <h2 class="help-modal__title">${escapeHtml(h.title)}</h2>
         <div class="help-modal__body">${bodyHtml}</div>
         ${dismissHtml}
         <button type="button" class="btn btn--primary" data-help-close>Compris</button>
       </div>
     </div>`;
+  if (mode === "pretest") {
+    bindHiddenConsignesSyntheseGesture(
+      app.querySelector(".help-modal__title"),
+    );
+  }
   app.querySelector("[data-help-close]").addEventListener("click", () => {
     if (app.querySelector("[data-help-dismiss]")?.checked) dismissHelp(mode);
     pendingHelp = null;

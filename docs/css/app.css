@@ -40,7 +40,8 @@ body {
 }
 
 body.quiz-modal-open,
-body.app-dialog-open {
+body.app-dialog-open,
+body.consignes-synthese-open {
   overflow: hidden;
   touch-action: none;
 }
@@ -1916,6 +1917,217 @@ body.app-section-reader {
   position: absolute;
   inset: 0;
   z-index: 30;
+}
+
+/* Synthèse consignes (accès caché formateur) */
+#consignes-synthese-root {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+}
+
+#consignes-synthese-root[hidden] {
+  display: none;
+}
+
+.consignes-synthese-backdrop {
+  z-index: 250;
+}
+
+.consignes-synthese-modal {
+  max-width: min(42rem, 96vw);
+  max-height: min(92vh, 900px);
+}
+
+.consignes-synthese-modal__body {
+  max-height: min(70vh, 680px);
+}
+
+.synthese-intro {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+}
+
+.synthese-meta {
+  margin: 0 0 1rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.synthese-section {
+  margin-bottom: 1.25rem;
+}
+
+.synthese-section__title {
+  margin: 0 0 0.65rem;
+  font-size: 1rem;
+  color: var(--accent);
+}
+
+.synthese-section__common {
+  margin: 0 0 0.65rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 0.35rem;
+  background: color-mix(in srgb, var(--cloze) 8%, transparent);
+  font-size: 0.86rem;
+}
+
+.synthese-section--urgence .synthese-section__common {
+  background: color-mix(in srgb, var(--warn) 10%, transparent);
+}
+
+.synthese-chapter-block {
+  margin-bottom: 1.25rem;
+}
+
+.synthese-chapter-block__title {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+  color: var(--accent);
+}
+
+.synthese-fiche__note {
+  margin: 0.35rem 0 0;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.82rem;
+  border-radius: 0.3rem;
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+}
+
+.synthese-subsection {
+  margin-bottom: 1rem;
+}
+
+.synthese-subsection__title {
+  margin: 0 0 0.5rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--cloze);
+}
+
+.synthese-fiche {
+  margin: 0 0 0.75rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  background: var(--surface);
+}
+
+.synthese-fiche--urgence {
+  border-left: 3px solid var(--warn);
+}
+
+.synthese-fiche--circulation:not(.synthese-fiche--vitesse) {
+  border-left: 3px solid var(--cloze);
+}
+
+.synthese-fiche--vitesse {
+  margin-left: 0.35rem;
+  padding: 0.45rem 0.55rem;
+}
+
+.synthese-fiche__title {
+  margin: 0 0 0.15rem;
+  font-size: 0.9rem;
+}
+
+.synthese-fiche__refs {
+  margin: 0 0 0.4rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.synthese-fiche__steps {
+  margin: 0;
+  padding-left: 1.15rem;
+  font-size: 0.86rem;
+}
+
+.synthese-fiche__steps li {
+  margin-bottom: 0.28rem;
+}
+
+.synthese-fiche__subs {
+  margin: 0.25rem 0 0.35rem;
+  padding-left: 1rem;
+  font-size: 0.84rem;
+}
+
+.synthese-fiche__subs li {
+  margin-bottom: 0.2rem;
+}
+
+.synthese-group {
+  margin: 0 0 0.85rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  background: var(--surface);
+}
+
+.synthese-group--urgence {
+  border-left: 3px solid var(--warn);
+}
+
+.synthese-group--circulation {
+  border-left: 3px solid var(--cloze);
+}
+
+.synthese-group__chapter {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  margin-bottom: 0.2rem;
+}
+
+.synthese-group__title {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+}
+
+.synthese-group__refs {
+  margin: 0 0 0.45rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.synthese-group__list {
+  margin: 0 0 0.45rem;
+  padding-left: 1.1rem;
+  font-size: 0.88rem;
+}
+
+.synthese-group__list li {
+  margin-bottom: 0.3rem;
+}
+
+.synthese-group__variant {
+  margin-top: 0.45rem;
+  padding-top: 0.45rem;
+  border-top: 1px dashed var(--border);
+}
+
+.synthese-group__variant-label {
+  margin: 0 0 0.25rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.synthese-group__notes {
+  margin-top: 0.35rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 0.35rem;
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  font-size: 0.85rem;
+}
+
+.synthese-group__sources {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-style: italic;
 }
 
 .rct-reader__body {
