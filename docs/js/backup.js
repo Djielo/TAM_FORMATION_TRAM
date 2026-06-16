@@ -11,6 +11,11 @@ const IDB_VERSION = 1;
 const IDB_STORE = "meta";
 const IDB_HANDLE_KEY = "fileHandle";
 
+/** Handle en mémoire pour la session navigateur (évite de redemander le fichier à chaque consigne). */
+let sessionBackupHandle = null;
+let backupWriteTimer = 0;
+let pendingProgressJson = null;
+
 const EXPORT_KEY_IDS = [
   "revision",
   "mastery",
@@ -154,11 +159,25 @@ async function clearStoredBackupHandle() {
   }
 }
 
-/**
- * @param {FileSystemFileHandle} handle
- * @param {string} text
- */
-async function writeTextToHandle(handle, text) {
+async function resolveBackupHandle() {
+  if (sessionBackupHandle) return sessionBackupHandle;
+  const stored = await getStoredBackupHandle();
+  if (stored) sessionBackupHandle = stored;
+  return sessionBackupHandle;
+}
+
+/** Écriture silencieuse — handle déjà autorisé. */
+async function writeTextToHandleGranted(handle, text) {
+  const perm = await handle.queryPermission({ mode: "readwrite" });
+  if (perm !== "granted") return false;
+  const writable = await handle.createWritable();
+  await writable.write(text);
+  await writable.close();
+  return true;
+}
+
+/** Demande l'autorisation — à n'appeler que pendant un geste utilisateur (clic, toucher). */
+async function writeTextToHandleWithPermission(handle, text) {
   let perm = await handle.queryPermission({ mode: "readwrite" });
   if (perm !== "granted") {
     perm = await handle.requestPermission({ mode: "readwrite" });
@@ -170,17 +189,30 @@ async function writeTextToHandle(handle, text) {
   return true;
 }
 
-/** Même fichier sur l'appareil (écrasement) si autorisé ; sinon téléchargement classique. */
-async function persistBackupToDevice(jsonString) {
-  let handle = await getStoredBackupHandle();
+/**
+ * @param {string} jsonString
+ * @param {{ allowPicker?: boolean }} options
+ * @returns {Promise<boolean>}
+ */
+async function persistBackupToDevice(jsonString, options = {}) {
+  const { allowPicker = false } = options;
+  let handle = await resolveBackupHandle();
+
   if (handle) {
     try {
-      if (await writeTextToHandle(handle, jsonString)) return;
+      if (await writeTextToHandleGranted(handle, jsonString)) return true;
+      if (allowPicker && (await writeTextToHandleWithPermission(handle, jsonString))) {
+        return true;
+      }
+      return false;
     } catch {
       await clearStoredBackupHandle();
+      sessionBackupHandle = null;
       handle = null;
     }
   }
+
+  if (!allowPicker) return false;
 
   if (typeof window.showSaveFilePicker === "function") {
     try {
@@ -193,17 +225,19 @@ async function persistBackupToDevice(jsonString) {
           },
         ],
       });
+      sessionBackupHandle = picked;
       await setStoredBackupHandle(picked);
-      if (await writeTextToHandle(picked, jsonString)) return;
+      if (await writeTextToHandleWithPermission(picked, jsonString)) return true;
     } catch (err) {
       if (err?.name === "AbortError") {
         triggerDownload(jsonString);
-        return;
+        return true;
       }
     }
   }
 
   triggerDownload(jsonString);
+  return true;
 }
 
 function triggerDownload(jsonString, fileName = BACKUP_FILE_NAME) {
@@ -221,19 +255,53 @@ function triggerDownload(jsonString, fileName = BACKUP_FILE_NAME) {
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
-/** Sauvegarde fichier après fin de module / session (révision, pré-examen, examen final). */
-export async function writeProgressBackupFile() {
-  if (isLocalProgressEmpty()) return;
+function buildProgressBackupJson() {
+  if (isLocalProgressEmpty()) return null;
   localStorage.removeItem(KEYS.voluntaryReset);
-  const payload = buildBackupPayload(false);
-  await persistBackupToDevice(JSON.stringify(payload, null, 0));
+  return JSON.stringify(buildBackupPayload(false), null, 0);
+}
+
+/** Regroupe les écritures ; ne rouvre jamais le sélecteur de fichier hors geste. */
+export function scheduleProgressBackupWrite(delayMs = 700) {
+  const json = buildProgressBackupJson();
+  if (!json) return;
+  pendingProgressJson = json;
+  window.clearTimeout(backupWriteTimer);
+  backupWriteTimer = window.setTimeout(async () => {
+    backupWriteTimer = 0;
+    const payload = pendingProgressJson;
+    if (!payload) return;
+    const wrote = await persistBackupToDevice(payload, { allowPicker: false });
+    if (wrote) pendingProgressJson = null;
+  }, delayMs);
+}
+
+/** Sauvegarde fichier après progression (silencieuse si le fichier est déjà connu). */
+export function writeProgressBackupFile() {
+  scheduleProgressBackupWrite();
+}
+
+/**
+ * Sauvegarde pendant un geste utilisateur — choix du fichier ou demande d'autorisation une seule fois.
+ * @returns {Promise<boolean>}
+ */
+export async function flushProgressBackupFromGesture() {
+  const json = pendingProgressJson || buildProgressBackupJson();
+  if (!json) return true;
+  pendingProgressJson = null;
+  window.clearTimeout(backupWriteTimer);
+  backupWriteTimer = 0;
+  return persistBackupToDevice(json, { allowPicker: true });
 }
 
 /** Marqueur après reset volontaire (5 × RCT) — écrase la sauvegarde utile sur l'appareil. */
 export async function writeIntentionalResetBackup() {
   localStorage.setItem(KEYS.voluntaryReset, "1");
   const payload = buildBackupPayload(true);
-  await persistBackupToDevice(JSON.stringify(payload, null, 0));
+  pendingProgressJson = null;
+  window.clearTimeout(backupWriteTimer);
+  backupWriteTimer = 0;
+  await persistBackupToDevice(JSON.stringify(payload, null, 0), { allowPicker: true });
 }
 
 /**
@@ -309,7 +377,7 @@ export function pickAndRestoreBackupFile() {
           return;
         }
         applyBackupStorage(check.storage);
-        const handle = await getStoredBackupHandle();
+        const handle = await resolveBackupHandle();
         if (!handle && "showSaveFilePicker" in window) {
           try {
             const picked = await window.showSaveFilePicker({
@@ -321,8 +389,9 @@ export function pickAndRestoreBackupFile() {
                 },
               ],
             });
+            sessionBackupHandle = picked;
             await setStoredBackupHandle(picked);
-            await writeTextToHandle(picked, text);
+            await writeTextToHandleWithPermission(picked, text);
           } catch {
             /* reprise OK même sans handle */
           }

@@ -1,8 +1,9 @@
 import {
   pickAndRestoreBackupFile,
   shouldOfferBackupRestore,
+  flushProgressBackupFromGesture,
+  scheduleProgressBackupWrite,
   writeIntentionalResetBackup,
-  writeProgressBackupFile,
 } from "./backup.js";
 import { showAlert, showConfirm, showConfirmWithDismiss } from "./dialog.js";
 import { bindHiddenConsignesSyntheseGesture } from "./consignes-synthese.js";
@@ -1193,6 +1194,7 @@ function stashClozeProgressBeforeLeave() {
     onClozeSessionComplete();
   }
   persistActiveClozeSession();
+  scheduleProgressBackupWrite();
   cardSession = null;
 }
 
@@ -1368,19 +1370,19 @@ function continueAfterClozePretest(axisId, wasNew) {
     showClozeDailyExtra = true;
     clozeDailyExtraContinue = tryNext;
     persistActiveClozeSession({ axisId, pendingDailyExtra: true });
-    void writeProgressBackupFile();
+    void flushProgressBackupFromGesture();
     render();
     return;
   }
   if (needsPretestPauseWarning()) {
     showPauseWarn = true;
     pauseWarnContinue = tryNext;
-    void writeProgressBackupFile();
+    void flushProgressBackupFromGesture();
     render();
     return;
   }
   tryNext();
-  void writeProgressBackupFile();
+  void flushProgressBackupFromGesture();
 }
 
 function finishClozePretestAsMaster() {
@@ -2100,7 +2102,7 @@ function advanceCard() {
       if (screen === "pretest-chapters") {
         route = { axisId: null, groupId: null, moduleId: null };
       }
-      void writeProgressBackupFile();
+      void flushProgressBackupFromGesture();
     } else {
       const total = cardSession.queue.length;
       appendFinalExamResult({
@@ -2110,7 +2112,7 @@ function advanceCard() {
       });
       saveActiveFinalSession(null);
       screen = "final-results";
-      void writeProgressBackupFile();
+      void flushProgressBackupFromGesture();
     }
     render();
     return;
@@ -2470,22 +2472,27 @@ function bindHiddenResetGesture() {
 
 /* ─── Init ─── */
 
-/** Au chargement : nettoie les sessions examen invalides sans ouvrir l’onglet Examen. */
+/** Au chargement : reprise consignes en cours ou nettoyage sessions examen invalides. */
 function tryRestoreOnLoad() {
   const savedFinal = getActiveFinalSession();
-  if (!savedFinal?.queue?.length) return false;
-
-  const validIds = new Set(getQuestionPool().map((q) => q.questionId));
-  const queue = savedFinal.queue.filter((id) => validIds.has(id));
-  if (!queue.length || (savedFinal.index ?? 0) >= queue.length) {
-    saveActiveFinalSession(null);
-    return false;
+  if (savedFinal?.queue?.length) {
+    const validIds = new Set(getQuestionPool().map((q) => q.questionId));
+    const queue = savedFinal.queue.filter((id) => validIds.has(id));
+    if (!queue.length || (savedFinal.index ?? 0) >= queue.length) {
+      saveActiveFinalSession(null);
+    } else if (queue.length !== savedFinal.queue.length) {
+      savedFinal.queue = queue;
+      savedFinal.targetCount = queue.length;
+      savedFinal.index = Math.min(savedFinal.index ?? 0, queue.length - 1);
+      saveActiveFinalSession(savedFinal);
+    }
   }
-  if (queue.length !== savedFinal.queue.length) {
-    savedFinal.queue = queue;
-    savedFinal.targetCount = queue.length;
-    savedFinal.index = Math.min(savedFinal.index ?? 0, queue.length - 1);
-    saveActiveFinalSession(savedFinal);
+
+  if (canResumeClozeSession()) {
+    activeAppSection = "exam";
+    activeTab = "pretest";
+    tryResumeClozeSession();
+    return true;
   }
   return false;
 }
@@ -2529,6 +2536,7 @@ window.addEventListener("beforeunload", () => {
   if (cardSession?.mode === "pretest-cloze") stashClozeProgressBeforeLeave();
   else if (showClozeDailyExtra && route.axisId) {
     persistActiveClozeSession({ axisId: route.axisId, pendingDailyExtra: true });
+    scheduleProgressBackupWrite(0);
   }
 });
 
