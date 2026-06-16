@@ -38,6 +38,11 @@ import {
   getClozeSessionBlankIds,
   hasUnfinishedClozeCycle,
   isClozeSessionComplete,
+  canOfferClozeDailyExtra,
+  noteClozeQuestionServed,
+  resolveClozeBlankCount,
+  getClozeMaxSegments,
+  getClozeAxisPoolStats,
 } from "./cloze.js";
 import { createPretestSession } from "./pretest-session.js";
 import { closeReader, isReaderOpen, openReader, setReaderEmbedded } from "./rct-reader.js";
@@ -61,7 +66,7 @@ import {
   getClozeDailyMaxExtra,
   getClozeDailyNewTarget,
   markClozeExtensionOffered,
-  getClozeState,
+  normalizeClozeBlanksForConsigne,
   getSrsRow,
   dismissHelp,
   getActiveFinalSession,
@@ -82,8 +87,8 @@ import {
   onPretestSessionComplete,
   onClozeSessionComplete,
   recordClozeDailyIntro,
+  recordClozeDailyServe,
   recordClozeSessionResult,
-  shouldOfferClozeDailyExtra,
   recordPretestSessionResult,
   resetAllUserProgress,
   saveActiveClozeSession,
@@ -149,6 +154,8 @@ let pauseWarnContinue = null;
 let showClozeDailyExtra = false;
 let clozeDailyExtraContinue = null;
 let showClozeIdleWait = null;
+/** Chapitre dont le détail progression est affiché sous le bandeau (null = masqué). */
+let unlockDetailAxisId = null;
 /** @type {string} */
 let cetTitleTapCount = 0;
 let cetTitleTapTimer = null;
@@ -291,6 +298,10 @@ function escapeHtml(raw) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+function escapeAttr(raw) {
+  return escapeHtml(raw).replace(/'/g, "&#39;");
 }
 
 const ANSWER_WARNING_MARK = "@@WARNING@@";
@@ -487,29 +498,76 @@ function finalScoreTier(score, total) {
 
 /* ─── Shell ─── */
 
+function buildUnlockDetailLines(axisId) {
+  const pre = getPretestUnlockProgress();
+  const ch = pre.chapters.find((item) => item.axisId === axisId);
+  if (!ch) return { title: "", lines: [] };
+  const axis = AXES.find((a) => a.id === axisId);
+  const title = axis ? `${axisChapterLabel(axis)} :` : `${ch.title} :`;
+
+  if (usesConsigneLabels(axisId)) {
+    const pool = getClozeAxisPoolStats(axisId);
+    return {
+      title,
+      lines: [
+        `${ch.mastered} consigne${ch.mastered !== 1 ? "s" : ""} maîtrisée${ch.mastered !== 1 ? "s" : ""} sur ${ch.total}`,
+        `Progression moyenne du chapitre : ${ch.masteryPct} %`,
+        `Commencées : ${pool.touched}`,
+        `Jamais ouvertes : ${pool.untouched}`,
+        `Nouvelles ouvertes aujourd'hui : ${pool.dailyOpened}`,
+        `Nouvelles terminées aujourd'hui : ${pool.dailyCompleted}`,
+      ],
+    };
+  }
+
+  return {
+    title,
+    lines: [
+      `${ch.mastered} carte${ch.mastered !== 1 ? "s" : ""} maîtrisée${ch.mastered !== 1 ? "s" : ""} sur ${ch.total}`,
+      `Progression chapitre : ${ch.masteryPct} %`,
+      `Non maîtrisées restantes : ${Math.max(0, ch.total - ch.mastered)}`,
+    ],
+  };
+}
+
+function renderUnlockDetailPanelInner(axisId) {
+  const { title, lines } = buildUnlockDetailLines(axisId);
+  const linesHtml = lines
+    .map((line) => `<p class="header__unlock-detail__line">${escapeHtml(line)}</p>`)
+    .join("");
+  return `<p class="header__unlock-detail__title">${escapeHtml(title)}</p>${linesHtml}`;
+}
+
+function renderUnlockFloatShell() {
+  const open = Boolean(unlockDetailAxisId);
+  const inner = open ? renderUnlockDetailPanelInner(unlockDetailAxisId) : "";
+  return `<div class="header__unlock-float${open ? " header__unlock-float--open" : ""}" aria-hidden="${open ? "false" : "true"}"${open ? "" : " hidden"}>${inner}</div>`;
+}
+
 function renderUnlockBanner() {
   if (isDevBypassUnlock()) {
     return `<p class="header__unlock header__unlock--dev">Mode test actif (déverrouillage complet).</p>`;
   }
   const pre = getPretestUnlockProgress();
-
-  if (!pre.complete) {
-    const okCount = pre.chapters.filter((c) => c.ok).length;
-    const totalCh = pre.chapters.length;
-    const pending = pre.chapters
-      .filter((c) => !c.ok)
-      .map((c) =>
-        c.num != null
-          ? `ch. ${c.num} (${c.masteryPct} %)`
-          : `${c.title} (${c.masteryPct} %)`,
-      )
-      .join(" · ");
-    const main = `<p class="header__unlock">Pré-examen : ${okCount} / ${totalCh} à ${pre.thresholdPct} % pour l'examen final.</p>`;
-    if (!pending) return main;
-    return `${main}<p class="header__unlock header__unlock--sub">Reste : ${pending}.</p>`;
+  if (pre.complete) {
+    return `<p class="header__unlock header__unlock--ok">Examen final disponible.</p>`;
   }
 
-  return "";
+  const chips = pre.chapters.map((ch) => {
+    const axis = AXES.find((a) => a.id === ch.axisId);
+    const label =
+      ch.axisId === "acronymes"
+        ? "Acronymes"
+        : axis?.num != null
+          ? `Ch.\u00a0${axis.num}`
+          : ch.title;
+    const active = unlockDetailAxisId === ch.axisId;
+    const { title, lines } = buildUnlockDetailLines(ch.axisId);
+    const ariaLabel = [title, ...lines].join(". ");
+    return `<button type="button" class="header__unlock-chip${active ? " header__unlock-chip--active" : ""}" data-unlock-axis="${escapeAttr(ch.axisId)}" aria-label="${escapeAttr(ariaLabel)}" aria-expanded="${active ? "true" : "false"}">${escapeHtml(label)} ${ch.mastered}/${ch.total} (${ch.masteryPct}&nbsp;%)</button>`;
+  });
+
+  return `<p class="header__unlock header__unlock--chips"><span class="header__unlock-label">Examen final (${pre.thresholdPct}&nbsp;%) :</span> ${chips.join('<span class="header__unlock-sep" aria-hidden="true"> · </span>')}</p>`;
 }
 
 function renderAppSectionTabsHtml() {
@@ -539,6 +597,7 @@ function renderExamChrome(mainHtml) {
         <button type="button" class="tabs__btn ${activeTab === "pretest" ? "tabs__btn--active" : ""}" data-tab="pretest">Pré-examen</button>
         <button type="button" class="tabs__btn ${activeTab === "final" ? "tabs__btn--active" : ""}" data-tab="final" ${lockFinal ? `disabled title="${finalTitle}"` : ""}>Examen final</button>
       </nav>
+      ${renderUnlockFloatShell()}
     </div>
     ${mainHtml}`;
 }
@@ -614,11 +673,153 @@ function renderExamSection(mainHtml) {
   bindHiddenResetGesture();
 }
 
+let unlockDetailDocBound = false;
+let unlockFloatSyncBound = false;
+
+function getUnlockFloatPanel() {
+  return app?.querySelector(".header__unlock-float");
+}
+
+function positionUnlockFloat() {
+  const topBar = app?.querySelector(".app-top-bar");
+  const header = topBar?.querySelector(".header--app");
+  const panel = getUnlockFloatPanel();
+  if (!header || !panel) return;
+  panel.style.top = `${header.offsetHeight}px`;
+}
+
+function clearUnlockDetail() {
+  unlockDetailAxisId = null;
+  app?.querySelectorAll(".header__unlock-chip--active").forEach((chip) => {
+    chip.classList.remove("header__unlock-chip--active");
+    chip.setAttribute("aria-expanded", "false");
+  });
+  const panel = getUnlockFloatPanel();
+  if (panel) {
+    panel.classList.remove("header__unlock-float--open");
+    panel.hidden = true;
+    panel.setAttribute("aria-hidden", "true");
+    panel.innerHTML = "";
+  }
+}
+
+function setUnlockDetail(axisId) {
+  unlockDetailAxisId = axisId;
+  app?.querySelectorAll(".header__unlock-chip").forEach((chip) => {
+    const active = chip.dataset.unlockAxis === axisId;
+    chip.classList.toggle("header__unlock-chip--active", active);
+    chip.setAttribute("aria-expanded", active ? "true" : "false");
+  });
+
+  const panel = getUnlockFloatPanel();
+  if (!panel) return;
+  panel.innerHTML = renderUnlockDetailPanelInner(axisId);
+  panel.hidden = false;
+  panel.classList.add("header__unlock-float--open");
+  panel.setAttribute("aria-hidden", "false");
+  positionUnlockFloat();
+}
+
+function bindUnlockFloatSync() {
+  if (unlockFloatSyncBound) return;
+  unlockFloatSyncBound = true;
+  const sync = () => {
+    if (unlockDetailAxisId) positionUnlockFloat();
+  };
+  window.addEventListener("scroll", sync, { passive: true });
+  window.addEventListener("resize", sync);
+}
+
+function bindUnlockChips() {
+  const root = app.querySelector(".header__unlock--chips");
+  if (!root) return;
+
+  bindUnlockFloatSync();
+  if (unlockDetailAxisId) positionUnlockFloat();
+
+  const canHoverDetail = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const isTouchUi = window.matchMedia("(hover: none)").matches;
+
+  root.querySelectorAll(".header__unlock-chip").forEach((chip) => {
+    let longPressTimer = null;
+    let longPressShown = false;
+
+    const cancelLongPress = () => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+    };
+
+    chip.addEventListener("mouseenter", () => {
+      if (canHoverDetail) setUnlockDetail(chip.dataset.unlockAxis);
+    });
+
+    chip.addEventListener("click", (e) => {
+      if (!isTouchUi) return;
+      if (longPressShown) {
+        longPressShown = false;
+        e.preventDefault();
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      if (unlockDetailAxisId === chip.dataset.unlockAxis) {
+        clearUnlockDetail();
+        return;
+      }
+      setUnlockDetail(chip.dataset.unlockAxis);
+    });
+
+    chip.addEventListener(
+      "touchstart",
+      () => {
+        if (!isTouchUi) return;
+        longPressShown = false;
+        cancelLongPress();
+        longPressTimer = window.setTimeout(() => {
+          setUnlockDetail(chip.dataset.unlockAxis);
+          longPressShown = true;
+          longPressTimer = null;
+        }, 450);
+      },
+      { passive: true },
+    );
+
+    chip.addEventListener("touchend", cancelLongPress);
+    chip.addEventListener("touchmove", cancelLongPress);
+    chip.addEventListener("touchcancel", cancelLongPress);
+  });
+
+  root.addEventListener("mouseleave", () => {
+    if (canHoverDetail) clearUnlockDetail();
+  });
+
+  if (!unlockDetailDocBound) {
+    unlockDetailDocBound = true;
+    document.addEventListener("click", (e) => {
+      if (!window.matchMedia("(hover: none)").matches) return;
+      if (e.target.closest?.(".header__unlock-chip")) return;
+      clearUnlockDetail();
+    });
+    document.addEventListener(
+      "touchstart",
+      (e) => {
+        if (!window.matchMedia("(hover: none)").matches) return;
+        if (e.target.closest?.(".header__unlock-chip")) return;
+        clearUnlockDetail();
+      },
+      { passive: true },
+    );
+  }
+}
+
 function bindExamChrome() {
   app.querySelector("[data-exam-help]")?.addEventListener("click", () => {
     pendingHelp = "pretest";
     render();
   });
+  bindUnlockChips();
 }
 
 function bindTabs() {
@@ -1191,7 +1392,7 @@ function stashClozeProgressBeforeLeave() {
   const { questionId, confirmedBlanks } = cardSession;
   if (confirmedBlanks?.size) {
     mergeClozeConfirmed(questionId, [...confirmedBlanks]);
-    onClozeSessionComplete();
+    onClozeSessionComplete(questionId);
   }
   persistActiveClozeSession();
   scheduleProgressBackupWrite();
@@ -1255,7 +1456,7 @@ function tryResumeClozeSession() {
     moduleId: saved.moduleId ?? null,
   };
 
-  if (saved.pendingDailyExtra && shouldOfferClozeDailyExtra()) {
+  if (saved.pendingDailyExtra && canOfferClozeDailyExtra()) {
     showClozeDailyExtra = true;
     clozeDailyExtraContinue = () => continueClozeRevision(saved.axisId);
     render();
@@ -1269,11 +1470,11 @@ function tryResumeClozeSession() {
       return false;
     }
     const raw = q.answer ?? "";
-    const { blankCount } = getClozeState(saved.questionId);
+    const blankCountResolved = resolveClozeBlankCount(saved.questionId, raw);
     const sessionBlankIds = new Set(
       saved.sessionBlankIds?.length
         ? saved.sessionBlankIds
-        : getClozeSessionBlankIds(raw, blankCount, saved.questionId),
+        : getClozeSessionBlankIds(raw, blankCountResolved, saved.questionId),
     );
     cardSession = {
       mode: "pretest-cloze",
@@ -1284,6 +1485,7 @@ function tryResumeClozeSession() {
       confirmedBlanks: new Set(saved.confirmedBlanks ?? []),
       sessionBlankIds,
     };
+    noteClozeQuestionServed(saved.questionId);
     screen = "pretest-cloze";
     render();
     return true;
@@ -1306,9 +1508,11 @@ function openClozePretest(axisId, moduleId, { scrollToTop = false } = {}) {
   if (!q) return;
 
   const start = () => {
+    const wasUntouched = (getSrsRow(q.questionId).clozeSeed ?? 0) === 0;
     ensureSrsIntroduced(q.questionId);
     const raw = q.answer ?? "";
-    const { blankCount } = getClozeState(q.questionId);
+    normalizeClozeBlanksForConsigne(q.questionId, getClozeMaxSegments(raw));
+    const blankCount = resolveClozeBlankCount(q.questionId, raw);
     const saved = getActiveClozeSession();
     const resumeSame =
       saved?.questionId === q.questionId &&
@@ -1335,6 +1539,8 @@ function openClozePretest(axisId, moduleId, { scrollToTop = false } = {}) {
     activeAppSection = "exam";
     screen = "pretest-cloze";
     route = { axisId, groupId: null, moduleId };
+    noteClozeQuestionServed(q.questionId);
+    if (wasUntouched) recordClozeDailyServe(axisId, q.questionId);
     persistActiveClozeSession();
     render();
     if (scrollToTop) scrollMainToTop();
@@ -1366,7 +1572,7 @@ function continueClozeRevision(lastAxisHint = null) {
 
 function continueAfterClozePretest(axisId, wasNew) {
   const tryNext = () => continueClozeRevision(axisId);
-  if (wasNew && shouldOfferClozeDailyExtra()) {
+  if (wasNew && canOfferClozeDailyExtra()) {
     showClozeDailyExtra = true;
     clozeDailyExtraContinue = tryNext;
     persistActiveClozeSession({ axisId, pendingDailyExtra: true });
@@ -1401,8 +1607,8 @@ function finishClozePretestAsMaster() {
 
   recordClozeSessionResult(questionId, confirmedIds.length, sessionTotal);
   applyClozeMaster(questionId, segments.length, confirmedIds);
-  if (wasNew) recordClozeDailyIntro();
-  onClozeSessionComplete();
+  if (wasNew) recordClozeDailyIntro(axisId);
+  onClozeSessionComplete(questionId);
   recordPretestSessionResult(getPretestScopeKey(axisId, moduleId), 1, 1);
   cardSession = null;
   persistActiveClozeSession({ axisId });
@@ -1424,8 +1630,8 @@ function finishClozePretestAsDeclaredMaster() {
 
   recordClozeSessionResult(questionId, total, total);
   applyClozeDeclaredMaster(questionId, segmentIds);
-  if (wasNew) recordClozeDailyIntro();
-  onClozeSessionComplete();
+  if (wasNew) recordClozeDailyIntro(axisId);
+  onClozeSessionComplete(questionId);
   recordPretestSessionResult(getPretestScopeKey(axisId, moduleId), 1, 1);
   cardSession = null;
   persistActiveClozeSession({ axisId });
@@ -1435,6 +1641,12 @@ function finishClozePretestAsDeclaredMaster() {
 function finishClozePretestAsReview() {
   const { axisId, moduleId, questionId, confirmedBlanks, sessionBlankIds } =
     cardSession;
+  const q = getQuestionById(questionId);
+  const raw =
+    q?.answer ??
+    getModuleById(axisId, moduleId)?.questions?.find((item) => item.id === questionId)
+      ?.answer ??
+    "";
   const wasNew = (getSrsRow(questionId).clozeSeed ?? 0) === 0;
   const confirmedIds = [...(confirmedBlanks ?? [])];
   const sessionTotal = sessionBlankIds?.size ?? Math.max(confirmedIds.length, 1);
@@ -1442,10 +1654,10 @@ function finishClozePretestAsReview() {
   recordClozeSessionResult(questionId, confirmedIds.length, sessionTotal);
   if (confirmedIds.length) mergeClozeConfirmed(questionId, confirmedIds);
   const others = countClozeAlternatives(questionId);
-  const defer = others > 0 ? Math.min(3, others) : 0;
-  applyClozeReview(questionId, defer);
-  onClozeSessionComplete();
-  if (wasNew) recordClozeDailyIntro();
+  const defer = others > 0 ? Math.min(3, others) : 1;
+  applyClozeReview(questionId, defer, getClozeMaxSegments(raw));
+  onClozeSessionComplete(questionId);
+  if (wasNew) recordClozeDailyIntro(axisId);
   recordPretestSessionResult(getPretestScopeKey(axisId, moduleId), 0, 1);
   cardSession = null;
   persistActiveClozeSession({ axisId });
@@ -1955,7 +2167,7 @@ function renderClozePretest() {
   const backLabel = pretestBackLabel("pretest-modules");
 
   const raw = q.answer ?? "";
-  const { blankCount } = getClozeState(questionId);
+  const blankCount = resolveClozeBlankCount(questionId, raw);
   const confirmedBlanks = cardSession.confirmedBlanks ?? new Set();
   const revealedBlanks = cardSession.revealedBlanks ?? new Set();
   const sessionBlankIds =

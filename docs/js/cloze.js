@@ -4,12 +4,15 @@
 import { getModulesForAxis } from "./data.js";
 import {
   getClozeDailyIntroCount,
+  getClozeDailyIntroCountByAxis,
+  getClozeDailyServeCountByAxis,
   getClozeDailyNewTarget,
   getActiveClozeSession,
   getSrsRow,
   hasClozeDeclinedNewToday,
   isSrsEligible,
   shouldOfferClozeDailyExtra,
+  normalizeClozeBlanksForConsigne,
 } from "./store.js";
 
 export const CLOZE_INITIAL_BLANKS = 5;
@@ -324,9 +327,28 @@ function renderRowHtml(row, blankIds, revealedBlanks, confirmedBlanks, tone) {
 }
 
 /** Ids des trous actifs pour une session. */
+export function getClozeMaxSegments(answerRaw) {
+  return buildClozeSegments(answerRaw).segments.length;
+}
+
+/** Trous actifs effectifs (ex. consigne à 4 mots masquables → max 4, pas 5). */
+export function getEffectiveClozeBlankCount(storedBlanks, maxSegments) {
+  if (maxSegments <= 0) return 0;
+  const base = storedBlanks ?? CLOZE_INITIAL_BLANKS;
+  return Math.min(base, maxSegments);
+}
+
+export function resolveClozeBlankCount(questionId, answerRaw) {
+  const maxSeg = getClozeMaxSegments(answerRaw);
+  const stored = getSrsRow(questionId).clozeBlanks ?? CLOZE_INITIAL_BLANKS;
+  return getEffectiveClozeBlankCount(stored, maxSeg);
+}
+
 export function getClozeSessionBlankIds(answerRaw, blankCount, questionId) {
   const { segments } = buildClozeSegments(answerRaw);
-  return pickBlankSegmentIds(segments, blankCount, questionId);
+  const maxSeg = segments.length;
+  const effective = getEffectiveClozeBlankCount(blankCount, maxSeg);
+  return pickBlankSegmentIds(segments, effective, questionId);
 }
 
 export function isClozeSessionComplete(confirmedBlanks, sessionBlankIds) {
@@ -343,9 +365,13 @@ export function isClozeSessionComplete(confirmedBlanks, sessionBlankIds) {
  */
 export function renderClozeHtml(raw, opts) {
   const { segments, blocks } = buildClozeSegments(raw);
+  const effectiveBlanks = getEffectiveClozeBlankCount(
+    opts.blankCount,
+    segments.length,
+  );
   const blankIds = pickBlankSegmentIds(
     segments,
-    opts.blankCount,
+    effectiveBlanks,
     opts.questionId,
   );
   const revealedBlanks = opts.revealedBlanks ?? new Set();
@@ -410,6 +436,17 @@ export function getClozeDisplayProgress(questionId, answerRaw) {
     inProgress: confirmed.size > 0 && !complete,
     complete,
   };
+}
+
+/** Dernière consigne servie — évite deux fois de suite la même question. */
+let lastClozeServedQuestionId = null;
+
+export function getLastClozeServedQuestionId() {
+  return lastClozeServedQuestionId;
+}
+
+export function noteClozeQuestionServed(questionId) {
+  lastClozeServedQuestionId = questionId ?? null;
 }
 
 /** Phase découverte : nouvelles consignes à la file jusqu’au quota du jour (pool global ch. 1 + 2). */
@@ -520,56 +557,95 @@ export function formatClozeWaitFr(ms) {
   return `${h} h ${m} min`;
 }
 
-function pickNextClozeRevisionModule() {
+/** Insère une consigne maîtrisée due SRS environ toutes les N révisions. */
+const CLOZE_SRS_REFRESH_EVERY = 12;
+let clozeRevisionPickCount = 0;
+
+function pickFromSorted(candidates, excludeQuestionId) {
+  if (!candidates.length) return null;
+  if (excludeQuestionId && candidates.length > 1) {
+    const filtered = candidates.filter((c) => c.questionId !== excludeQuestionId);
+    if (filtered.length) return filtered[0];
+  }
+  return candidates[0];
+}
+
+function pickNextClozeRevisionModule(excludeQuestionId = null) {
   const now = Date.now();
-  const candidates = [];
+  const learning = [];
+  const maintenance = [];
 
   for (const axisId of CONSIGNE_CLOZE_AXIS_IDS) {
     for (const mod of listClozeModules(axisId)) {
       const q = mod.questions?.[0];
       if (!q?.id) continue;
       const questionId = q.id;
+      const answerRaw = q.answer ?? "";
       if (isClozeConsigneRetired(questionId)) continue;
       const row = getSrsRow(questionId);
 
       if ((row.clozeSeed ?? 0) === 0) continue;
       if (row.sessionsUntilEligible > 0) continue;
 
+      const maxSeg = getClozeMaxSegments(answerRaw);
+      const activeBlanks = getEffectiveClozeBlankCount(row.clozeBlanks, maxSeg);
+      const complete = getClozeDisplayProgress(questionId, answerRaw).complete;
       const srsDue = isSrsEligible(questionId, now);
-      if (
-        (row.intervalIndex ?? 0) > 0 &&
-        !row.pendingReview &&
-        !srsDue
-      ) {
-        continue;
-      }
 
-      const total = row.clozeLastSessionTotal || CLOZE_INITIAL_BLANKS;
-      const hits = Math.min(row.clozeLastSessionHits ?? 0, total);
-
-      candidates.push({
+      const entry = {
         axisId,
         moduleId: mod.id,
-        hits,
-        total,
-        srsDue,
+        questionId,
+        activeBlanks,
         lastClozeAt: row.lastClozeAt ?? 0,
         pendingReview: Boolean(row.pendingReview),
-      });
+      };
+
+      if (complete) {
+        if (!srsDue) continue;
+        maintenance.push(entry);
+      } else {
+        learning.push(entry);
+      }
     }
   }
 
-  if (!candidates.length) return null;
-
-  candidates.sort((a, b) => {
-    if (a.hits !== b.hits) return a.hits - b.hits;
+  const sortLearning = (a, b) => {
+    if (a.activeBlanks !== b.activeBlanks) return a.activeBlanks - b.activeBlanks;
     if (a.pendingReview !== b.pendingReview) return a.pendingReview ? -1 : 1;
-    if (a.srsDue !== b.srsDue) return a.srsDue ? -1 : 1;
     return a.lastClozeAt - b.lastClozeAt;
-  });
+  };
+  const sortMaintenance = (a, b) => a.lastClozeAt - b.lastClozeAt;
 
-  const best = candidates[0];
-  return { axisId: best.axisId, moduleId: best.moduleId };
+  learning.sort(sortLearning);
+  maintenance.sort(sortMaintenance);
+
+  if (
+    maintenance.length &&
+    learning.length &&
+    clozeRevisionPickCount >= CLOZE_SRS_REFRESH_EVERY
+  ) {
+    clozeRevisionPickCount = 0;
+    const pick = pickFromSorted(maintenance, excludeQuestionId);
+    if (pick) {
+      return { axisId: pick.axisId, moduleId: pick.moduleId, srsRefresh: true };
+    }
+  }
+
+  clozeRevisionPickCount += 1;
+
+  let pick = pickFromSorted(learning, excludeQuestionId);
+  if (pick) {
+    return { axisId: pick.axisId, moduleId: pick.moduleId };
+  }
+
+  pick = pickFromSorted(maintenance, excludeQuestionId);
+  if (pick) {
+    clozeRevisionPickCount = 0;
+    return { axisId: pick.axisId, moduleId: pick.moduleId, srsRefresh: true };
+  }
+
+  return null;
 }
 
 /** @param {string|null} [lastAxisHint] Chapitre terminé — alterne l’intro des nouvelles consignes. */
@@ -577,13 +653,64 @@ export function pickNextClozeModule(lastAxisHint = null) {
   if (isClozeNewDiscoveryActive()) {
     return pickNextUntouchedClozeModule(lastAxisHint);
   }
-  return pickNextClozeRevisionModule();
+  return pickNextClozeRevisionModule(lastClozeServedQuestionId);
+}
+
+/**
+ * Proposer une prolongation (+ consignes) seulement si le quota du jour est atteint
+ * et qu'il ne reste plus de révision dans la file.
+ */
+export function canOfferClozeDailyExtra() {
+  if (!shouldOfferClozeDailyExtra()) return false;
+  return pickNextClozeRevisionModule(lastClozeServedQuestionId) == null;
 }
 
 /** Lot consignes du jour non terminé (nouvelles, révisions ou prolongation en attente). */
 export function hasUnfinishedClozeCycle() {
-  if (shouldOfferClozeDailyExtra()) return true;
-  return pickNextClozeModule() != null;
+  if (canOfferClozeDailyExtra()) return true;
+  if (isClozeNewDiscoveryActive()) return true;
+  return pickNextClozeRevisionModule(lastClozeServedQuestionId) != null;
+}
+
+/** Statistiques du pool consignes (texte à trous) pour un chapitre. */
+export function getClozeAxisPoolStats(axisId) {
+  let complete = 0;
+  let inProgress = 0;
+  let untouched = 0;
+  let touched = 0;
+  let total = 0;
+
+  for (const mod of listClozeModules(axisId)) {
+    const q = mod.questions?.[0];
+    if (!q?.id) continue;
+    if (isClozeConsigneRetired(q.id)) continue;
+    total += 1;
+    const row = getSrsRow(q.id);
+    const prog = getClozeDisplayProgress(q.id, q.answer ?? "");
+    if ((row.clozeSeed ?? 0) === 0) untouched += 1;
+    else touched += 1;
+    if (prog.complete) complete += 1;
+    else if (prog.inProgress) inProgress += 1;
+  }
+
+  return {
+    complete,
+    inProgress,
+    untouched,
+    touched,
+    total,
+    dailyCompleted: getClozeDailyIntroCountByAxis(axisId),
+    dailyOpened: getClozeDailyServeCountByAxis(axisId),
+  };
+}
+
+/** Quota et pool global consignes (nouvelles du jour). */
+export function getClozeDailyPoolStats() {
+  return {
+    dailyCount: getClozeDailyIntroCount(),
+    dailyTarget: getClozeDailyNewTarget(),
+    untouchedTotal: countUntouchedClozeConsignes(),
+  };
 }
 
 /** Maîtrise chapitre consignes : moyenne des % texte à trous (100 % = tous les mots masqués). */

@@ -653,15 +653,35 @@ export function applyClozeDeclaredMaster(questionId, segmentIds = []) {
   saveSrs(all);
 }
 
-/** « À revoir » — SRS − 1 trou (minimum 5), mêmes mots conservés. */
-export function applyClozeReview(questionId, deferSessions = 2) {
+/** « À revoir » — SRS − 1 trou (plancher = min(5, mots masquables de la consigne)). */
+export function applyClozeReview(questionId, deferSessions = 2, maxSegments = 5) {
   applySrsReview(questionId, deferSessions);
   const all = loadSrs();
   const row = all[questionId];
   if (!row) return;
+  const floor = Math.min(5, Math.max(1, maxSegments));
   const current = row.clozeBlanks ?? 5;
-  row.clozeBlanks = Math.max(5, current - 1);
+  row.clozeBlanks = Math.max(floor, current - 1);
   row.clozeSeed = (row.clozeSeed ?? 0) + 1;
+  saveSrs(all);
+}
+
+/** Ajuste clozeBlanks si la consigne a moins de 5 mots masquables. */
+export function normalizeClozeBlanksForConsigne(questionId, maxSegments) {
+  if (maxSegments <= 0) return;
+  const all = loadSrs();
+  const row = { ...defaultSrsRow(), ...all[questionId] };
+  const cap = Math.min(5, maxSegments);
+  const floor = Math.max(1, cap);
+  let next = row.clozeBlanks ?? 5;
+  if ((row.clozeSeed ?? 0) === 0) {
+    next = cap;
+  } else {
+    next = Math.min(Math.max(next, floor), maxSegments);
+  }
+  if (next === row.clozeBlanks) return;
+  row.clozeBlanks = next;
+  all[questionId] = row;
   saveSrs(all);
 }
 
@@ -700,8 +720,8 @@ export function applySrsMaster(questionId) {
   const nextIndex = Math.min(row.intervalIndex + 1, SRS_INTERVALS_MS.length);
   const offset = SRS_INTERVALS_MS[nextIndex - 1] ?? SRS_INTERVALS_MS[0];
   row.intervalIndex = nextIndex;
-  /** Échéance absolue depuis la première apparition, pas depuis ce « Je maîtrise ». */
-  row.nextReviewAt = firstSeen + offset;
+  /** Prochaine révision depuis maintenant (évite de rejouer la même consigne en rattrapage). */
+  row.nextReviewAt = Date.now() + offset;
   row.sessionsUntilEligible = sessionsSkipAfterMaster(nextIndex);
   row.pendingReview = false;
   row.everMastered = true;
@@ -727,11 +747,15 @@ export function isSrsEligible(questionId, now = Date.now()) {
   return row.nextReviewAt <= now;
 }
 
-/** Après une consigne texte à trous — décompte le délai « à revoir » sur toutes les cartes. */
-export function onClozeSessionComplete() {
+/**
+ * Après une consigne texte à trous — décompte le délai « à revoir » sur les autres cartes.
+ * @param {string} [excludeQuestionId] Consigne terminée (ne pas décrémenter son propre délai).
+ */
+export function onClozeSessionComplete(excludeQuestionId = null) {
   const all = loadSrs();
   let changed = false;
-  for (const row of Object.values(all)) {
+  for (const [qid, row] of Object.entries(all)) {
+    if (qid === excludeQuestionId) continue;
     if (row.sessionsUntilEligible > 0) {
       row.sessionsUntilEligible -= 1;
       changed = true;
@@ -777,6 +801,10 @@ function todayIso() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function sumAxisCounts(map = {}) {
+  return Object.values(map).reduce((sum, n) => sum + (Number(n) || 0), 0);
+}
+
 function loadClozeDailyRow() {
   const today = todayIso();
   const raw = readJson(KEYS.clozeDailyIntro, null);
@@ -786,16 +814,28 @@ function loadClozeDailyRow() {
     target: CLOZE_DAILY_NEW_BASE,
     noMoreNewToday: false,
     extensionOffered: false,
+    byAxis: {},
+    servedByAxis: {},
+    servedIds: [],
   };
   if (!raw || typeof raw !== "object") return defaults;
   if (raw.date !== today) return defaults;
-  return {
+  const row = {
     ...defaults,
     count: raw.count ?? 0,
     target: Math.min(CLOZE_DAILY_MAX, raw.target ?? CLOZE_DAILY_NEW_BASE),
     noMoreNewToday: Boolean(raw.noMoreNewToday),
     extensionOffered: Boolean(raw.extensionOffered),
+    byAxis:
+      raw.byAxis && typeof raw.byAxis === "object" ? { ...raw.byAxis } : {},
+    servedByAxis:
+      raw.servedByAxis && typeof raw.servedByAxis === "object"
+        ? { ...raw.servedByAxis }
+        : {},
+    servedIds: Array.isArray(raw.servedIds) ? [...raw.servedIds] : [],
   };
+  row.count = sumAxisCounts(row.byAxis);
+  return row;
 }
 
 function saveClozeDailyRow(row) {
@@ -818,10 +858,41 @@ export function getClozeDailyMaxExtra() {
   return Math.max(0, Math.min(10, CLOZE_DAILY_MAX - row.target));
 }
 
-export function recordClozeDailyIntro() {
+export function recordClozeDailyIntro(axisId) {
+  if (!axisId) return;
   const row = loadClozeDailyRow();
-  row.count += 1;
+  row.byAxis = row.byAxis ?? {};
+  row.byAxis[axisId] = (row.byAxis[axisId] ?? 0) + 1;
+  row.count = sumAxisCounts(row.byAxis);
   saveClozeDailyRow(row);
+}
+
+/** Nouvelles consignes terminées (1re fois) aujourd’hui pour un chapitre. */
+export function getClozeDailyIntroCountByAxis(axisId) {
+  const row = loadClozeDailyRow();
+  return row.byAxis?.[axisId] ?? 0;
+}
+
+/** Nouvelle consignes jamais vues, ouvertes aujourd’hui (1re apparition à l’écran). */
+export function recordClozeDailyServe(axisId, questionId) {
+  if (!axisId || !questionId) return;
+  const row = loadClozeDailyRow();
+  row.servedByAxis = row.servedByAxis ?? {};
+  row.servedIds = row.servedIds ?? [];
+  if (row.servedIds.includes(questionId)) return;
+  row.servedIds.push(questionId);
+  row.servedByAxis[axisId] = (row.servedByAxis[axisId] ?? 0) + 1;
+  saveClozeDailyRow(row);
+}
+
+export function getClozeDailyServeCountByAxis(axisId) {
+  const row = loadClozeDailyRow();
+  return row.servedByAxis?.[axisId] ?? 0;
+}
+
+export function getClozeDailyServeCount() {
+  const row = loadClozeDailyRow();
+  return row.servedIds?.length ?? 0;
 }
 
 /** Score de la dernière session (trous validés sur trous proposés). */
